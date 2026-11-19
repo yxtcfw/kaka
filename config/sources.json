@@ -7,14 +7,14 @@
       "type": "rss",
       "url": "https://www.ruanyifeng.com/blog/atom.xml",
       "weight": 1.6,
-      "enabled": true
+      "enabled": false
     },
     {
       "name": "Solidot",
       "type": "rss",
       "url": "https://www.solidot.org/index.rss",
       "weight": 1.3,
-      "enabled": true
+      "enabled": false
     },
     {
       "name": "少数派",
@@ -25,21 +25,21 @@
       "url_template": "https://sspai.com/post/{id}",
       "fields": { "title": "title", "summary": "summary", "date": "released_time" },
       "weight": 1.4,
-      "enabled": true
+      "enabled": false
     },
     {
       "name": "Hacker News",
       "type": "rss",
       "url": "https://hnrss.org/frontpage",
       "weight": 1.1,
-      "enabled": true
+      "enabled": false
     },
     {
-      "name": "IT之家",
+      "name": "卡卡流量卡",
       "type": "json",
-      "url": "https://api.ithome.com/json/newslist/news",
-      "items_path": "newslist",
-      "fields": { "title": "title", "url": "url", "summary": "description", "date": "postdate" },
+      "url": "https://h5api.lot-ml.com/api/ProductEn/Index2?Id=c8570adcb7030e9b&title=&Province=&City=&PriceTime=%E4%BC%98%E6%83%A0%E6%97%B6%E9%97%B4&LiuLiang=%E5%8F%AF%E7%94%A8%E6%B5%81%E9%87%8F&Tonghua=%E9%80%9A%E8%AF%9D%E6%97%B6%E9%95%BF&Operator=%E7%B2%BE%E9%80%89&page=1&limit=50",
+      "items_path": "data",
+      "fields": { "title": "name", "url": "shareUrl", "summary": "taocan" },
       "weight": 0.7,
       "enabled": true
     },

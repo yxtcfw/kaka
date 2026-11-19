@@ -243,6 +243,7 @@ def page(site, rel, title, desc, body, klass="", base="", author=""):
   {nav}
 </header>
 <main class="wrap {klass}">
+<p class="site-tagline"><a href="https://web.haokalingqu.com/home/c8570adcb7030e9b">今日好卡，点击领卡<<</a></p>
 {body}
 </main>
 <footer class="foot">
