@@ -33,13 +33,48 @@ FM_RE = re.compile(r"\A---\r?\n.*?\r?\n---\r?\n?", re.S)
 
 # ---------------------------------------------------------------- markdown
 
+# 裸链接：模型经常直接吐 https://... 不套 markdown 语法
+URL_RE = re.compile(r"https?://[^\s<>\"'\u4e00-\u9fff]+")
+# URL 尾部的标点不算链接的一部分
+URL_TAIL = ".,;:!?)]}，。；：！？）】》”’、"
+
+
+def autolink(t):
+    def repl(m):
+        url = m.group(0)
+        tail = ""
+        while url and url[-1] in URL_TAIL:
+            tail = url[-1] + tail
+            url = url[:-1]
+        if len(url) < 12:
+            return m.group(0)
+        return '<a href="%s" rel="noopener nofollow" target="_blank">%s</a>%s' % (url, url, tail)
+    return URL_RE.sub(repl, t)
+
+
 def inline(t):
     t = html.escape(t, quote=False)
-    t = re.sub(r"`([^`]+)`", r"<code>\1</code>", t)
-    t = re.sub(r"!\[([^\]]*)\]\(([^)\s]+)\)", r'<img src="\2" alt="\1">', t)
-    t = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", r'<a href="\2" rel="noopener">\1</a>', t)
+
+    # 先把已生成的标签挖成占位符，避免自动链接把它们再包一层
+    stash = []
+
+    def hold(frag):
+        stash.append(frag)
+        return "\x00%d\x00" % (len(stash) - 1)
+
+    t = re.sub(r"`([^`]+)`", lambda m: hold("<code>%s</code>" % m.group(1)), t)
+    t = re.sub(r"!\[([^\]]*)\]\(([^)\s]+)\)",
+               lambda m: hold('<img src="%s" alt="%s">' % (m.group(2), m.group(1))), t)
+    t = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)",
+               lambda m: hold('<a href="%s" rel="noopener">%s</a>' % (m.group(2), m.group(1))), t)
+
+    t = autolink(t)
+
     t = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", t)
     t = re.sub(r"(?<!\*)\*([^*\n]+)\*(?!\*)", r"<em>\1</em>", t)
+
+    for i, frag in enumerate(stash):
+        t = t.replace("\x00%d\x00" % i, frag)
     return t
 
 
@@ -227,7 +262,7 @@ def page(site, rel, title, desc, body, klass="", base="", author=""):
     ).format(h=home, r=rel)
 
     return """<!doctype html>
-<html lang="zh-CN">
+<html lang="{lang}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -243,12 +278,12 @@ def page(site, rel, title, desc, body, klass="", base="", author=""):
   {nav}
 </header>
 <main class="wrap {klass}">
-<p class="site-tagline"><a href="https://web.haokalingqu.com/home/c8570adcb7030e9b">今日好卡，点击领卡<<</a></p>
 {body}
 </main>
 <footer class="foot">
   <p>{site}{tagline}</p>
-  <p class="small"><a href="{r}feed.xml">RSS</a> · 由 GitHub Actions 每天自动生成</p>
+  <p class="small"><a href="{r}feed.xml">RSS</a> · {footer}</p>
+  <p class="small">{copy}</p>
 </footer>
 </body>
 </html>
@@ -259,6 +294,9 @@ def page(site, rel, title, desc, body, klass="", base="", author=""):
         r=rel,
         home=home,
         site=esc(site["name"]),
+        lang=esc(site.get("lang") or "zh-CN"),
+        footer=esc(site.get("footer") or "由 GitHub Actions 每天自动生成"),
+        copy=("© " + esc(site["author"])) if site.get("author") else "",
         nav=nav,
         body=body,
         klass=klass,
@@ -349,7 +387,8 @@ def render_index_pages(site, items, base):
         pager += "</nav>"
 
         body = head + '<ul class="list">%s</ul>' % cards + (pager if total > 1 else "")
-        write(os.path.join(base, out_rel), page(site, rel, site["name"], site.get("tagline", ""), body, klass="home"))
+        desc = site.get("description") or site.get("tagline", "")
+        write(os.path.join(base, out_rel), page(site, rel, site["name"], desc, body, klass="home"))
         paths.append(out_rel)
     return paths
 

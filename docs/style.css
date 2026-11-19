@@ -382,3 +382,28 @@ a { color: inherit; text-decoration: none; }
   color: var(--muted);
   letter-spacing: .02em;
 }
+
+/* ---------------- 长链接与长单词换行 ---------------- */
+
+body {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.prose p,
+.prose li,
+.prose blockquote,
+.prose td,
+.refs li,
+.card p,
+.year-block a,
+.why {
+  overflow-wrap: break-word;
+}
+
+/* 链接允许在任意位置断行，否则长 URL 会撑破容器 */
+.prose a,
+.refs a,
+.card a {
+  overflow-wrap: anywhere;
+}

@@ -1,6 +1,9 @@
 {
   "name": "卡卡流量卡",
   "tagline": "每天一篇，推荐好卡",
+  "description": "测评推荐优秀的流量卡，以及通过号卡变现的副业小项目。",
   "author": "卡卡",
+  "footer": "由 GitHub Actions 每天自动生成",
+  "lang": "zh-CN",
   "base_url": ""
 }

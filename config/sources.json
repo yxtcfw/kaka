@@ -37,7 +37,7 @@
     {
       "name": "卡卡流量卡",
       "type": "json",
-      "url": "https://h5api.lot-ml.com/api/ProductEn/Index2?Id=c8570adcb7030e9b&title=&Province=&City=&PriceTime=%E4%BC%98%E6%83%A0%E6%97%B6%E9%97%B4&LiuLiang=%E5%8F%AF%E7%94%A8%E6%B5%81%E9%87%8F&Tonghua=%E9%80%9A%E8%AF%9D%E6%97%B6%E9%95%BF&Operator=%E7%B2%BE%E9%80%89&page=1&limit=50",
+      "url": "https://h5api.lot-ml.com/api/ProductEn/Index2?Id=c8570adcb7030e9b&title=&Province=%E5%85%A8%E5%9B%BD&City=%E5%85%A8%E5%9B%BD&PriceTime=%E4%BC%98%E6%83%A0%E6%97%B6%E9%97%B4&LiuLiang=%E5%8F%AF%E7%94%A8%E6%B5%81%E9%87%8F&Tonghua=%E9%80%9A%E8%AF%9D%E6%97%B6%E9%95%BF&Operator=%E7%B2%BE%E9%80%89&page=1&limit=50",
       "items_path": "data",
       "fields": { "title": "name", "url": "shareUrl", "summary": "taocan" },
       "weight": 0.7,

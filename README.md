@@ -129,6 +129,30 @@ git checkout -- docs && git clean -fd docs
 
 **四、不要用 act 跑整个 workflow**。它要拉 Docker 镜像、模拟整套 runner 环境，为了验证几行 shell 不值得。workflow 里的命令就是上面这些，本地跑通了，线上跑通是水到渠成的事。
 
+## 改站点标题 / 副标题
+
+所有站点文案都在 `config/site.json`，一个字段对应一处，不用碰代码：
+
+| 字段 | 出现在哪 |
+|---|---|
+| `name` | 页头品牌、浏览器标签 `<title>`、页脚 |
+| `tagline` | 首页标题下的副标题、页脚副标题 |
+| `description` | 首页 `<meta name="description">`，搜索引擎摘要 |
+| `author` | 页脚版权 `©` |
+| `footer` | 页脚那行说明文案（默认「由 GitHub Actions 每天自动生成」） |
+| `lang` | `<html lang>`，默认 `zh-CN` |
+| `base_url` | 站点绝对地址，留空会按仓库名自动推 |
+
+**改完要重建才生效**：手动跑一次 workflow 的 **rebuild** 模式，或者本地 `python3 scripts/generate.py --rebuild`。下次定时任务也会自动带上。
+
+这几个也能用环境变量临时覆盖：`SITE_NAME`、`SITE_TAGLINE`、`SITE_DESCRIPTION`、`SITE_AUTHOR`、`SITE_FOOTER`。
+
+## 正文里的链接
+
+模型偶尔会直接吐裸地址（`https://...`），不加 markdown 语法。现在渲染时会自动识别成可点击链接，带 `target="_blank"`，并且会剥离尾部的中文标点（「。」「）」不会跑进 URL 里）。
+
+样式上给正文和参考资料加了 `overflow-wrap`，超长 URL 会在任意位置断行，手机上不会撑破屏幕。
+
 ## 加一个采集源
 
 在 `config/sources.json` 的 `sources` 数组里加一条：
@@ -196,6 +220,15 @@ OPENROUTER_MODEL: google/gemini-3.5-flash-lite
 ```bash
 python3 -c "import sys;sys.path.insert(0,'scripts');import generate as g;print(g.resolve_models(''))"
 ```
+
+**卡住半天不动怎么办**：现在的配置有几层限制，不会再无限等：
+
+- 单个模型：选题类请求最多等 120 秒，写长文最多等 180 秒，超时立刻换下一个，**不重试**
+- 整条链：总时长预算 600 秒，用完就放弃当天（workflow 报红），不会挂到 20 分钟上限
+- 同一次运行里已经成功的模型，第二次调用直接排到最前——选题用 ling 成功，写文时就先用 ling，不会从 inkling 重新踩一遍
+- 这次运行里失败过的模型当场跳过，不用等重试
+
+预算嫌长可以调短：Variable `MODEL_BUDGET_SECONDS: 300`。
 
 **某个免费模型报 403 怎么办**：这次踩到的就是——`thinkingmachines/inkling-2-small:free` 返回「only available on agentic harnesses」，意思是它只允许在编码代理这类环境里调，普通 API 请求被拒。这类限制在模型表里没有任何标记，只有调用时才知道。
 

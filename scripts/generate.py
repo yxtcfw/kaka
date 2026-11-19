@@ -65,9 +65,13 @@ def load_site():
     site = load_json(os.path.join(CONFIG, "site.json"), {})
     site.setdefault("name", "每日一篇")
     site.setdefault("tagline", "")
+    site.setdefault("description", "")
     site.setdefault("author", "")
+    site.setdefault("footer", "由 GitHub Actions 每天自动生成")
+    site.setdefault("lang", "zh-CN")
     site.setdefault("base_url", "")
-    for k, env in (("name", "SITE_NAME"), ("tagline", "SITE_TAGLINE"), ("author", "SITE_AUTHOR")):
+    for k, env in (("name", "SITE_NAME"), ("tagline", "SITE_TAGLINE"), ("author", "SITE_AUTHOR"),
+                   ("description", "SITE_DESCRIPTION"), ("footer", "SITE_FOOTER")):
         if os.environ.get(env):
             site[k] = os.environ[env]
     site["base_url"] = (os.environ.get("SITE_BASE_URL") or site["base_url"]).strip().rstrip("/")
@@ -167,6 +171,14 @@ FALLBACK_FREE = [
 ]
 
 _CATALOG = None
+
+# 本次运行内的状态：成功过的模型优先复用，失败的当场跳过
+_PREFERRED = None
+_SESSION_BAD = set()
+_WALL_DEADLINE = None
+REQUEST_TIMEOUT = 120      # 选题这类短请求，单个模型最多等多久（秒）
+WRITE_TIMEOUT = 180        # 长文生成慢，给到 180 秒
+MAX_ATTEMPTS = 1           # 每个模型试几次，免费模型不值得重试，直接换
 
 BADLIST = os.path.join(DOCS, ".model_badlist.json")
 BAD_TTL = 7 * 86400  # 失败模型冷却 7 天，之后自动重试
@@ -335,13 +347,27 @@ def extract_text(resp):
     return content or ""
 
 
-def call_openrouter(messages, models, temperature=0.8, retries=2):
-    """按 models 顺序挨个试：限流/额度不足/报错就换下一个，鉴权错误直接停"""
+def call_openrouter(messages, models, temperature=0.8, retries=None, timeout=None):
+    """按 models 顺序挨个试：限流/额度不足/模型不可用就换下一个，鉴权错误直接停"""
+    global _PREFERRED
     key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     if not key:
         sys.exit("缺少环境变量 OPENROUTER_API_KEY")
     if isinstance(models, str):
         models = [models]
+    if retries is None:
+        retries = MAX_ATTEMPTS
+
+    models = list(models)
+    # 本次运行已经成功过的模型，直接排到最前（第二次调用别再从头踩坑）
+    if _PREFERRED and _PREFERRED in models:
+        models.remove(_PREFERRED)
+        models.insert(0, _PREFERRED)
+    # 本次运行已经明确不可用的，别再浪费一次请求
+    if _SESSION_BAD:
+        kept = [m for m in models if m not in _SESSION_BAD]
+        if kept:
+            models = kept
 
     headers = {
         "Authorization": "Bearer " + key,
@@ -355,12 +381,15 @@ def call_openrouter(messages, models, temperature=0.8, retries=2):
         payload = {"model": model, "messages": messages, "temperature": temperature,
                    "response_format": {"type": "json_object"}}
         for attempt in range(retries):
+            if _WALL_DEADLINE and time.time() > _WALL_DEADLINE:
+                sys.exit("模型调用超出总时长预算，放弃本次生成（已试 %d 个模型）" % (idx + 1))
             req = urllib.request.Request(API_URL, data=json.dumps(payload).encode("utf-8"),
                                          headers=headers, method="POST")
             try:
-                with urllib.request.urlopen(req, timeout=300) as r:
+                with urllib.request.urlopen(req, timeout=(timeout or REQUEST_TIMEOUT)) as r:
                     resp = json.loads(r.read().decode("utf-8"))
                 resp["_used_model"] = model
+                _PREFERRED = model
                 if idx > 0:
                     log("换到第 %d 个模型成功：%s" % (idx + 1, model))
                 return resp
@@ -388,13 +417,15 @@ def call_openrouter(messages, models, temperature=0.8, retries=2):
                 # 不是 Key 的问题，拉黑 7 天然后换下一个
                 if e.code in (403, 404):
                     mark_bad(model, "HTTP %s %s" % (e.code, msg))
+                _SESSION_BAD.add(model)
 
                 log("  %s → HTTP %s %s" % (model, e.code, (msg or "")[:120]))
                 break  # 429 限流 / 402 额度 / 5xx / 模型不可用，都换下一个
             except Exception as e:
                 last_err = repr(e)
                 log("  %s → %r" % (model, e))
-                time.sleep(2)
+                _SESSION_BAD.add(model)
+                break  # 超时/断连也不重试，直接换下一个
         else:
             log("  %s 重试后仍失败，换下一个" % model)
 
@@ -415,8 +446,8 @@ def parse_json_reply(text):
     raise ValueError("模型没吐出合法 JSON：\n" + text[:400])
 
 
-def ask_json(messages, models, temperature=0.7):
-    resp = call_openrouter(messages, models, temperature)
+def ask_json(messages, models, temperature=0.7, timeout=None):
+    resp = call_openrouter(messages, models, temperature, timeout=timeout)
     return parse_json_reply(extract_text(resp)), resp
 
 
@@ -541,7 +572,7 @@ def step_write(site, persona, editorial, keywords, history, topic, picks, cands,
     return ask_json([
         {"role": "system", "content": system},
         {"role": "user", "content": user},
-    ], models, temperature=0.85)
+    ], models, temperature=0.85, timeout=WRITE_TIMEOUT)
 
 
 def step_write_fallback(site, persona, keywords, history, forced, models):
@@ -573,13 +604,19 @@ def step_write_fallback(site, persona, keywords, history, forced, models):
     data, resp = ask_json([
         {"role": "system", "content": system},
         {"role": "user", "content": user},
-    ], models, temperature=0.85)
+    ], models, temperature=0.85, timeout=WRITE_TIMEOUT)
     if forced:
         data["keyword"] = forced
     return data, resp
 
 
 # ---------------------------------------------------------------- 采集自检
+
+def set_budget(seconds):
+    """整条模型链的总时长预算，超了就放弃，避免 workflow 卡到超时"""
+    global _WALL_DEADLINE
+    _WALL_DEADLINE = time.time() + max(60, int(seconds))
+
 
 def probe(sources_cfg):
     print("== 采集自检 ==")
@@ -643,6 +680,11 @@ def main():
         window_hours=sources_cfg.get("window_hours", 48),
     )
     cands = rank_candidates(items, keywords, now)[:int(sources_cfg.get("max_candidates", 24))]
+
+    # 采集完成之后再开始计时：模型链最多跑这么久
+    budget = int(os.environ.get("MODEL_BUDGET_SECONDS", "600"))
+    set_budget(budget)
+    log("模型总时长预算：%d 秒" % budget)
 
     # 2. 选题
     topic, picks = {}, []
