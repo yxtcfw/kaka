@@ -168,6 +168,34 @@ FALLBACK_FREE = [
 
 _CATALOG = None
 
+BADLIST = os.path.join(DOCS, ".model_badlist.json")
+BAD_TTL = 7 * 86400  # 失败模型冷却 7 天，之后自动重试
+
+
+def load_badlist():
+    data = load_json(BADLIST, {})
+    if not isinstance(data, dict):
+        return {}
+    now = time.time()
+    return {m: v for m, v in data.items()
+            if isinstance(v, dict) and now - float(v.get("ts") or 0) < BAD_TTL}
+
+
+def mark_bad(model, reason):
+    """403/404 这类「这个模型对我不可用」记下来，下次直接跳过"""
+    if model == "openrouter/free":
+        return
+    data = load_json(BADLIST, {})
+    if not isinstance(data, dict):
+        data = {}
+    data[model] = {"reason": str(reason)[:300], "ts": time.time()}
+    try:
+        os.makedirs(DOCS, exist_ok=True)
+        with open(BADLIST, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=1)
+    except Exception:
+        pass
+
 
 def free_only_enabled():
     """FREE_ONLY 默认开启：任何情况下都只允许免费模型"""
@@ -268,6 +296,21 @@ def resolve_models(spec, free_only=None):
         if not uniq:  # 配的东西一个免费的都不是 → 直接用内置免费列表
             uniq = list(FALLBACK_FREE)
 
+    # 最近因为「模型本身不可用」失败过的，先跳过（openrouter/free 永不跳过）
+    bad = load_badlist()
+    if bad:
+        keep = [m for m in uniq if m == "openrouter/free" or m not in bad]
+        if keep:
+            if len(keep) < len(uniq):
+                log("跳过 %d 个最近不可用的模型" % (len(uniq) - len(keep)))
+            uniq = keep
+        else:
+            log("候选全在黑名单里，本次忽略黑名单重试")
+            try:
+                os.remove(BADLIST)
+            except Exception:
+                pass
+
     # 上次跑成功的模型排到最前，少浪费几次失败请求
     try:
         with open(os.path.join(DOCS, ".model_used"), "r", encoding="utf-8") as f:
@@ -323,15 +366,31 @@ def call_openrouter(messages, models, temperature=0.8, retries=2):
                 return resp
             except urllib.error.HTTPError as e:
                 body = e.read().decode("utf-8", errors="replace")
-                last_err = "HTTP %s: %s" % (e.code, body[:300])
-                # 模型不支持 JSON 模式 → 去掉参数再来一次
+                msg = ""
+                try:
+                    msg = ((json.loads(body) or {}).get("error") or {}).get("message") or ""
+                except Exception:
+                    msg = body[:200].replace("\n", " ")
+                last_err = "HTTP %s: %s" % (e.code, msg or body[:200])
+
+                # 模型不支持 JSON 模式 → 去掉参数再来一次，这不算模型故障
                 if e.code == 400 and "response_format" in payload:
                     payload.pop("response_format", None)
                     continue
-                if e.code in (401, 403):
-                    sys.exit("Key 无效或没权限：" + last_err)
-                log("  %s → %s" % (model, e.code))
-                break  # 429 限流 / 402 额度 / 404 下线，换下一个模型
+
+                # 401，或 403 明确在说 key/权限 → 停，换模型没意义
+                if e.code == 401 or (e.code == 403 and re.search(
+                        r"(api key|no auth|unauthor|invalid.{0,20}key|key.{0,20}(disabl|invalid))",
+                        msg, re.I)):
+                    sys.exit("Key 无效或没权限（HTTP %s）：%s" % (e.code, msg or body[:200]))
+
+                # 403/404：这个模型对当前调用方式不可用（比如仅限 agentic harness），
+                # 不是 Key 的问题，拉黑 7 天然后换下一个
+                if e.code in (403, 404):
+                    mark_bad(model, "HTTP %s %s" % (e.code, msg))
+
+                log("  %s → HTTP %s %s" % (model, e.code, (msg or "")[:120]))
+                break  # 429 限流 / 402 额度 / 5xx / 模型不可用，都换下一个
             except Exception as e:
                 last_err = repr(e)
                 log("  %s → %r" % (model, e))

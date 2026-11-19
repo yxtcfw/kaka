@@ -197,6 +197,12 @@ OPENROUTER_MODEL: google/gemini-3.5-flash-lite
 python3 -c "import sys;sys.path.insert(0,'scripts');import generate as g;print(g.resolve_models(''))"
 ```
 
+**某个免费模型报 403 怎么办**：这次踩到的就是——`thinkingmachines/inkling-2-small:free` 返回「only available on agentic harnesses」，意思是它只允许在编码代理这类环境里调，普通 API 请求被拒。这类限制在模型表里没有任何标记，只有调用时才知道。
+
+脚本的处理：403/404 判定为「这个模型对我不可用」，写进 `docs/.model_badlist.json` 冷却 7 天，然后立刻换下一个模型继续写。**不是 Key 问题，不用改配置**。冷却期过了会自动重试一次。
+
+真正的 Key 失效是 401，会立刻停下并明确报出来，不会白试十几个模型。
+
 **文章署名**：每篇文章的作者就是实际写出它的那个模型。标题下面显示「作者 Gemma 4 31B (free)」，`<head>` 里也写了 `<meta name="author">`，md 的 front matter 里带着 `author` 字段，文章元数据存在 `.topics.json` 的 `model_name`。
 
 名字取自 OpenRouter 模型表的展示名，去掉厂商前缀（`Google: Gemma 4 31B (free)` → `Gemma 4 31B (free)`）。历史文章没存这个字段的，构建时会按 id 自动美化（`google/gemma-4-31b-it:free` → `Gemma 4 31B（免费）`）。想手动改，编辑 `docs/.topics.json` 里那篇的 `model_name`，再跑一次 rebuild。
