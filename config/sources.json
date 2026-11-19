@@ -1,0 +1,76 @@
+{
+  "window_hours": 48,
+  "max_candidates": 24,
+  "sources": [
+    {
+      "name": "阮一峰周刊",
+      "type": "rss",
+      "url": "https://www.ruanyifeng.com/blog/atom.xml",
+      "weight": 1.6,
+      "enabled": true
+    },
+    {
+      "name": "Solidot",
+      "type": "rss",
+      "url": "https://www.solidot.org/index.rss",
+      "weight": 1.3,
+      "enabled": true
+    },
+    {
+      "name": "少数派",
+      "type": "json",
+      "url": "https://sspai.com/api/v1/article/index/page/get?limit=20&offset=0",
+      "items_path": "data",
+      "id_field": "id",
+      "url_template": "https://sspai.com/post/{id}",
+      "fields": { "title": "title", "summary": "summary", "date": "released_time" },
+      "weight": 1.4,
+      "enabled": true
+    },
+    {
+      "name": "Hacker News",
+      "type": "rss",
+      "url": "https://hnrss.org/frontpage",
+      "weight": 1.1,
+      "enabled": true
+    },
+    {
+      "name": "IT之家",
+      "type": "json",
+      "url": "https://api.ithome.com/json/newslist/news",
+      "items_path": "newslist",
+      "fields": { "title": "title", "url": "url", "summary": "description", "date": "postdate" },
+      "weight": 0.7,
+      "enabled": true
+    },
+    {
+      "name": "36氪",
+      "type": "rss",
+      "url": "https://36kr.com/feed",
+      "weight": 0.9,
+      "enabled": false,
+      "_note": "它给爬虫返回的是反爬 HTML 不是 RSS，先禁用；想用可以先在本地 probe 里看能不能解析"
+    },
+    {
+      "name": "知乎热榜",
+      "type": "json",
+      "url": "https://api.zhihu.com/topstory/hot-list?limit=50",
+      "items_path": "data",
+      "fields": { "title": "target.title", "url": "target.url", "summary": "target.excerpt" },
+      "weight": 1.2,
+      "enabled": false,
+      "_note": "要 Referer 头、海外 IP 常 403，先关着，本地跑通了再打开"
+    },
+    {
+      "name": "示例列表页",
+      "type": "html",
+      "url": "https://example.com/news",
+      "base": "https://example.com",
+      "must_include": "/news/",
+      "limit": 30,
+      "weight": 1.0,
+      "enabled": false,
+      "_note": "列表页抓 <a> 标题，脆，只适合结构稳定的站"
+    }
+  ]
+}

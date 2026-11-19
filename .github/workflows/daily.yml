@@ -1,0 +1,80 @@
+name: daily-post
+
+on:
+  schedule:
+    # UTC 23:00 = 北京时间次日 07:00
+    - cron: '0 23 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'auto=采集选题写文 / probe=只测采集源 / rebuild=只重建整站'
+        required: false
+        default: 'auto'
+        type: choice
+        options: [auto, probe, rebuild]
+      keyword:
+        description: '直接指定主题（留空则自动选题）'
+        required: false
+        type: string
+      model:
+        description: '覆盖默认模型，如 google/gemini-3-flash-preview'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-post
+  cancel-in-progress: false
+
+jobs:
+  write:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 采集源自检
+        if: ${{ github.event.inputs.mode == 'probe' }}
+        run: python scripts/generate.py --probe
+
+      - name: 只重建整站（不写作）
+        if: ${{ github.event.inputs.mode == 'rebuild' }}
+        run: python scripts/generate.py --rebuild
+
+      - name: 选题 + 写作 + 建站
+        if: ${{ github.event.inputs.mode == 'auto' || github.event.inputs.mode == '' }}
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: ${{ github.event.inputs.model || vars.OPENROUTER_MODEL || 'google/gemini-3.5-flash-lite' }}
+          FORCE_KEYWORD: ${{ github.event.inputs.keyword }}
+          WORD_COUNT: ${{ vars.WORD_COUNT || '1600' }}
+          # 没配的话脚本会按仓库名自动推 https://<owner>.github.io/<repo>
+          SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
+        run: python scripts/generate.py
+
+      - name: 提交并推送
+        if: ${{ github.event.inputs.mode != 'probe' }}
+        run: |
+          git config user.name  "daily-bot"
+          git config user.email "daily-bot@users.noreply.github.com"
+          git add docs
+          if git diff --cached --quiet; then
+            echo "没有新内容，跳过提交"
+          else
+            git commit -m "post: $(TZ=Asia/Shanghai date +%Y-%m-%d) 自动更新"
+            git push
+          fi
+
+      # Pages 用「分支部署」时到这里结束：提交进 main 的 docs/ 后 Pages 自动重建。
+      # 若把 Pages 源改成「GitHub Actions」，删掉上面的推送步骤，改用下面这段，
+      # 并给 job 加 permissions: pages: write / id-token: write
+      # - uses: actions/configure-pages@v5
+      # - uses: actions/upload-pages-artifact@v3
+      #   with: { path: docs }
+      # - uses: actions/deploy-pages@v4
