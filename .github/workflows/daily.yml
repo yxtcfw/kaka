@@ -17,7 +17,7 @@ on:
         required: false
         type: string
       model:
-        description: '覆盖默认模型，如 google/gemini-3-flash-preview'
+        description: '留空即用全部免费模型轮换；也可写 free 或具体模型（FREE_ONLY=1 时付费会被过滤）'
         required: false
         type: string
 
@@ -51,9 +51,11 @@ jobs:
         if: ${{ github.event.inputs.mode == 'auto' || github.event.inputs.mode == '' }}
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          OPENROUTER_MODEL: ${{ github.event.inputs.model || vars.OPENROUTER_MODEL || 'google/gemini-3.5-flash-lite' }}
+          OPENROUTER_MODEL: ${{ github.event.inputs.model || vars.OPENROUTER_MODEL || 'free' }}
           FORCE_KEYWORD: ${{ github.event.inputs.keyword }}
           WORD_COUNT: ${{ vars.WORD_COUNT || '1600' }}
+          # 1 = 只允许免费模型，即使上面填了付费模型也会被过滤掉
+          FREE_ONLY: ${{ vars.FREE_ONLY || '1' }}
           # 没配的话脚本会按仓库名自动推 https://<owner>.github.io/<repo>
           SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
         run: python scripts/generate.py

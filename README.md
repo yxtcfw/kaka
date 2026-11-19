@@ -159,12 +159,51 @@ git checkout -- docs && git clean -fd docs
 
 **已经踩过的坑**：36 氪的 `/feed` 给爬虫返回反爬 HTML（配置里已禁用）；知乎热榜要 Referer 且海外 IP 常 403（先关着）；HN 用 `hnrss.org` 而不是官方 rss。
 
-## 调优
+## 模型：只用免费
 
-**换模型**：仓库 Variable `OPENROUTER_MODEL`。默认 `google/gemini-3.5-flash-lite`，一天两次调用约一毛钱。
-- `google/gemini-3-flash-preview` — 文笔更稳
-- `anthropic/claude-haiku-4.5` — 中文语感好
-- `google/gemma-4-31b-it:free` — 免费但限流，别当主力
+**默认就是纯免费，什么都不用配。** 每次运行先拉 OpenRouter 的模型表，筛出价格全为 0 的（当前 15 个，自动排除图像和音乐模型），按写作适配度排序，挨个试，前一个限流/下线/报错就换下一个，最后用 `openrouter/free`（OpenRouter 自己的免费路由）兜底。
+
+想改配置，三个地方，优先级从高到低：
+
+1. **手动运行时**：Run workflow → `model` 输入框，留空即免费轮换
+2. **仓库 Variable**：`OPENROUTER_MODEL`
+3. **改默认值**：`.github/workflows/daily.yml` 里 `|| 'free'` 那一行
+
+`OPENROUTER_MODEL` 的写法：
+
+| 写法 | 含义 |
+|---|---|
+| 留空 / `free` | 当前所有免费模型，自动轮换 |
+| `google/gemma-4-31b-it:free,openrouter/free` | 自己写死一条链 |
+
+**有一条硬保证**：`FREE_ONLY` 默认是 `1`，开关打开时会拿最终列表去模型表里核对，凡是价格不为 0 的全部剔除。哪怕你手滑在 Variable 里填了付费模型，也会被过滤掉，然后回落到内置的免费列表——不会偷偷花钱。拉模型表失败（断网）也一样，用内置的 7 个免费模型。
+
+**全部免费模型都挂了怎么办**：当天不发文，workflow 标红报错，你邮箱会收到通知。不会降级去用付费模型，也不会写出半成品。
+
+**它记得上次谁成功了**：跑通的模型名写进 `docs/.model_used`，下次排到第一位，少浪费几次失败请求。
+
+真要用回付费模型（比如觉得免费文笔太飘）：
+
+```yaml
+FREE_ONLY: '0'
+OPENROUTER_MODEL: google/gemini-3.5-flash-lite
+```
+
+两个都设，缺一不可——只设后者不关 `FREE_ONLY` 的话，还是会被过滤成免费。
+
+本地验证当前会用到哪些模型：
+
+```bash
+python3 -c "import sys;sys.path.insert(0,'scripts');import generate as g;print(g.resolve_models(''))"
+```
+
+**文章署名**：每篇文章的作者就是实际写出它的那个模型。标题下面显示「作者 Gemma 4 31B (free)」，`<head>` 里也写了 `<meta name="author">`，md 的 front matter 里带着 `author` 字段，文章元数据存在 `.topics.json` 的 `model_name`。
+
+名字取自 OpenRouter 模型表的展示名，去掉厂商前缀（`Google: Gemma 4 31B (free)` → `Gemma 4 31B (free)`）。历史文章没存这个字段的，构建时会按 id 自动美化（`google/gemma-4-31b-it:free` → `Gemma 4 31B（免费）`）。想手动改，编辑 `docs/.topics.json` 里那篇的 `model_name`，再跑一次 rebuild。
+
+**免费模型的现实**：速度慢、经常 429、有的不支持 JSON 输出（脚本会自动去掉 `response_format` 重试）、上下文短的写不完 1600 字、文风也飘。它们的价值在于把每天的自动发布跑起来，而不是产出能直接发的稿子。
+
+## 其他调优
 
 **改篇幅**：Variable `WORD_COUNT`，默认 1600。
 

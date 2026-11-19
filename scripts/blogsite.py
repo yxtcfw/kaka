@@ -162,6 +162,30 @@ def tag_href(tag):
     return "tags/" + quote(tag_file(tag)) + ".html"
 
 
+def pretty_model(mid):
+    """google/gemma-4-31b-it:free → Gemma 4 31B（免费）"""
+    s = (mid or "").strip()
+    if not s:
+        return ""
+    is_free = s.endswith(":free")
+    if is_free:
+        s = s[:-5]
+    s = s.split("/")[-1]
+    parts = [p for p in s.replace("_", "-").split("-") if p]
+    out = []
+    for p in parts:
+        if p.isdigit():
+            out.append(p)
+        elif re.fullmatch(r"\d+[bm]", p):
+            out.append(p.upper())
+        elif p in ("it", "instruct"):
+            continue
+        else:
+            out.append(p[:1].upper() + p[1:])
+    name = " ".join(out) or s
+    return name + ("（免费）" if is_free else "")
+
+
 def strip_fm(text):
     return FM_RE.sub("", text or "", count=1)
 
@@ -190,8 +214,9 @@ def abs_url(base, path):
 
 # ---------------------------------------------------------------- 页面骨架
 
-def page(site, rel, title, desc, body, klass="", base=""):
+def page(site, rel, title, desc, body, klass="", base="", author=""):
     home = rel or "./"
+    author_meta = ('<meta name="author" content="%s">' % esc(author)) if author else ""
     nav = (
         '<nav class="nav">'
         '<a href="{h}">首页</a>'
@@ -208,6 +233,7 @@ def page(site, rel, title, desc, body, klass="", base=""):
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{desc}">
+{author_meta}
 <link rel="stylesheet" href="{r}style.css">
 <link rel="alternate" type="application/rss+xml" title="{site}" href="{r}feed.xml">
 </head>
@@ -228,6 +254,7 @@ def page(site, rel, title, desc, body, klass="", base=""):
 """.format(
         title=esc(title),
         desc=esc(desc),
+        author_meta=author_meta,
         r=rel,
         home=home,
         site=esc(site["name"]),
@@ -279,14 +306,18 @@ def render_post(site, it, prev_it, next_it, img_count):
               ) if prev_it else '<span></span>'
     pager += "</nav>"
 
+    author = it.get("model_name") or pretty_model(it.get("model"))
+    who = ('<span class="who">作者 %s</span>' % esc(author)) if author else ""
+
     body = (
-        '<h1>%s</h1><div class="meta">%s %s</div>%s'
+        '<h1>%s</h1><div class="meta">%s %s%s</div>%s'
         '<article class="prose">%s</article>'
         '<p class="back"><a href="../">← 全部文章</a></p>'
         '%s%s'
-    ) % (esc(it["title"]), esc(it["date"]), tags, why, it["_html"], refs, pager)
+    ) % (esc(it["title"]), esc(it["date"]), tags, who, why, it["_html"], refs, pager)
 
-    return page(site, rel, "%s · %s" % (it["title"], site["name"]), it.get("summary", ""), body)
+    return page(site, rel, "%s · %s" % (it["title"], site["name"]),
+                it.get("summary", ""), body, author=author)
 
 
 def render_index_pages(site, items, base):

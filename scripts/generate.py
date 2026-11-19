@@ -149,6 +149,138 @@ def render_candidates(cands, limit=24):
 
 # ---------------------------------------------------------------- 模型
 
+DEFAULT_MODEL = "google/gemini-3.5-flash-lite"
+MODELS_URL = "https://openrouter.ai/api/v1/models"
+
+# 免费模型里这几个写中文、写长文的成功率相对高，排序时往前放
+FREE_BOOST = ("gemma", "nemotron-3-ultra", "dots", "ling", "ernie", "inkling", "particle")
+
+# 拉不到模型表时的内置免费兜底（全是免费，绝不混付费）
+FALLBACK_FREE = [
+    "google/gemma-4-31b-it:free",
+    "google/gemma-4-26b-a4b-it:free",
+    "inclusionai/ling-3.2-flash:free",
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "baidu/ernie-5.5-flash-preview:free",
+    "dots-studio/dots-3-note-preview:free",
+    "openrouter/free",
+]
+
+_CATALOG = None
+
+
+def free_only_enabled():
+    """FREE_ONLY 默认开启：任何情况下都只允许免费模型"""
+    return os.environ.get("FREE_ONLY", "1").strip().lower() not in ("0", "false", "no", "off")
+
+
+def model_catalog():
+    """拉一次全量模型表并缓存：{id: {"free": bool, "ctx": int}}"""
+    global _CATALOG
+    if _CATALOG is not None:
+        return _CATALOG
+
+    cat = {}
+    try:
+        with urllib.request.urlopen(MODELS_URL, timeout=30) as r:
+            data = json.loads(r.read().decode("utf-8"))
+        for m in data.get("data", []):
+            pr = m.get("pricing") or {}
+            is_free = str(pr.get("prompt")) == "0" and str(pr.get("completion")) == "0"
+            cat[m.get("id", "")] = {"free": is_free,
+                                    "ctx": m.get("context_length") or 0,
+                                    "name": (m.get("name") or "").strip()}
+    except Exception as e:
+        log("拉模型表失败（将用内置免费列表）：%r" % e)
+        cat = {}
+
+    _CATALOG = cat
+    return cat
+
+
+def model_display_name(mid):
+    """优先用 OpenRouter 给的展示名并去掉厂商前缀，拿不到就原样返回 id"""
+    info = model_catalog().get(mid) or {}
+    name = re.sub(r"\s+", " ", info.get("name") or "").strip()
+    if ":" in name:  # "Google: Gemma 4 31B (free)" → "Gemma 4 31B (free)"
+        name = name.split(":", 1)[1].strip()
+    return name or mid
+
+
+def is_free(model_id, cat):
+    if cat.get(model_id):
+        return bool(cat[model_id]["free"])
+    # 表里没有（新上线/拉取失败）就按 id 判断
+    return model_id.endswith(":free") or model_id == "openrouter/free"
+
+
+def fetch_free_models():
+    """当前所有可用免费模型，按写作适配度排序，openrouter/free 压到最后兜底"""
+    cat = model_catalog()
+    rows = []
+    for mid, meta in cat.items():
+        if not meta["free"] or not mid:
+            continue
+        if "image" in mid or "lyria" in mid:  # 图像/音乐模型不能写文
+            continue
+        rows.append((sum(1 for k in FREE_BOOST if k in mid), meta["ctx"], mid))
+
+    rows.sort(reverse=True)
+    ids = [x[2] for x in rows if x[2] != "openrouter/free"]
+    if any(x[2] == "openrouter/free" for x in rows):
+        ids.append("openrouter/free")
+    return ids
+
+
+def resolve_models(spec, free_only=None):
+    """
+    spec 写法：
+      free / 留空                          → 所有免费模型，失败自动换下一个
+      free,google/gemini-3.5-flash-lite    → 免费优先，付费兜底（FREE_ONLY=0 时才生效）
+      a:free,b:free                        → 自己写死一条链
+    free_only=True（默认）时，最终列表会被强制过滤成只剩免费模型。
+    """
+    if free_only is None:
+        free_only = free_only_enabled()
+
+    spec = (spec or "").strip()
+    if not spec:
+        spec = "free" if free_only else DEFAULT_MODEL
+
+    models = []
+    for part in [p.strip() for p in spec.split(",") if p.strip()]:
+        if part.lower() in ("free", "all-free", "freeall", "*"):
+            free = fetch_free_models()
+            models.extend(free if free else list(FALLBACK_FREE))
+        else:
+            models.append(part)
+
+    # 去重保序
+    seen, uniq = set(), []
+    for m in models:
+        if m not in seen:
+            seen.add(m)
+            uniq.append(m)
+
+    if free_only:
+        cat = model_catalog()
+        uniq = [m for m in uniq if is_free(m, cat)]
+        if not uniq:  # 配的东西一个免费的都不是 → 直接用内置免费列表
+            uniq = list(FALLBACK_FREE)
+
+    # 上次跑成功的模型排到最前，少浪费几次失败请求
+    try:
+        with open(os.path.join(DOCS, ".model_used"), "r", encoding="utf-8") as f:
+            last = f.read().strip()
+        if last in uniq:
+            uniq.remove(last)
+            uniq.insert(0, last)
+    except Exception:
+        pass
+
+    return uniq or list(FALLBACK_FREE)
+
+
 def extract_text(resp):
     try:
         msg = resp["choices"][0]["message"]
@@ -160,13 +292,14 @@ def extract_text(resp):
     return content or ""
 
 
-def call_openrouter(messages, model, temperature=0.8, retries=3):
+def call_openrouter(messages, models, temperature=0.8, retries=2):
+    """按 models 顺序挨个试：限流/额度不足/报错就换下一个，鉴权错误直接停"""
     key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     if not key:
         sys.exit("缺少环境变量 OPENROUTER_API_KEY")
+    if isinstance(models, str):
+        models = [models]
 
-    payload = {"model": model, "messages": messages, "temperature": temperature,
-               "response_format": {"type": "json_object"}}
     headers = {
         "Authorization": "Bearer " + key,
         "Content-Type": "application/json",
@@ -174,28 +307,39 @@ def call_openrouter(messages, model, temperature=0.8, retries=3):
         "X-Title": "daily-blog",
     }
 
-    last_err = None
-    for attempt in range(retries):
-        req = urllib.request.Request(API_URL, data=json.dumps(payload).encode("utf-8"),
-                                     headers=headers, method="POST")
-        try:
-            with urllib.request.urlopen(req, timeout=300) as r:
-                return json.loads(r.read().decode("utf-8"))
-        except urllib.error.HTTPError as e:
-            body = e.read().decode("utf-8", errors="replace")
-            last_err = "HTTP %s: %s" % (e.code, body[:400])
-            log("调用失败", e.code, body[:200].replace("\n", " "))
-            if e.code == 400 and "response_format" in payload:
-                payload.pop("response_format", None)
-                continue
-            if e.code in (401, 402, 403):
-                sys.exit("鉴权/额度问题，停止：" + last_err)
-            time.sleep(4 * (attempt + 1))
-        except Exception as e:
-            last_err = repr(e)
-            log("调用异常", last_err)
-            time.sleep(4 * (attempt + 1))
-    sys.exit("多次重试仍失败：" + str(last_err))
+    last_err = ""
+    for idx, model in enumerate(models):
+        payload = {"model": model, "messages": messages, "temperature": temperature,
+                   "response_format": {"type": "json_object"}}
+        for attempt in range(retries):
+            req = urllib.request.Request(API_URL, data=json.dumps(payload).encode("utf-8"),
+                                         headers=headers, method="POST")
+            try:
+                with urllib.request.urlopen(req, timeout=300) as r:
+                    resp = json.loads(r.read().decode("utf-8"))
+                resp["_used_model"] = model
+                if idx > 0:
+                    log("换到第 %d 个模型成功：%s" % (idx + 1, model))
+                return resp
+            except urllib.error.HTTPError as e:
+                body = e.read().decode("utf-8", errors="replace")
+                last_err = "HTTP %s: %s" % (e.code, body[:300])
+                # 模型不支持 JSON 模式 → 去掉参数再来一次
+                if e.code == 400 and "response_format" in payload:
+                    payload.pop("response_format", None)
+                    continue
+                if e.code in (401, 403):
+                    sys.exit("Key 无效或没权限：" + last_err)
+                log("  %s → %s" % (model, e.code))
+                break  # 429 限流 / 402 额度 / 404 下线，换下一个模型
+            except Exception as e:
+                last_err = repr(e)
+                log("  %s → %r" % (model, e))
+                time.sleep(2)
+        else:
+            log("  %s 重试后仍失败，换下一个" % model)
+
+    sys.exit("模型链全部失败（共 %d 个，最后错误：%s）" % (len(models), last_err))
 
 
 def parse_json_reply(text):
@@ -212,14 +356,14 @@ def parse_json_reply(text):
     raise ValueError("模型没吐出合法 JSON：\n" + text[:400])
 
 
-def ask_json(messages, model, temperature=0.7):
-    resp = call_openrouter(messages, model, temperature)
+def ask_json(messages, models, temperature=0.7):
+    resp = call_openrouter(messages, models, temperature)
     return parse_json_reply(extract_text(resp)), resp
 
 
 # ---------------------------------------------------------------- 选题
 
-def step_pick(site, persona, editorial, keywords, history, cands, model):
+def step_pick(site, persona, editorial, keywords, history, cands, models):
     recent = []
     for it in history["items"][-15:]:
         angle = it.get("angle") or ""
@@ -274,7 +418,7 @@ def step_pick(site, persona, editorial, keywords, history, cands, model):
     data, _ = ask_json([
         {"role": "system", "content": system},
         {"role": "user", "content": user},
-    ], model, temperature=0.5)
+    ], models, temperature=0.5)
 
     picks = [int(p) for p in (data.get("picks") or []) if str(p).isdigit() and 0 <= int(p) < len(cands)]
     return data, picks
@@ -282,7 +426,7 @@ def step_pick(site, persona, editorial, keywords, history, cands, model):
 
 # ---------------------------------------------------------------- 写作
 
-def step_write(site, persona, editorial, keywords, history, topic, picks, cands, model):
+def step_write(site, persona, editorial, keywords, history, topic, picks, cands, models):
     material = []
     for i in picks:
         it = cands[i]
@@ -338,10 +482,10 @@ def step_write(site, persona, editorial, keywords, history, topic, picks, cands,
     return ask_json([
         {"role": "system", "content": system},
         {"role": "user", "content": user},
-    ], model, temperature=0.85)
+    ], models, temperature=0.85)
 
 
-def step_write_fallback(site, persona, keywords, history, forced, model):
+def step_write_fallback(site, persona, keywords, history, forced, models):
     """没抓到素材时的兜底：纯关键词写作"""
     recent = "\n".join("- " + it.get("title", "") for it in history["items"][-20:]) or "（暂无）"
     kw_block = "\n".join("- %s%s" % (k["keyword"], ("（" + k["note"] + "）") if k["note"] else "") for k in keywords)
@@ -370,7 +514,7 @@ def step_write_fallback(site, persona, keywords, history, forced, model):
     data, resp = ask_json([
         {"role": "system", "content": system},
         {"role": "user", "content": user},
-    ], model, temperature=0.85)
+    ], models, temperature=0.85)
     if forced:
         data["keyword"] = forced
     return data, resp
@@ -419,7 +563,12 @@ def main():
     editorial = load_text(os.path.join(CONFIG, "editorial.md"), "")
     keywords = load_keywords()
     history = load_history()
-    model = os.environ.get("OPENROUTER_MODEL", "google/gemini-3.5-flash-lite").strip()
+    models = resolve_models(os.environ.get("OPENROUTER_MODEL", ""))
+    log("模型链（%s，共 %d 个）：%s%s" % (
+        "只允许免费" if free_only_enabled() else "允许付费",
+        len(models),
+        " → ".join(models[:5]),
+        " …" if len(models) > 5 else ""))
     forced = args.keyword.strip() or os.environ.get("FORCE_KEYWORD", "").strip()
 
     now = datetime.datetime.now(BJT)
@@ -443,17 +592,17 @@ def main():
         log("手动指定主题：" + forced)
     elif len(cands) >= 3:
         log("候选 %d 条，开始选题分析" % len(cands))
-        topic, picks = step_pick(site, persona, editorial, keywords, history, cands, model)
+        topic, picks = step_pick(site, persona, editorial, keywords, history, cands, models)
         log("选题：%s | picks=%s" % (topic.get("topic") or "（模型认为都不值得写）", picks))
     else:
         log("候选太少（%d 条），走纯关键词兜底" % len(cands))
 
     # 3. 写作
     if topic.get("topic"):
-        data, resp = step_write(site, persona, editorial, keywords, history, topic, picks, cands, model)
+        data, resp = step_write(site, persona, editorial, keywords, history, topic, picks, cands, models)
         used = [{"title": cands[i]["title"], "url": cands[i]["url"], "source": cands[i]["source"]} for i in picks]
     else:
-        data, resp = step_write_fallback(site, persona, keywords, history, forced, model)
+        data, resp = step_write_fallback(site, persona, keywords, history, forced, models)
         used = []
         topic = {"angle": "", "why": "无外源素材，纯关键词生成", "keyword": data.get("keyword", forced)}
 
@@ -476,14 +625,15 @@ def main():
         "why": (topic.get("why") or "").strip(),
         "tags": [str(t).strip() for t in (data.get("tags") or []) if str(t).strip()][:5],
         "sources": used,
-        "model": model,
+        "model": resp.get("_used_model") or models[0],
+        "model_name": model_display_name(resp.get("_used_model") or models[0]),
     }
 
     # 4. 落盘：md + 历史
     os.makedirs(POSTS, exist_ok=True)
     with open(os.path.join(POSTS, meta["slug"] + ".md"), "w", encoding="utf-8") as f:
-        f.write("---\ntitle: %s\ndate: %s\ntags: %s\nsummary: %s\n---\n\n" % (
-            title, date_str, ", ".join(meta["tags"]), meta["summary"]))
+        f.write("---\ntitle: %s\ndate: %s\nauthor: %s\ntags: %s\nsummary: %s\n---\n\n" % (
+            title, date_str, meta["model_name"], ", ".join(meta["tags"]), meta["summary"]))
         f.write(content_md + "\n")
         if used:
             f.write("\n## 参考资料\n\n")
@@ -498,6 +648,12 @@ def main():
 
     # 5. 建站
     stat = sitebuilder.build(site, DOCS, site["base_url"])
+
+    try:
+        with open(os.path.join(DOCS, ".model_used"), "w", encoding="utf-8") as f:
+            f.write(meta["model"])
+    except Exception:
+        pass
 
     u = resp.get("usage") or {}
     log("完成：《%s》 %d 字 | 素材 %d 条 | tokens %s | 站内 %d 篇 / %d 页" % (
