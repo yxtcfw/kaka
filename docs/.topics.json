@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "date": "2026-11-19",
+      "title": "19元档只剩三张卡，最低一G不到一毛",
+      "slug": "2026-11-19-19yuan-three-cards-compare",
+      "summary": "19元档现在只剩三张卡，我把每G单价和通话都折算了一遍：一张真香，一张备胎，一张得看你在哪。顺便说说为什么29元档才是现在的主流。",
+      "keyword": "流量卡排行",
+      "angle": "把三张19元卡按每G单价和通话折算成一张表，说清哪张真香、哪张是凑数的，再点明29元档才是现在的主流",
+      "why": "候选里29元、39元档扎堆，19元档只剩三张，这个价格区间正被填满，先写先占词",
+      "tags": [
+        "流量卡测评",
+        "19元流量卡",
+        "流量卡推荐",
+        "流量卡办理",
+        "流量卡排行"
+      ],
+      "sources": [
+        {
+          "title": "联通重庆专属卡【19元200G+300分钟】",
+          "url": "https://web.haokalingqu.com/pdetails?tk=c8570adcb7030e9b&pro=2e09eae404942f22",
+          "source": "卡卡流量卡"
+        },
+        {
+          "title": "重庆专享联通卡【19元150G+200分钟】",
+          "url": "https://web.haokalingqu.com/pdetails?tk=c8570adcb7030e9b&pro=eac010d020e8a500",
+          "source": "卡卡流量卡"
+        },
+        {
+          "title": "广电福建专属卡【19元130G+200分钟】",
+          "url": "https://web.haokalingqu.com/pdetails?tk=c8570adcb7030e9b&pro=1d1b7539ef2b2eb6",
+          "source": "卡卡流量卡"
+        }
+      ],
+      "model": "particle-ai/particle-1:free",
+      "model_name": "Particle-1 (free)"
+    }
+  ]
+}
