@@ -596,8 +596,7 @@ def ensure_next_questions(content_md, models):
         data, _ = ask_json([
             {"role": "system", "content": "你是论坛帖的楼主。只输出 JSON。"},
             {"role": "user", "content": (
-                "下面这页帖子的楼层里没留下可用的新问题，下一页就接不上了。\n"
-                "根据这页讨论的内容，提出 1~2 个「下一页值得讨论的新问题」。\n"
+                "根据讨论的内容，提出 1~2 个「值得讨论的新问题」。\n"
                 "要求：具体，能落到「怎么办 / 值不值 / 该选哪个 / 哪个更好」，每条 30 字以内。\n\n"
                 "【页面内容】\n" + tail + "\n\n"
                 '【输出 JSON】{"next_questions": ["问题1", "问题2"]}'
@@ -627,7 +626,7 @@ def step_write_page(site, persona, editorial, seed, material_block, history, mod
     recent_block = "\n".join("- 第 %s 页：%s" % (it.get("slug", ""), it.get("title", ""))
                              for it in recent) or "（这是第一页）"
 
-    seed_block = ('这一页要讨论的问题：\n「%s」\n（来自第 %s 页《%s》）\n'
+    seed_block = ('话题：\n「%s」\n（来自第 %s 页《%s》）\n'
                   '**1 楼必须原样提出这句话，一个字都不要改**，后面所有楼层都围绕它讨论。'
                   % (seed.get("text", ""), seed.get("from", "?"), seed.get("from_title", "")))
 
