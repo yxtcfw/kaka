@@ -14,6 +14,22 @@
       "model": "particle-ai/particle-1:free",
       "model_name": "Particle-1 (free)",
       "seed_kind": "topic"
+    },
+    {
+      "date": "2026-11-20",
+      "slug": "001",
+      "page": 1,
+      "title": "流量卡办理避坑流程",
+      "question": "流量卡如何办理？",
+      "next_questions": [
+        "首充送的流量没到账，算不算虚假宣传？",
+        "校园卡毕业后还能继续用吗？",
+        "双卡手机怎么设置默认上网卡更稳？"
+      ],
+      "words": 5255,
+      "model": "baidu/ernie-5.5-flash-preview:free",
+      "model_name": "ERNIE-5.5-Flash-Preview (free)",
+      "seed_kind": "topic"
     }
   ]
 }
