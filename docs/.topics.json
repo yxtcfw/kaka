@@ -30,6 +30,22 @@
       "model": "baidu/ernie-5.5-flash-preview:free",
       "model_name": "ERNIE-5.5-Flash-Preview (free)",
       "seed_kind": "topic"
+    },
+    {
+      "date": "2026-11-21",
+      "slug": "002",
+      "page": 2,
+      "title": "双卡默认上网卡怎么设更稳",
+      "question": "双卡手机怎么设置默认上网卡更稳？",
+      "next_questions": [
+        "两张卡都支持5G，但一张室内快一张室外快，要不要按场景手动切？",
+        "流量卡信号满格却打不开网页，先查APN还是先查DNS？",
+        "双卡手机开热点给电脑用，哪张卡当上网卡更容易掉线？"
+      ],
+      "words": 4760,
+      "model": "baidu/ernie-5.5-flash-preview:free",
+      "model_name": "ERNIE-5.5-Flash-Preview (free)",
+      "seed_kind": "question"
     }
   ]
 }
