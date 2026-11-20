@@ -1,6 +1,6 @@
 {
   "main_words": 600,
-  "floor_count": [3, 5],
+  "floor_count": [7, 10],
   "floor_words": [40, 120],
   "extra_rules": "如果某个点在网上随便一搜就有，就别写；读者是来找你这句话的，不是来找百科的。"
 }
