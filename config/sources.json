@@ -72,5 +72,10 @@
       "enabled": false,
       "_note": "列表页抓 <a> 标题，脆，只适合结构稳定的站"
     }
-  ]
+  ],
+    "search": {
+    "provider": "none",
+    "searxng_url": "",
+    "max_results": 8,
+    "_note": "provider: none=只用信源素材；searxng=自建
 }

@@ -1,41 +1,40 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-站点构建层：从 docs/.topics.json + docs/posts/*.md 生成整站。
+论坛式静态站构建：一个长帖，按页连载。
+
+docs/posts/001.md, 002.md, ...
+  # 页面标题
+  主楼正文……
+  ## 2楼 · 阿强 · 10:12
+  楼层内容……
+  ## 3楼 · 楼主
+  ……
 
 产物：
-  index.html, page/N/index.html      首页分页
-  posts/{slug}.html                  文章（含上下篇、标签、参考资料）
-  archive.html                       按年月归档
-  tags/index.html, tags/{tag}.html   标签总览与标签页
-  search.html + search.json          站内搜索
-  feed.xml                           RSS 2.0
-  sitemap.xml
-
-一切相对路径都是相对站点根，靠 rel 前缀拼。
+  index.html            第 1 页（首页）
+  posts/002.html ...    后续每页
+  feed.xml / sitemap.xml / search.html / search.json
 """
 
 import datetime
 import email.utils
 import html
 import json
-import math
 import os
 import re
 from urllib.parse import quote
 
 BJT = datetime.timezone(datetime.timedelta(hours=8))
-PER_PAGE = 12
 FEED_SIZE = 20
+PAGER_SIDE = 2  # 页码条里当前页左右各显示几个
 
 FM_RE = re.compile(r"\A---\r?\n.*?\r?\n---\r?\n?", re.S)
 
 
 # ---------------------------------------------------------------- markdown
 
-# 裸链接：模型经常直接吐 https://... 不套 markdown 语法
 URL_RE = re.compile(r"https?://[^\s<>\"'\u4e00-\u9fff]+")
-# URL 尾部的标点不算链接的一部分
 URL_TAIL = ".,;:!?)]}，。；：！？）】》”’、"
 
 
@@ -54,8 +53,6 @@ def autolink(t):
 
 def inline(t):
     t = html.escape(t, quote=False)
-
-    # 先把已生成的标签挖成占位符，避免自动链接把它们再包一层
     stash = []
 
     def hold(frag):
@@ -187,18 +184,7 @@ def esc(s):
     return html.escape(str(s or ""), quote=True)
 
 
-def tag_file(tag):
-    """标签 → 文件名（中文直接当文件名，链接里再编码）"""
-    t = re.sub(r'[/\\:*?"<>|#?%]', "", str(tag)).strip().replace(" ", "-")
-    return t or "untagged"
-
-
-def tag_href(tag):
-    return "tags/" + quote(tag_file(tag)) + ".html"
-
-
 def pretty_model(mid):
-    """google/gemma-4-31b-it:free → Gemma 4 31B（免费）"""
     s = (mid or "").strip()
     if not s:
         return ""
@@ -225,6 +211,21 @@ def strip_fm(text):
     return FM_RE.sub("", text or "", count=1)
 
 
+def fm_fields(text):
+    """读 front matter 里的简单 k: v"""
+    m = FM_RE.match(text or "")
+    out = {}
+    if not m:
+        return out
+    for line in m.group(0).split("\n"):
+        if ":" in line:
+            k, v = line.split(":", 1)
+            k = k.strip().strip("-").strip()
+            if k and k != "":
+                out[k] = v.strip()
+    return out
+
+
 def read(path):
     try:
         with open(path, "r", encoding="utf-8") as f:
@@ -234,34 +235,94 @@ def read(path):
 
 
 def write(path, text):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         f.write(text)
-
-
-def root_url(base):
-    return (base.rstrip("/") + "/") if base else "./"
 
 
 def abs_url(base, path):
     return (base.rstrip("/") + "/" + path.lstrip("/")) if base else path
 
 
-# ---------------------------------------------------------------- 页面骨架
+def root_url(base):
+    return (base.rstrip("/") + "/") if base else "./"
 
-def page(site, rel, title, desc, body, klass="", base="", author=""):
-    home = rel or "./"
-    author_meta = ('<meta name="author" content="%s">' % esc(author)) if author else ""
-    nav = (
-        '<nav class="nav">'
-        '<a href="{h}">首页</a>'
-        '<a href="{r}archive.html">归档</a>'
-        '<a href="{r}tags/">标签</a>'
-        '<a href="{r}search.html">搜索</a>'
-        '</nav>'
-    ).format(h=home, r=rel)
 
-    return """<!doctype html>
+def natural_key(name):
+    """001.md 按数字排，没数字的排后面"""
+    m = re.match(r"^(\d+)", os.path.basename(name))
+    return (0, int(m.group(1)), name) if m else (1, 0, name)
+
+
+# ---------------------------------------------------------------- 解析一页
+
+FLOOR_RE = re.compile(r"^##\s*(\d+)\s*楼\s*(?:[·・\-–—]\s*(.*?))?\s*$", re.M)
+
+
+TIME_RE = re.compile(r"^(\d{1,2}:\d{2}(:\d{2})?|\d{4}-\d{2}-\d{2}.*)$")
+
+
+def _split_meta(meta):
+    """"网友·阿强 · 10:12" → ("网友·阿强", "10:12")；作者本身带·也不会切错"""
+    meta = (meta or "").strip()
+    if not meta:
+        return "", ""
+    parts = [p.strip() for p in re.split(r"[·・]", meta) if p.strip()]
+    if not parts:
+        return "", ""
+    if len(parts) > 1 and TIME_RE.match(parts[-1]):
+        return "·".join(parts[:-1]), parts[-1]
+    return "·".join(parts), ""
+
+
+def parse_page(text, slug):
+    meta = fm_fields(text)
+    text = strip_fm(text)
+    title = meta.get("title") or ""
+
+    m = re.match(r"^\s*#\s+(.+)$", text, re.M)
+    if m:
+        title = m.group(1).strip()
+        text = text[:m.start()] + text[m.end():]
+
+    date = meta.get("date", "")
+
+    marks = list(FLOOR_RE.finditer(text))
+    if not marks:
+        body = text.strip()
+        return {"slug": slug, "title": title or slug, "main": body, "floors": [],
+                "words": len(body), "date": date}
+
+    main = text[:marks[0].start()].strip()
+    floors = []
+    for i, mm in enumerate(marks):
+        end = marks[i + 1].start() if i + 1 < len(marks) else len(text)
+        body = text[mm.end():end].strip()
+        author, when = _split_meta(mm.group(2))
+        floors.append({"no": int(mm.group(1)), "author": author, "time": when, "body": body})
+
+    words = len(main) + sum(len(f["body"]) for f in floors)
+    return {"slug": slug, "title": title or slug, "main": main, "floors": floors,
+            "words": words, "date": date}
+
+
+def load_pages(docs_dir):
+    pdir = os.path.join(docs_dir, "posts")
+    if not os.path.isdir(pdir):
+        return []
+    files = sorted((f for f in os.listdir(pdir) if f.endswith(".md")), key=natural_key)
+    pages = []
+    for fn in files:
+        slug = fn[:-3]
+        p = parse_page(read(os.path.join(pdir, fn)), slug)
+        p["md"] = fn
+        pages.append(p)
+    return pages
+
+
+# ---------------------------------------------------------------- 渲染
+
+PAGE_TMPL = """<!doctype html>
 <html lang="{lang}">
 <head>
 <meta charset="utf-8">
@@ -269,189 +330,209 @@ def page(site, rel, title, desc, body, klass="", base="", author=""):
 <title>{title}</title>
 <meta name="description" content="{desc}">
 {author_meta}
-<link rel="stylesheet" href="{r}style.css">
-<link rel="alternate" type="application/rss+xml" title="{site}" href="{r}feed.xml">
+<link rel="stylesheet" href="{rel}style.css">
+<link rel="alternate" type="application/rss+xml" title="{site}" href="{rel}feed.xml">
 </head>
 <body>
 <header class="topbar">
-  <a class="brand" href="{home}">{site}</a>
-  {nav}
+  <a class="brand" href="{rel}index.html">{site}</a>
+  <span class="board">{tagline}</span>
 </header>
-<main class="wrap {klass}">
+<main class="wrap">
 {body}
 </main>
 <footer class="foot">
-  <p>{site}{tagline}</p>
-  <p class="small"><a href="{r}feed.xml">RSS</a> · {footer}</p>
-  <p class="small">{copy}</p>
+  <p>{site}<span class="dot">·</span>{tagline}</p>
+  <p class="small"><a href="{rel}feed.xml">RSS</a> · <a href="{rel}search.html">搜索</a> · {footer}</p>
+  {copy}
 </footer>
 </body>
 </html>
-""".format(
+"""
+
+
+def page_shell(site, rel, title, desc, body, author=""):
+    return PAGE_TMPL.format(
+        lang=esc(site.get("lang") or "zh-CN"),
         title=esc(title),
         desc=esc(desc),
-        author_meta=author_meta,
-        r=rel,
-        home=home,
-        site=esc(site["name"]),
-        lang=esc(site.get("lang") or "zh-CN"),
-        footer=esc(site.get("footer") or "由 GitHub Actions 每天自动生成"),
-        copy=("© " + esc(site["author"])) if site.get("author") else "",
-        nav=nav,
+        author_meta=('<meta name="author" content="%s">' % esc(author)) if author else "",
+        rel=rel,
+        site=esc(site.get("name") or ""),
+        tagline=esc(site.get("tagline") or ""),
         body=body,
-        klass=klass,
-        tagline=(" · " + esc(site["tagline"])) if site.get("tagline") else "",
+        footer=esc(site.get("footer") or "自动生成"),
+        copy=('<p class="small">© %s</p>' % esc(site["author"])) if site.get("author") else "",
     )
 
 
-def card_html(it, rel):
+AVATAR_COLORS = ["#c0392b", "#2980b9", "#27ae60", "#8e44ad", "#d35400", "#16a085", "#7f8c8d"]
+
+
+def floor_html(f, is_main=False, rel=""):
+    author = f.get("author") or ""
+    if is_main:
+        no, label, author = 1, "1楼", (author or "楼主")
+    else:
+        no, label = f["no"], "%d楼" % f["no"]
+
+    initial = (author[:1] or "?")
+    color = AVATAR_COLORS[no % len(AVATAR_COLORS)]
+    when = f.get("time") or ""
+    cls = "floor main" if is_main else "floor"
+
     return (
-        '<li class="card"><a href="{r}posts/{slug}.html">'
-        '<h2>{title}</h2><p>{summary}</p>'
-        '<div class="meta">{date} · {kw}</div></a></li>'
-    ).format(
-        r=rel,
-        slug=esc(it["slug"]),
-        title=esc(it["title"]),
-        summary=esc(it.get("summary", "")),
-        date=esc(it["date"]),
-        kw=esc(it.get("keyword", "")),
+        '<article class="%s" id="f%d">'
+        '<div class="fav" style="background:%s">%s</div>'
+        '<div class="fmain">'
+        '<div class="fhead"><span class="fno">%s</span>'
+        '<span class="fau">%s</span>%s</div>'
+        '<div class="fbody prose">%s</div>'
+        '</div></article>'
+    ) % (
+        cls, no, color, esc(initial),
+        esc(label), esc(author),
+        ('<time>%s</time>' % esc(when)) if when else "",
+        md_to_html(f.get("body") or f.get("main") or ""),
     )
 
 
-# ---------------------------------------------------------------- 各页面
+def pager_html(cur, total, rel, slugs):
+    def url(idx):
+        return "index.html" if idx == 1 else "posts/%s.html" % slugs[idx - 1]
 
-def render_post(site, it, prev_it, next_it, img_count):
-    rel = "../"
-    tags = "".join(
-        '<a class="tag" href="{r}{href}">{t}</a>'.format(r=rel, href=tag_href(t), t=esc(t))
-        for t in it.get("tags", [])
-    )
-    why = ('<p class="why">选题来源：%s</p>' % esc(it["why"])) if it.get("why") else ""
+    def link(idx, text, cls=""):
+        c = (' class="%s"' % cls) if cls else ""
+        return '<a%s href="%s%s">%s</a>' % (c, rel, url(idx), text)
 
-    refs = ""
-    if it.get("sources"):
-        lis = "".join(
-            '<li><a href="%s" rel="noopener nofollow" target="_blank">%s</a> <span class="src">%s</span></li>'
-            % (esc(s.get("url", "")), esc(s.get("title", "")), esc(s.get("source", "")))
-            for s in it["sources"]
-        )
-        refs = '<section class="refs"><h3>参考资料</h3><ol>%s</ol></section>' % lis
+    parts = ['<nav class="pager">',
+             '<div class="pcount">共 %d 页 · 第 %d 页</div>' % (total, cur),
+             '<div class="pnav">']
 
-    pager = '<nav class="post-pager">'
-    pager += ('<a class="pv" href="../posts/%s.html"><span>更新一篇</span>%s</a>' % (esc(next_it["slug"]), esc(next_it["title"]))
-              ) if next_it else '<span></span>'
-    pager += ('<a class="nx" href="../posts/%s.html"><span>更早一篇</span>%s</a>' % (esc(prev_it["slug"]), esc(prev_it["title"]))
-              ) if prev_it else '<span></span>'
-    pager += "</nav>"
+    parts.append(link(1, "« 首页") if cur > 1 else '<span class="off">« 首页</span>')
+    parts.append(link(cur - 1, "‹ 上一页") if cur > 1 else '<span class="off">‹ 上一页</span>')
 
-    author = it.get("model_name") or pretty_model(it.get("model"))
-    who = ('<span class="who">作者 %s</span>' % esc(author)) if author else ""
-
-    body = (
-        '<h1>%s</h1><div class="meta">%s %s%s</div>%s'
-        '<article class="prose">%s</article>'
-        '<p class="back"><a href="../">← 全部文章</a></p>'
-        '%s%s'
-    ) % (esc(it["title"]), esc(it["date"]), tags, who, why, it["_html"], refs, pager)
-
-    return page(site, rel, "%s · %s" % (it["title"], site["name"]),
-                it.get("summary", ""), body, author=author)
-
-
-def render_index_pages(site, items, base):
-    total = max(1, math.ceil(len(items) / PER_PAGE))
-    paths = []
-    for p in range(1, total + 1):
-        chunk = items[(p - 1) * PER_PAGE: p * PER_PAGE]
-        rel = "" if p == 1 else "../../"
-        out_rel = "index.html" if p == 1 else "page/%d/index.html" % p
-
-        head = '<h1 class="site-title">%s</h1>' % esc(site["name"])
-        if site.get("tagline") and p == 1:
-            head += '<p class="site-tagline">%s</p>' % esc(site["tagline"])
-
-        cards = "".join(card_html(it, rel) for it in chunk) or '<li class="card"><p>还没有文章。</p></li>'
-
-        pager = '<nav class="pagination">'
-        if p > 1:
-            prev_url = "./" if p == 2 else "page/%d/" % (p - 1)
-            pager += '<a href="%s">← 上一页</a>' % prev_url
+    nums = []
+    for i in range(1, total + 1):
+        if i == 1 or i == total or abs(i - cur) <= PAGER_SIDE:
+            nums.append(i)
+    prev = 0
+    for i in nums:
+        if prev and i - prev > 1:
+            parts.append('<span class="gap">…</span>')
+        if i == cur:
+            parts.append('<em class="cur">%d</em>' % i)
         else:
-            pager += "<span></span>"
-        pager += '<span class="pinfo">%d / %d</span>' % (p, total)
-        if p < total:
-            pager += '<a href="page/%d/">下一页 →</a>' % (p + 1)
-        else:
-            pager += "<span></span>"
-        pager += "</nav>"
+            parts.append(link(i, str(i)))
+        prev = i
 
-        body = head + '<ul class="list">%s</ul>' % cards + (pager if total > 1 else "")
-        desc = site.get("description") or site.get("tagline", "")
-        write(os.path.join(base, out_rel), page(site, rel, site["name"], desc, body, klass="home"))
-        paths.append(out_rel)
-    return paths
+    parts.append(link(cur + 1, "下一页 ›") if cur < total else '<span class="off">下一页 ›</span>')
+    parts.append(link(total, "末页 »") if cur < total else '<span class="off">末页 »</span>')
+    parts.append("</div></nav>")
+    return "".join(parts)
 
 
-def render_archive(site, items, base):
-    groups = {}
-    for it in items:
-        groups.setdefault(it["date"][:7], []).append(it)
-
-    blocks = []
-    for ym in sorted(groups, reverse=True):
-        rows = "".join(
-            '<li><time>%s</time><a href="posts/%s.html">%s</a></li>'
-            % (esc(it["date"][5:]), esc(it["slug"]), esc(it["title"]))
-            for it in groups[ym]
-        )
-        blocks.append('<section class="year-block"><h2>%s <span>%d 篇</span></h2><ul>%s</ul></section>' % (
-            esc(ym), len(groups[ym]), rows))
-
-    body = '<h1 class="site-title">归档</h1><p class="site-tagline">共 %d 篇</p>%s' % (len(items), "".join(blocks))
-    write(os.path.join(base, "archive.html"), page(site, "", "归档 · " + site["name"], "全部文章归档", body))
+def board_intro(docs_dir, rel):
+    """首页顶部的站点说明，取自 docs/index.md"""
+    text = read(os.path.join(docs_dir, "index.md")).strip()
+    if not text:
+        return ""
+    return '<section class="board-intro prose">%s</section>' % md_to_html(text)
 
 
-def render_tags(site, items, base):
-    groups = {}
-    for it in items:
-        for t in it.get("tags", []):
-            groups.setdefault(t, []).append(it)
+def build(site, docs_dir, base_url=""):
+    pages = load_pages(docs_dir)
+    base = docs_dir
+    slugs = [p["slug"] for p in pages]
 
-    lis = "".join(
-        '<li><a href="../%s">%s</a><span>%d</span></li>' % (tag_href(t), esc(t), len(groups[t]))
-        for t in sorted(groups, key=lambda x: -len(groups[x]))
-    )
-    body = '<h1 class="site-title">标签</h1><p class="site-tagline">%d 个标签</p><ul class="tag-list">%s</ul>' % (
-        len(groups), lis or "<li><p>还没有标签。</p></li>")
-    write(os.path.join(base, "tags/index.html"), page(site, "../", "标签 · " + site["name"], "按标签浏览", body))
+    # 清理旧结构留下的页面
+    for junk in ("archive.html",):
+        fp = os.path.join(base, junk)
+        if os.path.exists(fp):
+            os.remove(fp)
+    for d in ("page", "tags"):
+        dp = os.path.join(base, d)
+        if os.path.isdir(dp):
+            for f in os.listdir(dp):
+                if f.endswith(".html") or f == "index.json":
+                    os.remove(os.path.join(dp, f))
+            try:
+                os.rmdir(dp)
+            except OSError:
+                pass
+    # 清掉已删 md 对应的 html
+    pdir = os.path.join(base, "posts")
+    if os.path.isdir(pdir):
+        keep = set(slugs[1:])  # 第 1 页渲染到 index.html
+        for f in os.listdir(pdir):
+            if f.endswith(".html") and f[:-5] not in keep:
+                os.remove(os.path.join(pdir, f))
 
-    for t, its in groups.items():
-        cards = "".join(card_html(it, "../") for it in its)
-        b = '<h1 class="site-title">#%s</h1><p class="site-tagline">%d 篇</p><ul class="list">%s</ul>' % (
-            esc(t), len(its), cards)
-        write(os.path.join(base, "tags", tag_file(t) + ".html"),
-              page(site, "../", "%s · %s" % (t, site["name"]), "标签：" + t, b))
+    total = max(1, len(pages))
+
+    if not pages:
+        # 空站也要有个能打开的首页
+        body = board_intro(docs_dir, "")
+        body += '<h1 class="page-title">还没有内容</h1>'
+        body += '<div class="page-meta">等第一次自动更新，或者手动跑一次 workflow。</div>'
+        write(os.path.join(base, "index.html"),
+              page_shell(site, "", site.get("name") or "", site.get("description") or "", body))
+
+    for i, p in enumerate(pages):
+        cur = i + 1
+        rel = "" if cur == 1 else "../"
+        out = os.path.join(base, "index.html") if cur == 1 else os.path.join(base, "posts", p["slug"] + ".html")
+
+        body = ""
+        if cur == 1:
+            body += board_intro(docs_dir, rel)
+
+        body += '<h1 class="page-title">%s</h1>' % esc(p["title"])
+        body += '<div class="page-meta">第 %d 页%s</div>' % (
+            cur, (" · %d 层" % (len(p["floors"]) + 1)) if p["floors"] else "")
+
+        body += floor_html({"author": "楼主", "body": p["main"]}, is_main=True, rel=rel)
+        for f in p["floors"]:
+            body += floor_html(f, rel=rel)
+
+        body += pager_html(cur, total, rel, slugs)
+
+        write(out, page_shell(
+            site, rel,
+            "%s · %s" % (p["title"], site.get("name") or ""),
+            (p["main"][:80] + "…") if len(p["main"]) > 80 else p["main"],
+            body,
+        ))
+
+    build_search(site, pages, base, slugs)
+    build_feed(site, pages, base, base_url, slugs)
+    build_sitemap(site, pages, base, base_url, slugs)
+
+    return {"pages": len(pages), "floors": sum(len(p["floors"]) + 1 for p in pages),
+            "words": sum(p["words"] for p in pages)}
 
 
-def render_search(site, items, base):
+# ---------------------------------------------------------------- 附加页
+
+def build_search(site, pages, base, slugs):
     index = []
-    for it in items:
-        text = re.sub(r"<[^>]+>", " ", it.get("_html", ""))
+    for i, p in enumerate(pages):
+        cur = i + 1
+        url = "index.html" if cur == 1 else "posts/%s.html" % p["slug"]
+        text = p["main"] + " " + " ".join(f["body"] for f in p["floors"])
         index.append({
-            "title": it["title"],
-            "summary": it.get("summary", ""),
-            "tags": it.get("tags", []),
-            "date": it["date"],
-            "url": "posts/%s.html" % it["slug"],
-            "text": re.sub(r"\s+", " ", text)[:1200],
+            "title": p["title"],
+            "page": cur,
+            "url": url,
+            "text": re.sub(r"\s+", " ", text)[:1500],
         })
+
     write(os.path.join(base, "search.json"), json.dumps(index, ensure_ascii=False))
 
-    body = """<h1 class="site-title">搜索</h1>
-<p class="site-tagline">共 %d 篇</p>
+    body = """<h1 class="page-title">搜索</h1>
+<div class="page-meta">全站 %d 页</div>
 <form class="search-box" onsubmit="return false;">
-  <input id="q" type="search" placeholder="输入关键词，比如：小程序、自动化、笔记" autocomplete="off" autofocus>
+  <input id="q" type="search" placeholder="输入关键词，比如：小程序、自动化、备份" autocomplete="off" autofocus>
 </form>
 <p id="hint" class="site-tagline">输入关键词开始搜。</p>
 <ul id="results" class="list"></ul>
@@ -463,37 +544,43 @@ def render_search(site, items, base):
     var kw = q.value.trim().toLowerCase();
     if(!kw){ out.innerHTML=''; hint.textContent='输入关键词开始搜。'; return; }
     var hits = data.filter(function(p){
-      return (p.title+' '+p.summary+' '+p.tags.join(' ')+' '+p.text).toLowerCase().indexOf(kw) > -1;
+      return (p.title+' '+p.text).toLowerCase().indexOf(kw) > -1;
     }).slice(0, 40);
-    hint.textContent = '找到 ' + hits.length + ' 篇';
+    hint.textContent = '找到 ' + hits.length + ' 页';
     out.innerHTML = hits.map(function(p){
-      return '<li class="card"><a href="'+p.url+'"><h2>'+p.title+'</h2><p>'+(p.summary||'')+'</p>'+
-             '<div class="meta">'+p.date+' · '+(p.tags||[]).join(' / ')+'</div></a></li>';
+      var t = p.text.replace(/</g,'&lt;');
+      var idx = t.toLowerCase().indexOf(kw);
+      var snip = idx > -1 ? t.slice(Math.max(0, idx-40), idx+80) : t.slice(0, 80);
+      return '<li class="card"><a href="'+p.url+'"><h2>第 '+p.page+' 页 · '+p.title+'</h2>'+
+             '<p>…'+snip+'…</p></a></li>';
     }).join('');
   }
   q.addEventListener('input', run);
 })();
-</script>""" % (len(items), json.dumps(index, ensure_ascii=False))
+</script>""" % (len(pages), json.dumps(index, ensure_ascii=False))
 
-    write(os.path.join(base, "search.html"), page(site, "", "搜索 · " + site["name"], "站内搜索", body))
+    write(os.path.join(base, "search.html"),
+          page_shell(site, "", "搜索 · " + (site.get("name") or ""), "站内搜索", body))
 
 
-def render_feed(site, items, base, base_url):
+def build_feed(site, pages, base, base_url, slugs):
     def pubdate(d):
         try:
-            dt = datetime.datetime.strptime(d, "%Y-%m-%d").replace(tzinfo=BJT)
-            return email.utils.format_datetime(dt)
+            return email.utils.format_datetime(
+                datetime.datetime.strptime(d, "%Y-%m-%d").replace(tzinfo=BJT))
         except Exception:
             return ""
 
-    entries = []
-    for it in items[:FEED_SIZE]:
-        link = abs_url(base_url, "posts/%s.html" % it["slug"])
-        entries.append(
-            "<item><title>%s</title><link>%s</link><guid>%s</guid>"
-            "<pubDate>%s</pubDate><description>%s</description></item>"
-            % (esc(it["title"]), esc(link), esc(link), pubdate(it["date"]), esc(it.get("summary", "")))
-        )
+    items = []
+    for i, p in enumerate(reversed(pages[-FEED_SIZE:])):
+        cur = len(pages) - i
+        link = abs_url(base_url, "index.html" if cur == 1 else "posts/%s.html" % p["slug"])
+        desc = re.sub(r"\s+", " ", p["main"])[:300]
+        items.append(
+            "<item><title>%s</title><link>%s</link><guid>%s</guid>%s<description>%s</description></item>"
+            % (esc("第 %d 页 · %s" % (cur, p["title"])), esc(link), esc(link),
+               ("<pubDate>%s</pubDate>" % pubdate(p.get("date", ""))) if p.get("date") else "",
+               esc(desc)))
 
     xml = """<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0"><channel>
@@ -504,79 +591,20 @@ def render_feed(site, items, base, base_url):
 <lastBuildDate>%s</lastBuildDate>
 %s
 </channel></rss>
-""" % (
-        esc(site["name"]),
-        esc(root_url(base_url)),
-        esc(site.get("tagline", "")),
-        email.utils.format_datetime(datetime.datetime.now(BJT)),
-        "\n".join(entries),
-    )
+""" % (esc(site.get("name") or ""), esc(root_url(base_url)), esc(site.get("tagline") or ""),
+       email.utils.format_datetime(datetime.datetime.now(BJT)), "\n".join(items))
     write(os.path.join(base, "feed.xml"), xml)
 
 
-def render_sitemap(site, items, base, base_url, pages):
-    urls = [""] + [u for u in (["archive.html", "tags/", "search.html"] + pages) if u != "index.html"]
-    empty = datetime.date.today().isoformat()
-    rows = []
-    for p in urls:
-        rows.append("<url><loc>%s</loc><lastmod>%s</lastmod></url>" % (esc(abs_url(base_url, p)), empty))
-    for it in items:
-        rows.append("<url><loc>%s</loc><lastmod>%s</lastmod></url>" % (
-            esc(abs_url(base_url, "posts/%s.html" % it["slug"])), esc(it["date"])))
+def build_sitemap(site, pages, base, base_url, slugs):
+    today = datetime.date.today().isoformat()
+    locs = ["index.html", "search.html"]
+    for i, p in enumerate(pages):
+        if i == 0:
+            continue
+        locs.append("posts/%s.html" % p["slug"])
+
+    rows = ["<url><loc>%s</loc><lastmod>%s</lastmod></url>" % (esc(abs_url(base_url, u)), today) for u in locs]
     xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n%s\n</urlset>\n') % "\n".join(rows)
     write(os.path.join(base, "sitemap.xml"), xml)
-
-
-# ---------------------------------------------------------------- 主入口
-
-def build(site, docs_dir, base_url=""):
-    topics = {"items": []}
-    tp = os.path.join(docs_dir, ".topics.json")
-    if os.path.exists(tp):
-        with open(tp, "r", encoding="utf-8") as f:
-            topics = json.load(f)
-
-    items = [it for it in topics.get("items", []) if it.get("slug") and it.get("title")]
-    items.sort(key=lambda x: (x["date"], x.get("title", "")), reverse=True)
-
-    for it in items:
-        md = strip_fm(read(os.path.join(docs_dir, "posts", it["slug"] + ".md")))
-        it["_html"] = md_to_html(md)
-
-    base = docs_dir
-    os.makedirs(os.path.join(base, "posts"), exist_ok=True)
-    os.makedirs(os.path.join(base, "tags"), exist_ok=True)
-    # 清掉旧页面，避免标签改名后留孤儿文件
-    for d in ("page", "tags"):
-        p = os.path.join(base, d)
-        if os.path.isdir(p):
-            for f in os.listdir(p):
-                if f.endswith(".html"):
-                    os.remove(os.path.join(p, f))
-
-    # 清掉索引里已不存在的旧文章页
-    keep = {it["slug"] for it in items}
-    pdir = os.path.join(base, "posts")
-    for f in os.listdir(pdir):
-        if f.endswith(".html") and f[:-5] not in keep:
-            os.remove(os.path.join(pdir, f))
-
-    for i, it in enumerate(items):
-        prev_it = items[i + 1] if i + 1 < len(items) else None
-        next_it = items[i - 1] if i > 0 else None
-        write(os.path.join(base, "posts", it["slug"] + ".html"),
-              render_post(site, it, prev_it, next_it, 0))
-
-    pages = render_index_pages(site, items, base)
-    render_archive(site, items, base)
-    render_tags(site, items, base)
-    render_search(site, items, base)
-    render_feed(site, items, base, base_url)
-    render_sitemap(site, items, base, base_url, pages)
-
-    return {
-        "posts": len(items),
-        "pages": len(pages),
-        "tags": len({t for it in items for t in it.get("tags", [])}),
-    }

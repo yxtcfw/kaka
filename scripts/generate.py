@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-每日自动博客 pipeline
-  1. 采集：config/sources.json 里配的源，抓最近 N 小时热点
-  2. 排序：关键词命中 + 时效 + 源权重打分，取前 N 条候选
-  3. 选题：模型分析候选，挑素材、定角度、给理由
-  4. 写作：模型带着素材写一篇长文（事实来自素材，观点自己给）
-  5. 构建：写出 md + 更新 docs/.topics.json，交给 site.build 生成整站
+每日自动连载 pipeline（论坛式，一页多楼层）
+
+  1. 挖题：从已有 md 里捞「疑问 / 痛点」句子，随机挑一条
+  2. 取材：按关键词从 config/sources.json 的信源抓最近内容
+  3. 写作：模型带着素材，写「主楼长文 + 若干楼层」，输出楼层结构的 markdown
+  4. 落盘：写成 docs/posts/00N.md，追加到 .topics.json
+  5. 建站：交给 blogsite.build 重新生成整站
 
 用法：
-  python scripts/generate.py              # 采集 → 选题 → 写作 → 建站
-  python scripts/generate.py --probe      # 只测采集源
-  python scripts/generate.py --rebuild    # 不写作，只按现有 md 重建整站（换模板后用）
-  python scripts/generate.py -k 某个主题   # 指定主题，跳过选题分析
+  python scripts/generate.py               # 挖题 → 取材 → 写作 → 建站
+  python scripts/generate.py --probe       # 只测采集源
+  python scripts/generate.py --rebuild     # 只重建整站
+  python scripts/generate.py -k 某个主题    # 指定主题，跳过挖题
+  python scripts/generate.py --force       # 今天写过也再写一页
 """
 
 import argparse
@@ -26,7 +28,8 @@ import urllib.error
 import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import sources as src      # noqa: E402
+import sources as src        # noqa: E402
+import mine                  # noqa: E402
 import blogsite as sitebuilder  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -74,9 +77,8 @@ def load_site():
                    ("description", "SITE_DESCRIPTION"), ("footer", "SITE_FOOTER")):
         if os.environ.get(env):
             site[k] = os.environ[env]
-    site["base_url"] = (os.environ.get("SITE_BASE_URL") or site["base_url"]).strip().rstrip("/")
 
-    # 都没配时，按 Pages 的默认地址推：https://<owner>.github.io/<repo>
+    site["base_url"] = (os.environ.get("SITE_BASE_URL") or site["base_url"]).strip().rstrip("/")
     if not site["base_url"]:
         repo = os.environ.get("GITHUB_REPOSITORY", "")
         if "/" in repo:
@@ -126,40 +128,25 @@ def rank_candidates(items, keywords, now):
         hay = (it["title"] + " " + (it.get("summary") or "")).lower()
         hits = [k["keyword"] for k in keywords if k["keyword"].lower() in hay]
         s = len(hits) * 3.0 + float(it.get("weight", 1.0))
-
         age_h = (now - it["ts"]).total_seconds() / 3600.0 if it.get("ts") else 99
         s += 3.0 if age_h <= 6 else 2.0 if age_h <= 24 else 1.0 if age_h <= 48 else 0.0
         if len(it["title"]) < 10:
             s -= 1.5
         if len(it["title"]) > 50:
             s -= 0.5
-
         it["hits"] = hits
         it["score"] = round(s, 2)
         it["age"] = human_age(it.get("ts"), now)
-
     items.sort(key=lambda x: x["score"], reverse=True)
     return items
-
-
-def render_candidates(cands, limit=24):
-    lines = []
-    for i, it in enumerate(cands[:limit]):
-        hit = (" · 命中:" + ",".join(it["hits"])) if it["hits"] else ""
-        lines.append("[%d] %s · %s%s\n    标题：%s\n    摘要：%s" % (
-            i, it["source"], it["age"], hit, it["title"], (it.get("summary") or "（无摘要）")[:200]))
-    return "\n".join(lines)
 
 
 # ---------------------------------------------------------------- 模型
 
 DEFAULT_MODEL = "google/gemini-3.5-flash-lite"
 MODELS_URL = "https://openrouter.ai/api/v1/models"
-
-# 免费模型里这几个写中文、写长文的成功率相对高，排序时往前放
 FREE_BOOST = ("gemma", "nemotron-3-ultra", "dots", "ling", "ernie", "inkling", "particle")
 
-# 拉不到模型表时的内置免费兜底（全是免费，绝不混付费）
 FALLBACK_FREE = [
     "google/gemma-4-31b-it:free",
     "google/gemma-4-26b-a4b-it:free",
@@ -172,16 +159,15 @@ FALLBACK_FREE = [
 
 _CATALOG = None
 
-# 本次运行内的状态：成功过的模型优先复用，失败的当场跳过
 _PREFERRED = None
 _SESSION_BAD = set()
 _WALL_DEADLINE = None
-REQUEST_TIMEOUT = 120      # 选题这类短请求，单个模型最多等多久（秒）
-WRITE_TIMEOUT = 180        # 长文生成慢，给到 180 秒
-MAX_ATTEMPTS = 1           # 每个模型试几次，免费模型不值得重试，直接换
+REQUEST_TIMEOUT = 120
+WRITE_TIMEOUT = 180
+MAX_ATTEMPTS = 1
 
 BADLIST = os.path.join(DOCS, ".model_badlist.json")
-BAD_TTL = 7 * 86400  # 失败模型冷却 7 天，之后自动重试
+BAD_TTL = 7 * 86400
 
 
 def load_badlist():
@@ -194,7 +180,6 @@ def load_badlist():
 
 
 def mark_bad(model, reason):
-    """403/404 这类「这个模型对我不可用」记下来，下次直接跳过"""
     if model == "openrouter/free":
         return
     data = load_json(BADLIST, {})
@@ -210,61 +195,54 @@ def mark_bad(model, reason):
 
 
 def free_only_enabled():
-    """FREE_ONLY 默认开启：任何情况下都只允许免费模型"""
     return os.environ.get("FREE_ONLY", "1").strip().lower() not in ("0", "false", "no", "off")
 
 
 def model_catalog():
-    """拉一次全量模型表并缓存：{id: {"free": bool, "ctx": int}}"""
     global _CATALOG
     if _CATALOG is not None:
         return _CATALOG
-
     cat = {}
     try:
         with urllib.request.urlopen(MODELS_URL, timeout=30) as r:
             data = json.loads(r.read().decode("utf-8"))
         for m in data.get("data", []):
             pr = m.get("pricing") or {}
-            is_free = str(pr.get("prompt")) == "0" and str(pr.get("completion")) == "0"
-            cat[m.get("id", "")] = {"free": is_free,
-                                    "ctx": m.get("context_length") or 0,
-                                    "name": (m.get("name") or "").strip()}
+            cat[m.get("id", "")] = {
+                "free": str(pr.get("prompt")) == "0" and str(pr.get("completion")) == "0",
+                "ctx": m.get("context_length") or 0,
+                "name": (m.get("name") or "").strip(),
+            }
     except Exception as e:
-        log("拉模型表失败（将用内置免费列表）：%r" % e)
+        log("拉模型表失败（改用内置免费列表）：%r" % e)
         cat = {}
-
     _CATALOG = cat
     return cat
-
-
-def model_display_name(mid):
-    """优先用 OpenRouter 给的展示名并去掉厂商前缀，拿不到就原样返回 id"""
-    info = model_catalog().get(mid) or {}
-    name = re.sub(r"\s+", " ", info.get("name") or "").strip()
-    if ":" in name:  # "Google: Gemma 4 31B (free)" → "Gemma 4 31B (free)"
-        name = name.split(":", 1)[1].strip()
-    return name or mid
 
 
 def is_free(model_id, cat):
     if cat.get(model_id):
         return bool(cat[model_id]["free"])
-    # 表里没有（新上线/拉取失败）就按 id 判断
     return model_id.endswith(":free") or model_id == "openrouter/free"
 
 
+def model_display_name(mid):
+    info = model_catalog().get(mid) or {}
+    name = re.sub(r"\s+", " ", info.get("name") or "").strip()
+    if ":" in name:
+        name = name.split(":", 1)[1].strip()
+    return name or mid
+
+
 def fetch_free_models():
-    """当前所有可用免费模型，按写作适配度排序，openrouter/free 压到最后兜底"""
     cat = model_catalog()
     rows = []
     for mid, meta in cat.items():
         if not meta["free"] or not mid:
             continue
-        if "image" in mid or "lyria" in mid:  # 图像/音乐模型不能写文
+        if "image" in mid or "lyria" in mid:
             continue
         rows.append((sum(1 for k in FREE_BOOST if k in mid), meta["ctx"], mid))
-
     rows.sort(reverse=True)
     ids = [x[2] for x in rows if x[2] != "openrouter/free"]
     if any(x[2] == "openrouter/free" for x in rows):
@@ -273,16 +251,8 @@ def fetch_free_models():
 
 
 def resolve_models(spec, free_only=None):
-    """
-    spec 写法：
-      free / 留空                          → 所有免费模型，失败自动换下一个
-      free,google/gemini-3.5-flash-lite    → 免费优先，付费兜底（FREE_ONLY=0 时才生效）
-      a:free,b:free                        → 自己写死一条链
-    free_only=True（默认）时，最终列表会被强制过滤成只剩免费模型。
-    """
     if free_only is None:
         free_only = free_only_enabled()
-
     spec = (spec or "").strip()
     if not spec:
         spec = "free" if free_only else DEFAULT_MODEL
@@ -295,7 +265,6 @@ def resolve_models(spec, free_only=None):
         else:
             models.append(part)
 
-    # 去重保序
     seen, uniq = set(), []
     for m in models:
         if m not in seen:
@@ -305,10 +274,9 @@ def resolve_models(spec, free_only=None):
     if free_only:
         cat = model_catalog()
         uniq = [m for m in uniq if is_free(m, cat)]
-        if not uniq:  # 配的东西一个免费的都不是 → 直接用内置免费列表
+        if not uniq:
             uniq = list(FALLBACK_FREE)
 
-    # 最近因为「模型本身不可用」失败过的，先跳过（openrouter/free 永不跳过）
     bad = load_badlist()
     if bad:
         keep = [m for m in uniq if m == "openrouter/free" or m not in bad]
@@ -323,7 +291,6 @@ def resolve_models(spec, free_only=None):
             except Exception:
                 pass
 
-    # 上次跑成功的模型排到最前，少浪费几次失败请求
     try:
         with open(os.path.join(DOCS, ".model_used"), "r", encoding="utf-8") as f:
             last = f.read().strip()
@@ -348,7 +315,6 @@ def extract_text(resp):
 
 
 def call_openrouter(messages, models, temperature=0.8, retries=None, timeout=None):
-    """按 models 顺序挨个试：限流/额度不足/模型不可用就换下一个，鉴权错误直接停"""
     global _PREFERRED
     key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     if not key:
@@ -359,11 +325,9 @@ def call_openrouter(messages, models, temperature=0.8, retries=None, timeout=Non
         retries = MAX_ATTEMPTS
 
     models = list(models)
-    # 本次运行已经成功过的模型，直接排到最前（第二次调用别再从头踩坑）
     if _PREFERRED and _PREFERRED in models:
         models.remove(_PREFERRED)
         models.insert(0, _PREFERRED)
-    # 本次运行已经明确不可用的，别再浪费一次请求
     if _SESSION_BAD:
         kept = [m for m in models if m not in _SESSION_BAD]
         if kept:
@@ -402,30 +366,26 @@ def call_openrouter(messages, models, temperature=0.8, retries=None, timeout=Non
                     msg = body[:200].replace("\n", " ")
                 last_err = "HTTP %s: %s" % (e.code, msg or body[:200])
 
-                # 模型不支持 JSON 模式 → 去掉参数再来一次，这不算模型故障
                 if e.code == 400 and "response_format" in payload:
                     payload.pop("response_format", None)
                     continue
 
-                # 401，或 403 明确在说 key/权限 → 停，换模型没意义
                 if e.code == 401 or (e.code == 403 and re.search(
                         r"(api key|no auth|unauthor|invalid.{0,20}key|key.{0,20}(disabl|invalid))",
                         msg, re.I)):
                     sys.exit("Key 无效或没权限（HTTP %s）：%s" % (e.code, msg or body[:200]))
 
-                # 403/404：这个模型对当前调用方式不可用（比如仅限 agentic harness），
-                # 不是 Key 的问题，拉黑 7 天然后换下一个
                 if e.code in (403, 404):
                     mark_bad(model, "HTTP %s %s" % (e.code, msg))
                 _SESSION_BAD.add(model)
 
                 log("  %s → HTTP %s %s" % (model, e.code, (msg or "")[:120]))
-                break  # 429 限流 / 402 额度 / 5xx / 模型不可用，都换下一个
+                break
             except Exception as e:
                 last_err = repr(e)
                 log("  %s → %r" % (model, e))
                 _SESSION_BAD.add(model)
-                break  # 超时/断连也不重试，直接换下一个
+                break
         else:
             log("  %s 重试后仍失败，换下一个" % model)
 
@@ -451,122 +411,129 @@ def ask_json(messages, models, temperature=0.7, timeout=None):
     return parse_json_reply(extract_text(resp)), resp
 
 
-# ---------------------------------------------------------------- 选题
+def set_budget(seconds):
+    global _WALL_DEADLINE
+    _WALL_DEADLINE = time.time() + max(60, int(seconds))
 
-def step_pick(site, persona, editorial, keywords, history, cands, models):
-    recent = []
-    for it in history["items"][-15:]:
-        angle = it.get("angle") or ""
-        recent.append("- %s%s" % (it.get("title", ""), ("（角度：" + angle + "）") if angle else ""))
-    recent_block = "\n".join(recent) or "（暂无，这是第一篇）"
 
-    kw_block = "\n".join(
-        "- %s%s" % (k["keyword"], ("：" + k["note"]) if k["note"] else "") for k in keywords
-    )
+# ---------------------------------------------------------------- 取材
 
-    system = persona + "\n\n你现在是站点「%s」的选题编辑。只输出 JSON，不要任何解释文字。" % site["name"]
+def render_material(cands, limit=8):
+    lines = []
+    for i, it in enumerate(cands[:limit]):
+        lines.append("[%d] %s · %s\n    标题：%s\n    摘要：%s" % (
+            i, it["source"], it["age"], it["title"], (it.get("summary") or "（无摘要）")[:260]))
+    return "\n".join(lines) or "（这次没抓到外部素材）"
 
-    user = """今天是 {today}。下面是最近抓到的热点候选，已经按相关度排好序。
 
-【关键词池】
-{kw}
-
-【编辑偏好】
-{ed}
-
-【已经写过的选题（不要重复角度）】
-{recent}
-
-【候选素材】
-{cands}
-
-【任务】
-挑 1-3 条能撑起一个选题的素材（也可以只挑 1 条），然后定一个选题。
-判断标准：
-1. 和关键词池沾边，是读者关心的；
-2. 有信息增量，不是纯通稿；
-3. 能写出你自己的判断，而不只是转述新闻；
-4. 和已写过的角度明显不同。
-如果这批候选全都不值得写，就把 picks 留空、topic 写空字符串。
-
-【输出 JSON】
-{{
-  "picks": [候选序号, ...],
-  "topic": "选题名称，一句话",
-  "angle": "切入角度，具体到你会怎么展开，40字内",
-  "why": "为什么是现在写这个，30字内",
-  "keyword": "对应的关键词池里的词",
-  "facts": ["从素材里能确认的关键事实，最多5条，不要编"]
-}}""".format(
-        today=datetime.datetime.now(BJT).strftime("%Y-%m-%d"),
-        kw=kw_block,
-        ed=editorial or "（无）",
-        recent=recent_block,
-        cands=render_candidates(cands),
-    )
-
-    data, _ = ask_json([
-        {"role": "system", "content": system},
-        {"role": "user", "content": user},
-    ], models, temperature=0.5)
-
-    picks = [int(p) for p in (data.get("picks") or []) if str(p).isdigit() and 0 <= int(p) < len(cands)]
-    return data, picks
+def search_web(query, cfg, keywords):
+    """
+    搜索接口（预留）。provider=none 时返回空，调用方退回信源素材。
+    以后部署了 SearXNG 就把 config/sources.json 里 search.provider 改成 searxng。
+    """
+    provider = (cfg.get("provider") or "none").lower()
+    if provider == "none":
+        return []
+    if provider == "searxng":
+        base = (cfg.get("searxng_url") or "").rstrip("/")
+        if not base:
+            log("search.provider=searxng 但没填 searxng_url，跳过")
+            return []
+        url = "%s/search?q=%s&format=json" % (base, urllib.request.quote(query))
+        try:
+            with urllib.request.urlopen(url, timeout=20) as r:
+                data = json.loads(r.read().decode("utf-8"))
+            out = []
+            for item in (data.get("results") or [])[: int(cfg.get("max_results", 8))]:
+                out.append({
+                    "title": item.get("title", ""),
+                    "url": item.get("url", ""),
+                    "summary": (item.get("content") or "")[:400],
+                    "source": item.get("engine") or "searxng",
+                    "age": "搜索结果",
+                })
+            log("搜索到 %d 条" % len(out))
+            return out
+        except Exception as e:
+            log("搜索失败：%r" % e)
+            return []
+    log("未知的 search.provider：%s" % provider)
+    return []
 
 
 # ---------------------------------------------------------------- 写作
 
-def step_write(site, persona, editorial, keywords, history, topic, picks, cands, models):
-    material = []
-    for i in picks:
-        it = cands[i]
-        material.append("《%s》\n来源：%s（%s）\n链接：%s\n摘要：%s" % (
-            it["title"], it["source"], it["age"], it["url"], (it.get("summary") or "无")[:400]))
-    material_block = "\n\n".join(material) or "（本次没有外部素材，靠你自己的知识写，但不要编具体的数字和事件）"
+def next_page_no(posts_dir):
+    nums = []
+    if os.path.isdir(posts_dir):
+        for f in os.listdir(posts_dir):
+            m = re.match(r"^(\d+)\.md$", f)
+            if m:
+                nums.append(int(m.group(1)))
+    return (max(nums) + 1) if nums else 1
 
-    recent = "\n".join("- " + it.get("title", "") for it in history["items"][-15:])
+
+def step_write_page(site, persona, editorial, seed, material_block, history, models):
+    recent = history["items"][-10:]
+    recent_block = "\n".join("- 第 %s 页：%s" % (it.get("slug", ""), it.get("title", ""))
+                             for it in recent) or "（这是第一页）"
+
+    if seed.get("kind") == "question":
+        seed_block = ('读者在旧帖里问过一句：\n「%s」\n（来自第 %s 页《%s》）\n'
+                      '这一页就回答它。不要只给结论，要给过程、给取舍。'
+                      % (seed["text"], seed.get("from", "?"), seed.get("from_title", "")))
+    else:
+        seed_block = "本轮主题：%s" % seed.get("text", "")
 
     avoid = ("\n\n【不要写这些】" + editorial[:400]) if editorial else ""
-    system = persona + avoid + "\n\n你现在在给站点「%s」写今天的文章。只输出 JSON，不要任何解释文字。" % site["name"]
 
-    user = """【今天的选题】
-{topic}
-切入角度：{angle}
-为什么现在写：{why}
+    system = (persona + avoid +
+              "\n\n你在维护一个论坛式连载帖，每天更新一页。"
+              "\n这一页由「1 楼主贴 + 若干楼层」组成，只输出 JSON。")
 
-【素材】
+    user = """今天是 {today}。这是帖子的下一轮更新。
+
+{seed}
+
+【可用的信源素材】（只能引用这里的事实，不要编造）
 {material}
 
-【关键词池（可选，用来组织内容）】
-{kw}
-
-【最近写过的（不要重复同样的观点和例子）】
+【最近写过的页】（不要重复同样的话题）
 {recent}
 
 【写作要求】
-1. 全文 {wc} 字左右（中文）。口语化，像跟人聊天，不用"首先其次最后"这种作文结构。
-2. 素材里的事实必须准确引用，不要衍生、不要编造数字、人名、机构、价格。素材没提到的具体数据，就别写。
-3. 不要复述新闻。素材只是个起点，你要给判断、给方法、给能落地的建议。
-4. 用 markdown：3-5 个二级标题（##），可以有小列表，少用表格。
-5. 开头 2-3 句抓住人，结尾给一个具体可执行的动作，不要"综上所述"。
-6. 不要在正文里写"参考资料""来源"这类区块，程序会自动加。
-7. 不要出现"作为AI""以下是文章"这类元话语。
+1. 主楼（1 楼）{wc} 字左右中文，回答上面那个问题或展开主题。要有判断、有具体做法，不要通稿。
+2. 后面接 3-5 个楼层，每层 60~200 字，模拟真实网友讨论：
+   - 有人补充自己的经验
+   - 有人提出反对或质疑
+   - 有人追问细节
+   - 楼主可以出来回一两条
+   不要全是附和，要有分歧，读起来像真在讨论。
+3. 楼层作者用化名，如「网友·阿强」「网友·小北」「路人」，楼主写「楼主」。
+4. 事实只用素材里的，素材没提到的具体数字、价格、人名不要写。观点可以自己给。
+5. 第一个 `#` 是页面标题（20 字内），主楼正文紧跟其后。
+
+【输出格式（严格按这个结构，楼层必须是 "## N楼 · 作者 · 时间"）】
+# 页面标题
+
+主楼正文……
+
+## 2楼 · 网友·阿强 · 10:12
+楼层内容……
+
+## 3楼 · 网友·小北 · 10:20
+楼层内容……
+
+## 4楼 · 楼主 · 10:35
+楼主回复……
 
 【输出 JSON】
-{{
-  "title": "标题，20字以内，有点击欲但不标题党",
-  "slug": "英文小写连字符，如 ai-note-tools",
-  "summary": "60字以内摘要",
-  "tags": ["3到5个中文标签"],
-  "content_md": "完整 markdown 正文"
-}}""".format(
-        topic=topic.get("topic", ""),
-        angle=topic.get("angle", ""),
-        why=topic.get("why", ""),
+{{"title": "页面标题", "question": "这一页要回答的问题（一句话）", "content_md": "完整的 markdown，从 # 标题开始"}}""".format(
+        today=datetime.datetime.now(BJT).strftime("%Y-%m-%d"),
+        seed=seed_block,
         material=material_block,
-        kw="、".join(k["keyword"] for k in keywords),
-        recent=recent or "（暂无）",
-        wc=os.environ.get("WORD_COUNT", "1600"),
+        recent=recent_block,
+        wc=os.environ.get("WORD_COUNT", "1000"),
     )
 
     return ask_json([
@@ -575,48 +542,7 @@ def step_write(site, persona, editorial, keywords, history, topic, picks, cands,
     ], models, temperature=0.85, timeout=WRITE_TIMEOUT)
 
 
-def step_write_fallback(site, persona, keywords, history, forced, models):
-    """没抓到素材时的兜底：纯关键词写作"""
-    recent = "\n".join("- " + it.get("title", "") for it in history["items"][-20:]) or "（暂无）"
-    kw_block = "\n".join("- %s%s" % (k["keyword"], ("（" + k["note"] + "）") if k["note"] else "") for k in keywords)
-
-    system = persona + "\n\n只输出 JSON，不要任何解释文字。"
-    user = """今天是 {today}。今天没抓到外部素材，从关键词池里自己找一个角度写。
-
-【关键词池】
-{kw}
-
-【已经写过（不要重复）】
-{recent}
-
-【要求】
-1. {wc} 字左右中文，口语化，有观点，别写通用清单文。
-2. 不要编造具体的新闻、数字、人名。拿不准就写"我猜""没验证"。
-3. 3-5 个二级标题（##），开头抓人，结尾给可执行建议。
-
-【输出 JSON】
-{{"keyword":"选中的词","title":"标题","slug":"english-slug","summary":"60字摘要","tags":["标签"],"content_md":"markdown 正文"}}""".format(
-        today=datetime.datetime.now(BJT).strftime("%Y-%m-%d"),
-        kw=kw_block, recent=recent,
-        wc=os.environ.get("WORD_COUNT", "1600"),
-    )
-
-    data, resp = ask_json([
-        {"role": "system", "content": system},
-        {"role": "user", "content": user},
-    ], models, temperature=0.85, timeout=WRITE_TIMEOUT)
-    if forced:
-        data["keyword"] = forced
-    return data, resp
-
-
-# ---------------------------------------------------------------- 采集自检
-
-def set_budget(seconds):
-    """整条模型链的总时长预算，超了就放弃，避免 workflow 卡到超时"""
-    global _WALL_DEADLINE
-    _WALL_DEADLINE = time.time() + max(60, int(seconds))
-
+# ---------------------------------------------------------------- 自检
 
 def probe(sources_cfg):
     print("== 采集自检 ==")
@@ -639,15 +565,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--probe", action="store_true", help="只测采集")
     ap.add_argument("--rebuild", action="store_true", help="只按现有 md 重建整站")
-    ap.add_argument("-k", "--keyword", default="", help="指定主题，跳过选题分析")
-    ap.add_argument("--force", action="store_true", help="今天发过了也再写一篇（本地测试用）")
+    ap.add_argument("-k", "--keyword", default="", help="指定主题，跳过挖题")
+    ap.add_argument("--force", action="store_true", help="今天写过也再写一页")
     args = ap.parse_args()
 
     site = load_site()
 
     if args.rebuild:
         stat = sitebuilder.build(site, DOCS, site["base_url"])
-        log("重建完成：%d 篇 / %d 页 / %d 个标签" % (stat["posts"], stat["pages"], stat["tags"]))
+        log("重建完成：%d 页 / %d 层 / %d 字" % (stat["pages"], stat["floors"], stat["words"]))
         return
 
     sources_cfg = load_json(os.path.join(CONFIG, "sources.json"), {"sources": []})
@@ -660,106 +586,136 @@ def main():
     keywords = load_keywords()
     history = load_history()
     models = resolve_models(os.environ.get("OPENROUTER_MODEL", ""))
-    log("模型链（%s，共 %d 个）：%s%s" % (
-        "只允许免费" if free_only_enabled() else "允许付费",
-        len(models),
-        " → ".join(models[:5]),
-        " …" if len(models) > 5 else ""))
     forced = args.keyword.strip() or os.environ.get("FORCE_KEYWORD", "").strip()
+
+    log("模型链（%s，共 %d 个）：%s%s" % (
+        "只允许免费" if free_only_enabled() else "允许付费", len(models),
+        " → ".join(models[:5]), " …" if len(models) > 5 else ""))
 
     now = datetime.datetime.now(BJT)
     date_str = now.strftime("%Y-%m-%d")
     if any(it.get("date") == date_str for it in history["items"]) and not forced and not args.force:
-        log("今天已经发过了（%s），只重建站点。想补发请手动触发并指定关键词。" % date_str)
+        log("今天已经更新过（%s），只重建站点。想再写一页用 --force。" % date_str)
         sitebuilder.build(site, DOCS, site["base_url"])
         return
 
-    # 1. 采集
-    items = [] if forced else src.collect(
-        sources_cfg.get("sources", []),
-        window_hours=sources_cfg.get("window_hours", 48),
-    )
-    cands = rank_candidates(items, keywords, now)[:int(sources_cfg.get("max_candidates", 24))]
-
-    # 采集完成之后再开始计时：模型链最多跑这么久
-    budget = int(os.environ.get("MODEL_BUDGET_SECONDS", "600"))
-    set_budget(budget)
-    log("模型总时长预算：%d 秒" % budget)
-
-    # 2. 选题
-    topic, picks = {}, []
+    # ---- 1. 挖题
+    seed = None
     if forced:
-        topic = {"topic": forced, "angle": "", "why": "手动指定", "keyword": forced}
+        seed = {"kind": "topic", "text": forced, "from": "手动指定"}
         log("手动指定主题：" + forced)
-    elif len(cands) >= 3:
-        log("候选 %d 条，开始选题分析" % len(cands))
-        topic, picks = step_pick(site, persona, editorial, keywords, history, cands, models)
-        log("选题：%s | picks=%s" % (topic.get("topic") or "（模型认为都不值得写）", picks))
     else:
-        log("候选太少（%d 条），走纯关键词兜底" % len(cands))
+        questions = mine.scan_questions(POSTS)
+        recent_slugs = [it.get("slug") for it in history["items"][-6:]]
+        q = mine.pick_question(questions, recent_slugs)
+        if q:
+            seed = {"kind": "question", "text": q["text"], "from": q["slug"],
+                    "from_title": q["page_title"]}
+            log("从旧帖挖到 %d 条疑问，选中：%s" % (len(questions), q["text"][:60]))
+        else:
+            log("旧帖里没挖到疑问（%d 条），走热点选题" % len(questions))
 
-    # 3. 写作
-    if topic.get("topic"):
-        data, resp = step_write(site, persona, editorial, keywords, history, topic, picks, cands, models)
-        used = [{"title": cands[i]["title"], "url": cands[i]["url"], "source": cands[i]["source"]} for i in picks]
-    else:
-        data, resp = step_write_fallback(site, persona, keywords, history, forced, models)
-        used = []
-        topic = {"angle": "", "why": "无外源素材，纯关键词生成", "keyword": data.get("keyword", forced)}
+    # ---- 2. 取材
+    items = src.collect(sources_cfg.get("sources", []),
+                        window_hours=sources_cfg.get("window_hours", 48))
+    cands = rank_candidates(items, keywords, now)[:24]
 
-    title = (data.get("title") or "").strip()
+    search_cfg = sources_cfg.get("search") or {}
+    if seed:
+        extra = search_web(seed["text"], search_cfg, keywords)
+        if extra:
+            cands = extra + cands
+
+    material_block = render_material(cands, 8)
+
+    set_budget(int(os.environ.get("MODEL_BUDGET_SECONDS", "600")))
+    log("模型总时长预算：%d 秒" % int(os.environ.get("MODEL_BUDGET_SECONDS", "600")))
+
+    if not seed:
+        if not cands:
+            sys.exit("没挖到疑问，也没抓到任何素材，本轮跳过")
+        seed = {"kind": "topic", "text": cands[0]["title"], "from": cands[0]["source"]}
+        log("用热点当主题：" + seed["text"])
+
+    # ---- 3. 写作
+    data, resp = step_write_page(site, persona, editorial, seed, material_block, history, models)
+
     content_md = (data.get("content_md") or data.get("content") or "").strip()
-    if not title or len(content_md) < 200:
-        sys.exit("产出不完整：title=%r 正文%d字" % (title, len(content_md)))
+    if len(content_md) < 300:
+        sys.exit("产出太短（%d 字），判定失败" % len(content_md))
 
-    slug = re.sub(r"[^a-z0-9\-]+", "-", (data.get("slug") or "").strip().lower()).strip("-")
-    if not slug:
-        slug = "post-" + str(abs(hash(title)) % 100000)
+    # 标题：优先 content_md 里的 # 行
+    m = re.match(r"^\s*#\s+(.+)$", content_md, re.M)
+    title = (m.group(1).strip() if m else (data.get("title") or "").strip()) or seed.get("text", "")[:20]
+    if not content_md.lstrip().startswith("#"):
+        content_md = "# " + title + "\n\n" + content_md
+
+    question = (data.get("question") or (seed["text"] if seed["kind"] == "question" else "")).strip()
+
+    # ---- 4. 落盘
+    os.makedirs(POSTS, exist_ok=True)
+    no = next_page_no(POSTS)
+    slug = "%03d" % no
+    used_model = resp.get("_used_model") or models[0]
+
+    front = [
+        "---",
+        "title: %s" % title,
+        "date: %s" % date_str,
+        "page: %d" % no,
+        "question: %s" % (question or ""),
+        "model: %s" % used_model,
+        "model_name: %s" % model_display_name(used_model),
+        "---",
+        "",
+    ]
+    with open(os.path.join(POSTS, slug + ".md"), "w", encoding="utf-8") as f:
+        f.write("\n".join(front) + content_md + "\n")
 
     meta = {
         "date": date_str,
+        "slug": slug,
+        "page": no,
         "title": title,
-        "slug": "%s-%s" % (date_str, slug),
-        "summary": (data.get("summary") or content_md[:60]).strip(),
-        "keyword": (topic.get("keyword") or data.get("keyword") or "").strip(),
-        "angle": (topic.get("angle") or "").strip(),
-        "why": (topic.get("why") or "").strip(),
-        "tags": [str(t).strip() for t in (data.get("tags") or []) if str(t).strip()][:5],
-        "sources": used,
-        "model": resp.get("_used_model") or models[0],
-        "model_name": model_display_name(resp.get("_used_model") or models[0]),
+        "question": question,
+        "words": len(content_md),
+        "model": used_model,
+        "model_name": model_display_name(used_model),
+        "seed_kind": seed.get("kind"),
     }
-
-    # 4. 落盘：md + 历史
-    os.makedirs(POSTS, exist_ok=True)
-    with open(os.path.join(POSTS, meta["slug"] + ".md"), "w", encoding="utf-8") as f:
-        f.write("---\ntitle: %s\ndate: %s\nauthor: %s\ntags: %s\nsummary: %s\n---\n\n" % (
-            title, date_str, meta["model_name"], ", ".join(meta["tags"]), meta["summary"]))
-        f.write(content_md + "\n")
-        if used:
-            f.write("\n## 参考资料\n\n")
-            for i, s in enumerate(used, 1):
-                f.write("%d. [%s](%s) — %s\n" % (i, s["title"], s["url"], s["source"]))
-
     history["items"].append(meta)
     with open(HISTORY, "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
-    with open(os.path.join(DOCS, "index.json"), "w", encoding="utf-8") as f:
-        json.dump(history["items"], f, ensure_ascii=False, indent=2)
-
-    # 5. 建站
-    stat = sitebuilder.build(site, DOCS, site["base_url"])
 
     try:
         with open(os.path.join(DOCS, ".model_used"), "w", encoding="utf-8") as f:
-            f.write(meta["model"])
+            f.write(used_model)
     except Exception:
         pass
 
+    # ---- 5. 建站
+    stat = sitebuilder.build(site, DOCS, site["base_url"])
+
     u = resp.get("usage") or {}
-    log("完成：《%s》 %d 字 | 素材 %d 条 | tokens %s | 站内 %d 篇 / %d 页" % (
-        title, len(content_md), len(used), u.get("total_tokens", "?"), stat["posts"], stat["pages"]))
+    log("完成：第 %d 页《%s》 %d 字 | 站内共 %d 页 | tokens %s" % (
+        no, title, len(content_md), stat["pages"], u.get("total_tokens", "?")))
+
+
+def _dump_error(msg):
+    try:
+        with open("/tmp/daily_error.txt", "w", encoding="utf-8") as f:
+            f.write(str(msg)[:500])
+    except Exception:
+        pass
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit as e:
+        if e.code not in (0, None):
+            _dump_error(e.code)
+        raise
+    except Exception as e:
+        _dump_error(repr(e))
+        raise

@@ -2,8 +2,10 @@ name: daily-post
 
 on:
   schedule:
-    # UTC 23:00 = 北京时间次日 07:00
-    - cron: '0 23 * * *'
+    # 北京时间 07:00 / 11:00 / 15:00 / 19:00 各试一次（UTC 23,3,7,11）
+    # GitHub 的定时任务会被延迟甚至整点吞掉，多设几次 + 脚本自带幂等，
+    # 前面几次被吞了后面还能补上，当天已发就自动跳过
+    - cron: '0 23,3,7,11 * * *'
   workflow_dispatch:
     inputs:
       mode:
@@ -17,7 +19,7 @@ on:
         required: false
         type: string
       model:
-        description: '留空即用全部免费模型轮换；也可写 free 或具体模型（FREE_ONLY=1 时付费会被过滤）'
+        description: '留空即用全部免费模型轮换'
         required: false
         type: string
 
@@ -48,20 +50,21 @@ jobs:
         run: python scripts/generate.py --rebuild
 
       - name: 选题 + 写作 + 建站
+        id: gen
         if: ${{ github.event.inputs.mode == 'auto' || github.event.inputs.mode == '' }}
+        continue-on-error: true
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODEL: ${{ github.event.inputs.model || vars.OPENROUTER_MODEL || 'free' }}
           FORCE_KEYWORD: ${{ github.event.inputs.keyword }}
           WORD_COUNT: ${{ vars.WORD_COUNT || '1600' }}
-          # 1 = 只允许免费模型，即使上面填了付费模型也会被过滤掉
           FREE_ONLY: ${{ vars.FREE_ONLY || '1' }}
-          # 没配的话脚本会按仓库名自动推 https://<owner>.github.io/<repo>
+          MODEL_BUDGET_SECONDS: ${{ vars.MODEL_BUDGET_SECONDS || '600' }}
           SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
         run: python scripts/generate.py
 
       - name: 提交并推送
-        if: ${{ github.event.inputs.mode != 'probe' }}
+        if: ${{ steps.gen.outcome == 'success' }}
         run: |
           git config user.name  "daily-bot"
           git config user.email "daily-bot@users.noreply.github.com"
@@ -72,6 +75,16 @@ jobs:
             git commit -m "post: $(TZ=Asia/Shanghai date +%Y-%m-%d) 自动更新"
             git push
           fi
+
+      - name: 推送结果到企业微信
+        if: ${{ always() && (github.event.inputs.mode == 'auto' || github.event.inputs.mode == '') }}
+        env:
+          WECOM_WEBHOOK: ${{ secrets.WECOM_WEBHOOK }}
+          STATUS: ${{ steps.gen.outcome }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SITE_NAME: ${{ vars.SITE_NAME }}
+          SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
+        run: python scripts/notify.py
 
       # Pages 用「分支部署」时到这里结束：提交进 main 的 docs/ 后 Pages 自动重建。
       # 若把 Pages 源改成「GitHub Actions」，删掉上面的推送步骤，改用下面这段，

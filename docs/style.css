@@ -407,3 +407,144 @@ body {
 .card a {
   overflow-wrap: anywhere;
 }
+
+/* ================= 论坛式布局 ================= */
+
+.board {
+  margin-left: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.board::before { content: "·"; margin-right: 10px; }
+
+.board-intro {
+  margin: 26px 0 6px;
+  padding: 20px 22px;
+  background: rgba(128, 128, 128, .06);
+  border-radius: 8px;
+  font-size: 15px;
+}
+.board-intro p:last-child { margin-bottom: 0; }
+.board-intro p:first-child { margin-top: 0; }
+
+.page-title {
+  font-size: 27px;
+  line-height: 1.45;
+  font-weight: 600;
+  margin: 34px 0 8px;
+}
+
+.page-meta {
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: .04em;
+  margin-bottom: 8px;
+}
+
+/* ---- 楼层 ---- */
+
+.floor {
+  display: flex;
+  gap: 13px;
+  padding: 22px 0;
+  border-top: 1px solid var(--line);
+}
+
+.floor.main { border-top: none; padding-top: 16px; }
+
+.fav {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-family: "Songti SC", Georgia, serif;
+  user-select: none;
+}
+
+.fmain { flex: 1; min-width: 0; }
+
+.fhead {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+.fno {
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+.fau { color: var(--muted); }
+.fhead time {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fbody { font-size: 16.5px; }
+.fbody p { margin: 0 0 14px; }
+.fbody p:last-child { margin-bottom: 0; }
+.fbody h2, .fbody h3 { font-size: 17px; margin: 18px 0 8px; }
+.floor.main .fbody { font-size: 17px; }
+
+/* ---- 分页 ---- */
+
+.pager {
+  margin-top: 44px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.pcount {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: .06em;
+  margin-bottom: 16px;
+}
+
+.pnav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.pnav a,
+.pnav .cur,
+.pnav .off {
+  display: inline-block;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.pnav a:hover { border-color: var(--accent); color: var(--accent); }
+.pnav .cur {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-style: normal;
+  font-weight: 600;
+}
+.pnav .off { border-color: transparent; color: var(--muted); opacity: .4; }
+.pnav .gap { color: var(--muted); padding: 0 2px; }
+
+.foot .dot { margin: 0 6px; opacity: .5; }
+
+@media (max-width: 480px) {
+  .page-title { font-size: 23px; }
+  .floor { gap: 10px; padding: 18px 0; }
+  .fav { width: 30px; height: 30px; font-size: 13px; }
+  .fbody, .floor.main .fbody { font-size: 16px; }
+}
