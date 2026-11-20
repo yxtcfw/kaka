@@ -117,6 +117,8 @@ def md_to_html(md):
         if m:
             flush_list()
             lvl = len(m.group(1))
+            if lvl == 1:
+                lvl = 2   # 正文里不允许出现 h1，页标题由模板负责
             out.append("<h%d>%s</h%d>" % (lvl, inline(m.group(2)), lvl))
             i += 1
             continue
@@ -400,8 +402,7 @@ def floor_html(f, is_main=False, rel=""):
         head.append('<span class="fnick">%s</span>' % esc(nick))
     if sign:
         head.append('<span class="fsign">%s</span>' % esc(sign))
-    if when:
-        head.append('<time>%s</time>' % esc(when))
+    # 时间默认不显示（md 里保留，需要时可加回来）
     head_html = ('<div class="fhead">%s</div>' % "".join(head)) if head else ""
 
     avatar = ""
@@ -504,10 +505,7 @@ def build(site, docs_dir, base_url=""):
         if cur == 1:
             body += board_intro(docs_dir, rel)
 
-        body += '<h1 class="page-title">%s</h1>' % esc(p["title"])
-        body += '<div class="page-meta">第 %d 页%s</div>' % (
-            cur, (" · %d 层" % (len(p["floors"]) + 1)) if p["floors"] else "")
-
+        # 页面标题只进 <title>，正文直接从 1 楼开始
         body += floor_html({"nick": p.get("main_nick"), "time": p.get("main_time"),
                             "body": p["main"]}, is_main=True, rel=rel)
         for f in p["floors"]:
