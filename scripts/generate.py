@@ -67,7 +67,7 @@ def load_text(path, default=""):
 
 def load_site():
     site = load_json(os.path.join(CONFIG, "site.json"), {})
-    site.setdefault("name", "每日一篇")
+    site.setdefault("name", "每日更新")
     site.setdefault("tagline", "")
     site.setdefault("description", "")
     site.setdefault("author", "")
