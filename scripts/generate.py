@@ -105,9 +105,11 @@ def load_keywords():
 
 
 DEFAULT_WRITING = {
-    "main_words": 600,
-    "floor_count": [3, 5],
-    "floor_words": [40, 120],
+    "main_words": 300,
+    "floor_count": [4, 6],
+    "floor_words": [40, 100],
+    "query_terms": "auto",        # auto=脚本优先，命中不够再问模型；script=只脚本；model=只模型
+    "auto_next_question": True,   # 结尾没留问题时，是否补一次小请求
     "extra_rules": "",
 }
 
@@ -372,6 +374,7 @@ def call_openrouter(messages, models, temperature=0.8, retries=None, timeout=Non
     }
 
     last_err = ""
+    codes = []
     for idx, model in enumerate(models):
         payload = {"model": model, "messages": messages, "temperature": temperature,
                    "response_format": {"type": "json_object"}}
@@ -406,6 +409,7 @@ def call_openrouter(messages, models, temperature=0.8, retries=None, timeout=Non
                         msg, re.I)):
                     sys.exit("Key 无效或没权限（HTTP %s）：%s" % (e.code, msg or body[:200]))
 
+                codes.append(e.code)
                 if e.code in (403, 404):
                     mark_bad(model, "HTTP %s %s" % (e.code, msg))
                 _SESSION_BAD.add(model)
@@ -420,7 +424,12 @@ def call_openrouter(messages, models, temperature=0.8, retries=None, timeout=Non
         else:
             log("  %s 重试后仍失败，换下一个" % model)
 
-    sys.exit("模型链全部失败（共 %d 个，最后错误：%s）" % (len(models), last_err))
+    hint = ""
+    if codes and all(c in (429, 402) for c in codes):
+        hint = ("\n提示：整条链都是 429/402，通常是今天的免费额度用完了"
+                "（OpenRouter 免费模型：未充值账户每天 50 次，充值过 $10 是 1000 次）。"
+                "额度每天重置，明天会自动恢复；也可以减少手动测试次数。")
+    sys.exit("模型链全部失败（共 %d 个，最后错误：%s）%s" % (len(models), last_err, hint))
 
 
 def parse_json_reply(text):
@@ -454,17 +463,40 @@ STOP_GRAMS = {"怎么", "什么", "如何", "为什", "么办", "可以", "能�
               "要不", "不要", "多少", "多久", "是不", "不是", "哪些", "哪个", "么样", "什么"}
 
 
-def fallback_terms(text):
-    """没有模型可用时，用 2-gram 粗切关键词"""
-    grams = [text[i:i + 2] for i in range(len(text) - 1)]
+BAD_CHARS = "怎什么如何为吗呢吧啊的了是在有和就都也还"
+
+
+def script_terms(text, keywords):
+    """
+    纯脚本抽检索词，不调模型：
+    1. 关键词池里出现的词优先（你自己定的词最准）
+    2. 英文/数字整体当一个词（GitHub、Actions、3.5）
+    3. 中文按 2-gram 切，剔掉带虚词的组合
+    """
     out, seen = [], set()
-    for g in grams:
-        if g in STOP_GRAMS or re.search(r"[，。？！、；：\s（）《》]", g):
-            continue
-        if g not in seen:
-            seen.add(g)
-            out.append(g)
-    return out[:5]
+
+    def add(w):
+        k = w.lower()
+        if w and k not in seen and len(out) < 8:
+            seen.add(k)
+            out.append(w)
+
+    for k in keywords:
+        kw = (k.get("keyword") or "").strip()
+        if kw and kw in text:
+            add(kw)
+
+    for tok in re.findall(r"[A-Za-z][A-Za-z0-9.\-]{1,}", text):
+        add(tok)
+
+    for seg in re.findall(r"[\u4e00-\u9fff]+", text):
+        for i in range(len(seg) - 1):
+            g = seg[i:i + 2]
+            if g in STOP_GRAMS or any(c in BAD_CHARS for c in g):
+                continue
+            add(g)
+
+    return out[:6]
 
 
 def extract_query_terms(text, models):
@@ -781,18 +813,27 @@ def main():
         seed = {"kind": "topic", "text": cands[0]["title"], "from": cands[0]["source"]}
         log("用热点当主题：" + seed["text"])
 
-    # ---- 2b. 按选题检索：先抽关键词，再到信源里挑相关的
-    terms = extract_query_terms(seed["text"], models)
-
+    # ---- 2b. 按选题检索：先用脚本抽词，命中不够再让模型抽
     search_cfg = sources_cfg.get("search") or {}
     extra = search_web(seed["text"], search_cfg)   # 元搜索没配时返回空
     if extra:
         cands = extra + cands
 
-    cands = rank_by_terms(cands, terms)
-    relevant = [c for c in cands if c.get("rel", 0) > 0][:6]
-    log("检索词：%s ｜ 命中 %d 条相关素材（信源共 %d 条）"
-        % ("、".join(terms), len(relevant), len(cands)))
+    mode = (writing.get("query_terms") or "auto").lower()
+    terms = script_terms(seed["text"], keywords) if mode != "model" else []
+    cands = rank_by_terms(cands, terms) if terms else cands
+    hits = [c for c in cands if c.get("rel", 0) > 0]
+
+    if mode == "model" or (mode == "auto" and len(hits) < 2):
+        if mode == "auto":
+            log("脚本抽词只命中 %d 条，改用模型抽词" % len(hits))
+        terms = extract_query_terms(seed["text"], models)
+        cands = rank_by_terms(cands, terms)
+        hits = [c for c in cands if c.get("rel", 0) > 0]
+
+    relevant = hits[:6]
+    log("检索词：%s%s ｜ 命中 %d 条相关素材（信源共 %d 条）"
+        % ("、".join(terms[:3]), "…" if len(terms) > 3 else "", len(relevant), len(cands)))
 
     if relevant:
         for c in relevant[:3]:
@@ -830,7 +871,7 @@ def main():
     next_qs = [str(x).strip()[:100] for x in (next_qs or []) if str(x).strip()][:4]
     if not next_qs:
         next_qs = tail_questions(content_md, 3)
-    if not next_qs:
+    if not next_qs and writing.get("auto_next_question", True):
         log("楼层里没抠到新问题，补问一次…")
         next_qs = ensure_next_questions(content_md, models)
     log("留给下一页的候选问题：%s" % (" ｜ ".join(next_qs) or "（没有，下一页随机挖）"))
