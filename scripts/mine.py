@@ -75,6 +75,33 @@ def scan_questions(posts_dir, limit=200):
     return out
 
 
+def latest_next_question(posts_dir):
+    """
+    读最新一页 front matter 里的 next_question。
+    这是上一页结尾楼层抛出的问题，下一页要接着回答它。
+    """
+    if not os.path.isdir(posts_dir):
+        return None
+    files = sorted((f for f in os.listdir(posts_dir) if f.endswith(".md")),
+                   key=lambda x: (0, int(re.match(r"^(\d+)", x).group(1)), x)
+                   if re.match(r"^(\d+)", x) else (1, 0, x))
+    for fn in reversed(files):
+        try:
+            with open(os.path.join(posts_dir, fn), "r", encoding="utf-8") as f:
+                head = f.read(600)
+        except Exception:
+            continue
+        m = re.search(r"^next_question:\s*(.+)$", head, re.M)
+        if not m:
+            continue
+        q = m.group(1).strip().strip('"').strip("'")
+        if not q:
+            continue
+        t = re.search(r"^title:\s*(.+)$", head, re.M)
+        return {"text": q, "slug": fn[:-3], "page_title": t.group(1).strip() if t else fn[:-3]}
+    return None
+
+
 def pick_question(questions, exclude_pages=None, seed=None):
     """随机挑一条，尽量避开最近写过的页"""
     if not questions:

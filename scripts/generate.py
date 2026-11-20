@@ -103,6 +103,31 @@ def load_keywords():
     return items
 
 
+DEFAULT_WRITING = {
+    "main_words": 600,
+    "floor_count": [3, 5],
+    "floor_words": [40, 120],
+    "extra_rules": "",
+}
+
+
+def load_writing():
+    w = dict(DEFAULT_WRITING)
+    cfg = load_json(os.path.join(CONFIG, "writing.json"), {})
+    if isinstance(cfg, dict):
+        w.update({k: v for k, v in cfg.items() if v not in (None, "")})
+    # 环境变量还能临时覆盖
+    if os.environ.get("WORD_COUNT", "").strip().isdigit():
+        w["main_words"] = int(os.environ["WORD_COUNT"].strip())
+    try:
+        w["main_words"] = max(200, int(w["main_words"]))
+        w["floor_count"] = [int(x) for x in w["floor_count"]]
+        w["floor_words"] = [int(x) for x in w["floor_words"]]
+    except Exception:
+        w = dict(DEFAULT_WRITING)
+    return w
+
+
 def load_history():
     h = load_json(HISTORY, {"items": []})
     if not isinstance(h, dict) or not isinstance(h.get("items"), list):
@@ -463,6 +488,37 @@ def search_web(query, cfg, keywords):
 
 # ---------------------------------------------------------------- 写作
 
+def last_floor_question(content_md):
+    """模型没给 next_question 时，从最后一层里抠出一个带问号的句子"""
+    parts = re.split(r"^##\s*\d+\s*楼.*$", content_md, flags=re.M)
+    if len(parts) < 2:
+        return ""
+    tail = parts[-1]
+    sents = [x.strip() for x in re.split(r"(?<=[。！？!?])", tail) if x.strip()]
+    qs = [x for x in sents if "？" in x or "?" in x]
+    return qs[-1][:120] if qs else ""
+
+
+def ensure_next_question(content_md, models):
+    """兜底：让模型只吐一个问题，给下一页留钩子（很便宜的一次小调用）"""
+    tail = content_md[-1500:]
+    try:
+        data, _ = ask_json([
+            {"role": "system", "content": "你是一个论坛帖的楼主。只输出 JSON，不要解释。"},
+            {"role": "user", "content": (
+                "下面这页帖子已经写完了，但结尾没留下问题，下一页就接不上。\n"
+                "请根据这页讨论的内容，提出一个「下一页值得回答的新问题」。\n"
+                "要求：具体、能落到「怎么办 / 值不值 / 该选哪个」，一句话，30 字以内。\n\n"
+                "【页面内容】\n" + tail + "\n\n"
+                '【输出 JSON】{"next_question": "..."}'
+            )},
+        ], models, temperature=0.8, timeout=REQUEST_TIMEOUT)
+        return (data.get("next_question") or "").strip()[:120]
+    except BaseException as e:   # 包括 SystemExit，不能让补问题把整页废掉
+        log("补问题失败（%r），下一页会从旧帖随机挖" % (e,))
+        return ""
+
+
 def next_page_no(posts_dir):
     nums = []
     if os.path.isdir(posts_dir):
@@ -473,17 +529,24 @@ def next_page_no(posts_dir):
     return (max(nums) + 1) if nums else 1
 
 
-def step_write_page(site, persona, editorial, seed, material_block, history, models):
+def step_write_page(site, persona, editorial, seed, material_block, history, models, writing):
     recent = history["items"][-10:]
     recent_block = "\n".join("- 第 %s 页：%s" % (it.get("slug", ""), it.get("title", ""))
                              for it in recent) or "（这是第一页）"
 
     if seed.get("kind") == "question":
-        seed_block = ('读者在旧帖里问过一句：\n「%s」\n（来自第 %s 页《%s》）\n'
-                      '这一页就回答它。不要只给结论，要给过程、给取舍。'
+        seed_block = ('上一页结尾，有人抛出了这个问题：\n「%s」\n（来自第 %s 页《%s》）\n'
+                      '这一页就从它开始。不要第一段就给出完整答案，\n'
+                      '让后面几层楼一层一层把答案拼出来。'
                       % (seed["text"], seed.get("from", "?"), seed.get("from_title", "")))
     else:
         seed_block = "本轮主题：%s" % seed.get("text", "")
+
+    mw = writing["main_words"]
+    mw_max = int(mw * 1.2)
+    fc_min, fc_max = writing["floor_count"]
+    fw_min, fw_max = writing["floor_words"]
+    extra = writing.get("extra_rules") or ""
 
     avoid = ("\n\n【不要写这些】" + editorial[:400]) if editorial else ""
 
@@ -501,39 +564,57 @@ def step_write_page(site, persona, editorial, seed, material_block, history, mod
 【最近写过的页】（不要重复同样的话题）
 {recent}
 
-【写作要求】
-1. 主楼（1 楼）{wc} 字左右中文，回答上面那个问题或展开主题。要有判断、有具体做法，不要通稿。
-2. 后面接 3-5 个楼层，每层 60~200 字，模拟真实网友讨论：
-   - 有人补充自己的经验
-   - 有人提出反对或质疑
-   - 有人追问细节
-   - 楼主可以出来回一两条
-   不要全是附和，要有分歧，读起来像真在讨论。
-3. 楼层作者用化名，如「网友·阿强」「网友·小北」「路人」，楼主写「楼主」。
-4. 事实只用素材里的，素材没提到的具体数字、价格、人名不要写。观点可以自己给。
-5. 第一个 `#` 是页面标题（20 字内），主楼正文紧跟其后。
+【篇幅】
+主楼 {mw} 字，最多不超过 {mw_max} 字。
+楼层 {fc_min}~{fc_max} 个，每个 {fw_min}~{fw_max} 字。
+超出就删段落，不许为了凑字数加空话。
 
-【输出格式（严格按这个结构，楼层必须是 "## N楼 · 作者 · 时间"）】
-# 页面标题
+【干货规则（最重要）】
+1. 每一段必须带一个具体信息：一个事实、一个数字、一个做法、或者一个明确判断。做不到就把这段删掉。
+2. 禁止这些句子：铺垫（"在当今这个时代"）、转场（"接下来我们看看"）、总结（"总而言之""综上所述"）、空洞形容（"非常重要""十分强大"）。
+3. 不要科普常识。读者知道什么是备份，不用解释备份的定义。
+4. 同一件事只说一遍，不要正面说完反面再说一遍。
+5. 宁可短，不要长。写不完的点，留到下一层楼里说。
+{extra}
 
-主楼正文……
+【这一页的结构（必须遵守）】
+1. **1 楼主楼**：直接回应上一页结尾提出的问题。第一句就上正题，不铺垫。
+   不要在这一层把话说尽，留一部分给后面的楼层。
+2. **2 楼**：一个网友提出一个**具体的痛点问题**，带场景、带前提。
+   好的例子：「我按你说的删到只剩三个工具，结果跨设备同步没了，这个怎么补？」
+   差的例子：「那到底该怎么做呢？」「有没有更好的办法？」
+   这一层是全页的引子，后面的讨论都围着它转。
+3. **3~N 楼**：围绕这个问题来回拉扯——有人给具体做法、有人反驳、有人追问细节、楼主补刀。
+   **答案在这些楼层里一点点拼出来，不要在第一层就说完。**
+   允许分歧，允许没有标准答案，但每一层都要给出一个能用的信息。
+4. **最后一层**：必须提出一个**新问题**，是这次讨论自然延伸出来的。
+   要具体、能落到「怎么办 / 值不值 / 该选哪个」，用来引出下一页。
 
-## 2楼 · 网友·阿强 · 10:12
-楼层内容……
+【楼层怎么写】
+- 每层 40~120 字，短。一层只说一件事，说透就停。
+- 不要全在附和，要有人唱反调，读起来像真在讨论。
+- 每层都要有干货：一个做法、一个数字、一个坑、或者一个明确判断。
+- 作者用化名，如「网友·阿强」「网友·小北」「路人」，楼主写「楼主」。
+- 楼层标题必须是：## N楼 · 作者 · 时间，从 2 楼开始。
 
-## 3楼 · 网友·小北 · 10:20
-楼层内容……
-
-## 4楼 · 楼主 · 10:35
-楼主回复……
+【格式】
+- **不要输出一级标题（# ）**，标题单独放在 JSON 的 title 字段里。
+- 正文第一句就是内容，不要"下面是正文"这种引子。
+- 小标题用 ##，但优先用在楼层上。
 
 【输出 JSON】
-{{"title": "页面标题", "question": "这一页要回答的问题（一句话）", "content_md": "完整的 markdown，从 # 标题开始"}}""".format(
+{{"title": "页面标题，20字以内",
+  "question": "这一页要回答的问题（一句话）",
+  "next_question": "最后一层提出的新问题，一句话，要具体",
+  "content_md": "主楼正文 + 楼层，不含一级标题"}}""".format(
         today=datetime.datetime.now(BJT).strftime("%Y-%m-%d"),
         seed=seed_block,
         material=material_block,
         recent=recent_block,
-        wc=os.environ.get("WORD_COUNT", "1000"),
+        mw=mw, mw_max=mw_max,
+        fc_min=fc_min, fc_max=fc_max,
+        fw_min=fw_min, fw_max=fw_max,
+        extra=extra,
     )
 
     return ask_json([
@@ -583,6 +664,7 @@ def main():
 
     persona = load_text(os.path.join(CONFIG, "persona.md"), "你是一位中文写作好手。")
     editorial = load_text(os.path.join(CONFIG, "editorial.md"), "")
+    writing = load_writing()
     keywords = load_keywords()
     history = load_history()
     models = resolve_models(os.environ.get("OPENROUTER_MODEL", ""))
@@ -605,15 +687,23 @@ def main():
         seed = {"kind": "topic", "text": forced, "from": "手动指定"}
         log("手动指定主题：" + forced)
     else:
-        questions = mine.scan_questions(POSTS)
-        recent_slugs = [it.get("slug") for it in history["items"][-6:]]
-        q = mine.pick_question(questions, recent_slugs)
-        if q:
-            seed = {"kind": "question", "text": q["text"], "from": q["slug"],
-                    "from_title": q["page_title"]}
-            log("从旧帖挖到 %d 条疑问，选中：%s" % (len(questions), q["text"][:60]))
+        # 首选：接上一页结尾楼层抛出的新问题，形成连载
+        nq = mine.latest_next_question(POSTS)
+        if nq:
+            seed = {"kind": "question", "text": nq["text"], "from": nq["slug"],
+                    "from_title": nq["page_title"]}
+            log("承接第 %s 页结尾的问题：%s" % (nq["slug"], nq["text"][:60]))
         else:
-            log("旧帖里没挖到疑问（%d 条），走热点选题" % len(questions))
+            # 退路：从旧帖里随机挖
+            questions = mine.scan_questions(POSTS)
+            recent_slugs = [it.get("slug") for it in history["items"][-6:]]
+            q = mine.pick_question(questions, recent_slugs)
+            if q:
+                seed = {"kind": "question", "text": q["text"], "from": q["slug"],
+                        "from_title": q["page_title"]}
+                log("上一页没留问题，从旧帖挖到 %d 条疑问，选中：%s" % (len(questions), q["text"][:60]))
+            else:
+                log("旧帖里没挖到疑问（%d 条），走热点选题" % len(questions))
 
     # ---- 2. 取材
     items = src.collect(sources_cfg.get("sources", []),
@@ -638,19 +728,32 @@ def main():
         log("用热点当主题：" + seed["text"])
 
     # ---- 3. 写作
-    data, resp = step_write_page(site, persona, editorial, seed, material_block, history, models)
+    data, resp = step_write_page(site, persona, editorial, seed, material_block, history, models, writing)
 
     content_md = (data.get("content_md") or data.get("content") or "").strip()
-    if len(content_md) < 300:
-        sys.exit("产出太短（%d 字），判定失败" % len(content_md))
 
-    # 标题：优先 content_md 里的 # 行
-    m = re.match(r"^\s*#\s+(.+)$", content_md, re.M)
-    title = (m.group(1).strip() if m else (data.get("title") or "").strip()) or seed.get("text", "")[:20]
-    if not content_md.lstrip().startswith("#"):
-        content_md = "# " + title + "\n\n" + content_md
+    # 正文不许有一级标题：模型要是写了就剥掉，标题统一用 JSON 里的
+    title = (data.get("title") or "").strip()
+    m = re.match(r"\A\s*#\s+(.+?)\s*\n", content_md)
+    if m:
+        title = title or m.group(1).strip()
+        content_md = content_md[m.end():].lstrip()
+    if not title:
+        title = (seed.get("text") or "无题")[:20]
+
+    min_words = max(150, int(writing["main_words"] * 0.5))
+    if len(content_md) < min_words:
+        sys.exit("产出太短（%d 字，阈值 %d），判定失败" % (len(content_md), min_words))
+
+    # 落盘时把标题补回去，md 里保持 # 标题 + 正文
+    content_md = "# " + title + "\n\n" + content_md
 
     question = (data.get("question") or (seed["text"] if seed["kind"] == "question" else "")).strip()
+    next_q = (data.get("next_question") or "").strip() or last_floor_question(content_md)
+    if not next_q:
+        log("结尾没留问题，补问一次…")
+        next_q = ensure_next_question(content_md, models)
+    log("结尾留下的问题：%s" % (next_q or "（仍然没有，下一页从旧帖随机挖）")[:70])
 
     # ---- 4. 落盘
     os.makedirs(POSTS, exist_ok=True)
@@ -664,6 +767,7 @@ def main():
         "date: %s" % date_str,
         "page: %d" % no,
         "question: %s" % (question or ""),
+        "next_question: %s" % (next_q or ""),
         "model: %s" % used_model,
         "model_name: %s" % model_display_name(used_model),
         "---",
@@ -678,6 +782,7 @@ def main():
         "page": no,
         "title": title,
         "question": question,
+        "next_question": next_q,
         "words": len(content_md),
         "model": used_model,
         "model_name": model_display_name(used_model),
