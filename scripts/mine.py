@@ -5,6 +5,7 @@
 纯字符串层面筛选，不调模型。
 """
 
+import json
 import os
 import random
 import re
@@ -75,10 +76,10 @@ def scan_questions(posts_dir, limit=200):
     return out
 
 
-def latest_next_question(posts_dir):
+def latest_next_questions(posts_dir):
     """
-    读最新一页 front matter 里的 next_question。
-    这是上一页结尾楼层抛出的问题，下一页要接着回答它。
+    读最新一页里留下的候选问题（next_questions，JSON 数组），
+    下一页从里面挑一个来讨论。
     """
     if not os.path.isdir(posts_dir):
         return None
@@ -88,17 +89,23 @@ def latest_next_question(posts_dir):
     for fn in reversed(files):
         try:
             with open(os.path.join(posts_dir, fn), "r", encoding="utf-8") as f:
-                head = f.read(600)
+                head = f.read(800)
         except Exception:
             continue
-        m = re.search(r"^next_question:\s*(.+)$", head, re.M)
+        m = re.search(r"^next_questions:\s*(.+)$", head, re.M)
         if not m:
             continue
-        q = m.group(1).strip().strip('"').strip("'")
-        if not q:
+        raw = m.group(1).strip()
+        try:
+            qs = json.loads(raw)
+        except Exception:
+            qs = [raw.strip('"').strip("'")]
+        qs = [str(q).strip() for q in qs if str(q).strip()]
+        if not qs:
             continue
         t = re.search(r"^title:\s*(.+)$", head, re.M)
-        return {"text": q, "slug": fn[:-3], "page_title": t.group(1).strip() if t else fn[:-3]}
+        return {"questions": qs, "slug": fn[:-3],
+                "page_title": t.group(1).strip() if t else fn[:-3]}
     return None
 
 

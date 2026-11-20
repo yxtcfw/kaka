@@ -25,6 +25,10 @@ import os
 import re
 from urllib.parse import quote
 
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+NAMES_FILE = os.path.join(ROOT, "config", "names.json")
+_NAMES = None
+
 BJT = datetime.timezone(datetime.timedelta(hours=8))
 FEED_SIZE = 20
 PAGER_SIDE = 2  # 页码条里当前页左右各显示几个
@@ -184,27 +188,18 @@ def esc(s):
     return html.escape(str(s or ""), quote=True)
 
 
-def pretty_model(mid):
-    s = (mid or "").strip()
-    if not s:
-        return ""
-    is_free = s.endswith(":free")
-    if is_free:
-        s = s[:-5]
-    s = s.split("/")[-1]
-    parts = [p for p in s.replace("_", "-").split("-") if p]
-    out = []
-    for p in parts:
-        if p.isdigit():
-            out.append(p)
-        elif re.fullmatch(r"\d+[bm]", p):
-            out.append(p.upper())
-        elif p in ("it", "instruct"):
-            continue
-        else:
-            out.append(p[:1].upper() + p[1:])
-    name = " ".join(out) or s
-    return name + ("（免费）" if is_free else "")
+def names_map():
+    """config/names.json → {昵称: 签名}"""
+    global _NAMES
+    if _NAMES is None:
+        rows = []
+        try:
+            with open(NAMES_FILE, "r", encoding="utf-8") as f:
+                rows = json.load(f)
+        except Exception:
+            rows = []
+        _NAMES = {r["nick"]: (r.get("sign") or "") for r in rows if isinstance(r, dict) and r.get("nick")}
+    return _NAMES
 
 
 def strip_fm(text):
@@ -256,7 +251,20 @@ def natural_key(name):
 
 # ---------------------------------------------------------------- 解析一页
 
-FLOOR_RE = re.compile(r"^##\s*(\d+)\s*楼\s*(?:[·・\-–—]\s*(.*?))?\s*$", re.M)
+FLOOR_AT = re.compile(r"^##\s*@(.+?)(?:\s*[·・]\s*(.*?))?\s*$", re.M)
+FLOOR_NUM = re.compile(r"^##\s*(\d+)\s*楼\s*(?:[·・]\s*(.*?))?\s*$", re.M)
+
+
+def find_floor_marks(text):
+    """返回 [(start, end, nick, time)]，两种写法都认"""
+    marks = []
+    for m in FLOOR_AT.finditer(text):
+        marks.append((m.start(), m.end(), m.group(1).strip(), (m.group(2) or "").strip()))
+    for m in FLOOR_NUM.finditer(text):
+        nick, when = _split_meta(m.group(2))
+        marks.append((m.start(), m.end(), nick, when))
+    marks.sort()
+    return marks
 
 
 TIME_RE = re.compile(r"^(\d{1,2}:\d{2}(:\d{2})?|\d{4}-\d{2}-\d{2}.*)$")
@@ -279,31 +287,40 @@ def parse_page(text, slug):
     meta = fm_fields(text)
     text = strip_fm(text)
     title = meta.get("title") or ""
+    date = meta.get("date", "")
 
     m = re.match(r"^\s*#\s+(.+)$", text, re.M)
     if m:
-        title = m.group(1).strip()
+        title = title or m.group(1).strip()
         text = text[:m.start()] + text[m.end():]
 
-    date = meta.get("date", "")
+    marks = find_floor_marks(text)
 
-    marks = list(FLOOR_RE.finditer(text))
+    # 1 楼：优先用标题下方的引言；没有引言就用第一个楼层
     if not marks:
-        body = text.strip()
-        return {"slug": slug, "title": title or slug, "main": body, "floors": [],
-                "words": len(body), "date": date}
+        first = {"nick": "", "time": "", "body": text.strip()}
+        rest = []
+        intro = ""
+    else:
+        intro = text[:marks[0][0]].strip()
+        if intro:
+            first = {"nick": "", "time": "", "body": intro}
+            rest = marks
+        else:
+            m0 = marks[0]
+            end = marks[1][0] if len(marks) > 1 else len(text)
+            first = {"nick": m0[2], "time": m0[3], "body": text[m0[1]:end].strip()}
+            rest = marks[1:]
 
-    main = text[:marks[0].start()].strip()
     floors = []
-    for i, mm in enumerate(marks):
-        end = marks[i + 1].start() if i + 1 < len(marks) else len(text)
-        body = text[mm.end():end].strip()
-        author, when = _split_meta(mm.group(2))
-        floors.append({"no": int(mm.group(1)), "author": author, "time": when, "body": body})
+    for i, mk in enumerate(rest):
+        end = rest[i + 1][0] if i + 1 < len(rest) else len(text)
+        floors.append({"nick": mk[2], "time": mk[3], "body": text[mk[1]:end].strip()})
 
-    words = len(main) + sum(len(f["body"]) for f in floors)
-    return {"slug": slug, "title": title or slug, "main": main, "floors": floors,
-            "words": words, "date": date}
+    words = len(first["body"]) + sum(len(f["body"]) for f in floors)
+    return {"slug": slug, "title": title or slug, "main": first["body"],
+            "main_nick": first["nick"], "main_time": first["time"],
+            "floors": floors, "words": words, "date": date}
 
 
 def load_pages(docs_dir):
@@ -370,31 +387,31 @@ AVATAR_COLORS = ["#c0392b", "#2980b9", "#27ae60", "#8e44ad", "#d35400", "#16a085
 
 
 def floor_html(f, is_main=False, rel=""):
-    author = f.get("author") or ""
-    if is_main:
-        no, label, author = 1, "1楼", (author or "楼主")
-    else:
-        no, label = f["no"], "%d楼" % f["no"]
+    nick = (f.get("nick") or "").strip()
+    sign = names_map().get(nick, "") if nick else ""
+    when = (f.get("time") or "").strip()
 
-    initial = (author[:1] or "?")
-    color = AVATAR_COLORS[no % len(AVATAR_COLORS)]
-    when = f.get("time") or ""
     cls = "floor main" if is_main else "floor"
+    if not nick:
+        cls += " noname"
 
-    return (
-        '<article class="%s" id="f%d">'
-        '<div class="fav" style="background:%s">%s</div>'
-        '<div class="fmain">'
-        '<div class="fhead"><span class="fno">%s</span>'
-        '<span class="fau">%s</span>%s</div>'
-        '<div class="fbody prose">%s</div>'
-        '</div></article>'
-    ) % (
-        cls, no, color, esc(initial),
-        esc(label), esc(author),
-        ('<time>%s</time>' % esc(when)) if when else "",
-        md_to_html(f.get("body") or f.get("main") or ""),
-    )
+    head = []
+    if nick:
+        head.append('<span class="fnick">%s</span>' % esc(nick))
+    if sign:
+        head.append('<span class="fsign">%s</span>' % esc(sign))
+    if when:
+        head.append('<time>%s</time>' % esc(when))
+    head_html = ('<div class="fhead">%s</div>' % "".join(head)) if head else ""
+
+    avatar = ""
+    if nick:
+        color = AVATAR_COLORS[sum(map(ord, nick)) % len(AVATAR_COLORS)]
+        avatar = '<div class="fav" style="background:%s">%s</div>' % (color, esc(nick[:1]))
+
+    return ('<article class="%s">%s<div class="fmain">%s'
+            '<div class="fbody prose">%s</div></div></article>') % (
+        cls, avatar, head_html, md_to_html(f.get("body") or ""))
 
 
 def pager_html(cur, total, rel, slugs):
@@ -491,7 +508,8 @@ def build(site, docs_dir, base_url=""):
         body += '<div class="page-meta">第 %d 页%s</div>' % (
             cur, (" · %d 层" % (len(p["floors"]) + 1)) if p["floors"] else "")
 
-        body += floor_html({"author": "楼主", "body": p["main"]}, is_main=True, rel=rel)
+        body += floor_html({"nick": p.get("main_nick"), "time": p.get("main_time"),
+                            "body": p["main"]}, is_main=True, rel=rel)
         for f in p["floors"]:
             body += floor_html(f, rel=rel)
 
