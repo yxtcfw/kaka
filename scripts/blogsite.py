@@ -593,7 +593,7 @@ def build(site, docs_dir, base_url=""):
 
         # 页面标题只进 <title>，正文直接从 1 楼开始
         body += floor_html({"nick": p.get("main_nick"), "time": p.get("main_time"),
-                            "body": p["main"]}, is_main=True, rel=rel)
+                            "body": p["main"]}, rel=rel)
         for f in merge_extra_floors(p["floors"], ads, p["slug"]):
             body += floor_html(f, rel=rel)
 

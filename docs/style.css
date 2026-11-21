@@ -113,14 +113,6 @@ a { color: inherit; text-decoration: none; }
   border-top: 1px solid var(--line);
 }
 
-.floor.main {
-  background: rgba(128, 128, 128, .05);
-  border-radius: 8px;
-  padding: 18px;
-  margin: 10px 0 6px;
-  border-top: none;
-}
-
 .fav {
   flex: 0 0 auto;
   width: 36px;
@@ -162,7 +154,7 @@ a { color: inherit; text-decoration: none; }
 .fbody { font-size: 16.5px; }
 .fbody p { margin: 0 0 14px; }
 .fbody p:last-child { margin-bottom: 0; }
-.floor.main .fbody { font-size: 17px; }
+
 
 /* ---------------- 正文 ---------------- */
 
@@ -322,10 +314,9 @@ a { color: inherit; text-decoration: none; }
   .page-title { font-size: 23px; }
   .floor { gap: 10px; padding: 18px 0; }
   .fav { width: 30px; height: 30px; font-size: 13px; }
-  .fbody, .floor.main .fbody { font-size: 16px; }
+  .fbody { font-size: 16px; }
   .fhead { flex-wrap: wrap; row-gap: 2px; }
   .fsign { font-size: 11.5px; padding-left: 0; border-left: none; }
-  .floor.main { padding: 15px 14px; }
 }
 
 /* ---------------- 搜索图标 ---------------- */
