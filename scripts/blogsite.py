@@ -480,6 +480,11 @@ def floor_html(f, is_main=False, rel=""):
     if sign:
         head.append('<span class="fsign">%s</span>' % esc(sign))
     # 时间默认不显示（md 里保留，需要时可加回来）
+    head = head + ['<button class="fcard" type="button" aria-label="看图">'
+                   '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" '
+                   'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'
+                   '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/>'
+                   '<path d="M21 15l-5-5L5 20"/></svg></button>']
     head_html = ('<div class="fhead">%s</div>' % "".join(head)) if head else ""
 
     avatar = ""
@@ -721,27 +726,32 @@ def build_sitemap(site, pages, base, base_url, slugs):
 
 # ---------------------------------------------------------------- 分享卡片
 
-CARD_MODAL = """<div class="card-modal" id="cardModal" data-cards="__CARDS_JSON__">
-  <div class="card-box">
-    <canvas id="cardCanvas"></canvas>
-    <div class="card-actions">
-      <a id="cardDownload" class="card-btn" download>下载图片</a>
-      <button id="cardClose" class="card-btn ghost" type="button">关闭</button>
-    </div>
-  </div>
+CARD_MODAL = """<div class="viewer" id="viewer" data-cards="__CARDS_JSON__">
+  <button class="viewer-close" id="viewerClose" type="button" aria-label="退出">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <a class="viewer-dl" id="viewerDownload" download aria-label="下载">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>
+  </a>
+  <div class="viewer-stage"><canvas id="viewerCanvas"></canvas></div>
+  <div class="viewer-count" id="viewerCount"></div>
 </div>
 <script src="__REL__assets/cards.js" defer></script>"""
 
 CARD_JS = r"""(function(){
-  var modal = document.getElementById('cardModal');
-  if (!modal) return;
-  var CARDS = {};
-  try { CARDS = JSON.parse(modal.getAttribute('data-cards') || '{}'); } catch (e) {}
-  var canvas = document.getElementById('cardCanvas');
+  var viewer = document.getElementById('viewer');
+  if (!viewer) return;
+
+  var canvas = document.getElementById('viewerCanvas');
   var ctx = canvas.getContext('2d');
-  var dl = document.getElementById('cardDownload');
-  var closeBtn = document.getElementById('cardClose');
-  var cache = {};
+  var closeBtn = document.getElementById('viewerClose');
+  var dl = document.getElementById('viewerDownload');
+  var counter = document.getElementById('viewerCount');
+
+  var CARDS = {};
+  try { CARDS = JSON.parse(viewer.getAttribute('data-cards') || '{}'); } catch (e) {}
+
+  var floors = [], idx = 0, cache = {};
 
   function load(src){
     return new Promise(function(res){
@@ -766,7 +776,7 @@ CARD_JS = r"""(function(){
     return lines;
   }
 
-  function render(nick, sign, text, img){
+  function paint(nick, sign, text, img){
     var W = img ? img.naturalWidth : 1080;
     var H = img ? img.naturalHeight : 1440;
     canvas.width = W; canvas.height = H;
@@ -812,7 +822,7 @@ CARD_JS = r"""(function(){
     var maxLines = Math.floor((H - pad - y) / lh);
     if (maxLines > 0 && lines.length > maxLines){
       lines = lines.slice(0, maxLines);
-      lines[lines.length - 1] = lines[lines.length - 1].slice(0, -1) + '…';
+      lines[lines.length - 1] = lines[lines.length - 1].slice(0, -1) + '\u2026';
     }
 
     for (var j = 0; j < lines.length; j++){
@@ -821,45 +831,108 @@ CARD_JS = r"""(function(){
     }
     ctx.shadowBlur = 0;
 
+    prepareDownload();
+  }
+
+  function prepareDownload(){
+    var f = floors[idx];
+    var nick = f ? (f.getAttribute('data-nick') || 'card') : 'card';
     if (canvas.toBlob){
       canvas.toBlob(function(blob){
         if (!blob) return;
-        dl.href = URL.createObjectURL(blob);
-        dl.download = (nick || 'card') + '.png';
+        if (dl.dataset.url) URL.revokeObjectURL(dl.dataset.url);
+        var u = URL.createObjectURL(blob);
+        dl.dataset.url = u;
+        dl.href = u;
+        dl.download = nick + '.png';
       }, 'image/png');
     } else {
       dl.href = canvas.toDataURL('image/png');
-      dl.download = (nick || 'card') + '.png';
+      dl.download = nick + '.png';
     }
   }
 
-  function open(floor){
-    var nick = floor.getAttribute('data-nick') || '匿名';
-    var sign = floor.getAttribute('data-sign') || '';
-    var text = floor.getAttribute('data-text') || '';
-    modal.classList.add('on');
-    load(CARDS[nick]).then(function(img){ render(nick, sign, text, img); });
+  function renderCurrent(){
+    var f = floors[idx];
+    if (!f) return;
+    var nick = f.getAttribute('data-nick') || '匿名';
+    var sign = f.getAttribute('data-sign') || '';
+    var text = f.getAttribute('data-text') || '';
+    counter.textContent = (idx + 1) + ' / ' + floors.length;
+
+    load(CARDS[nick]).then(function(img){
+      paint(nick, sign, text, img);
+      canvas.style.animation = 'none';
+      void canvas.offsetWidth;
+      canvas.style.animation = 'viewerIn .2s ease';
+    });
+  }
+
+  function go(step){
+    var n = idx + step;
+    if (n < 0 || n >= floors.length) return;
+    idx = n;
+    renderCurrent();
+  }
+
+  function open(startFloor){
+    floors = Array.prototype.slice.call(document.querySelectorAll('.floor[data-nick]'));
+    idx = Math.max(0, floors.indexOf(startFloor));
+    viewer.classList.add('on');
+    document.body.style.overflow = 'hidden';
+    renderCurrent();
+  }
+
+  function close(){
+    viewer.classList.remove('on');
+    document.body.style.overflow = '';
+    var f = floors[idx];
+    if (f && f.scrollIntoView){
+      setTimeout(function(){ f.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 40);
+    }
   }
 
   document.addEventListener('click', function(e){
     var t = e.target;
-    if (!t) return;
-
-    if (t === modal || t === closeBtn || (t.closest && t.closest('#cardClose'))){
-      modal.classList.remove('on');
-      return;
-    }
-    if (modal.classList.contains('on')) return;      // 弹层开着时不响应楼层
-    if (t.closest && t.closest('a')) return;         // 点链接不弹
-    var sel = window.getSelection ? String(window.getSelection()) : '';
-    if (sel && sel.trim()) return;                   // 选中文字时不弹
-
-    var floor = t.closest ? t.closest('.floor') : null;
-    if (floor) open(floor);
+    if (!t || !t.closest) return;
+    var btn = t.closest('.fcard');
+    if (btn) open(btn.closest('.floor'));
   });
 
+  closeBtn.addEventListener('click', close);
+
+  var startY = 0, tracking = false;
+  viewer.addEventListener('touchstart', function(e){
+    if (e.touches.length !== 1) return;
+    startY = e.touches[0].clientY;
+    tracking = true;
+  }, { passive: true });
+
+  viewer.addEventListener('touchmove', function(e){
+    if (tracking && e.cancelable) e.preventDefault();
+  }, { passive: false });
+
+  viewer.addEventListener('touchend', function(e){
+    if (!tracking) return;
+    tracking = false;
+    var dy = e.changedTouches[0].clientY - startY;
+    if (dy < -50) go(1);
+    else if (dy > 50) go(-1);
+  });
+
+  var lock = false;
+  viewer.addEventListener('wheel', function(e){
+    if (lock || Math.abs(e.deltaY) < 15) return;
+    lock = true;
+    setTimeout(function(){ lock = false; }, 280);
+    go(e.deltaY > 0 ? 1 : -1);
+  }, { passive: true });
+
   document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape') modal.classList.remove('on');
+    if (!viewer.classList.contains('on')) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowDown' || e.key === 'PageDown') go(1);
+    else if (e.key === 'ArrowUp' || e.key === 'PageUp') go(-1);
   });
 })();
 """
