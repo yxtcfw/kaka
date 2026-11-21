@@ -67,7 +67,7 @@ def load_text(path, default=""):
 
 def load_site():
     site = load_json(os.path.join(CONFIG, "site.json"), {})
-    site.setdefault("name", "每日更新")
+    site.setdefault("name", "每日一篇")
     site.setdefault("tagline", "")
     site.setdefault("description", "")
     site.setdefault("author", "")
@@ -117,6 +117,46 @@ DEFAULT_WRITING = {
 def load_names():
     rows = load_json(os.path.join(CONFIG, "names.json"), [])
     return [r for r in rows if isinstance(r, dict) and r.get("nick")]
+
+
+PROMPT_DIR = os.path.join(CONFIG, "prompts")
+
+DEFAULT_WRITE_PROMPT = """今天是 {{today}}。这是连载帖子的新一页。
+
+{{seed}}
+
+【可用的信源素材】（只能引用这里的事实）
+{{material}}
+
+【最近写过的页】
+{{recent}}
+
+【篇幅】1 楼 {{mw}} 字以内，{{fc_min}}~{{fc_max}} 个楼层，每层 {{fw_min}}~{{fw_max}} 字。
+{{extra}}
+
+【出场的人】
+{{names}}
+
+【格式】楼层用 ## @昵称 · 时间；不要一级标题；标题放 JSON 的 title。
+【输出 JSON】{"title":"...","question":"...","next_questions":["..."],"content_md":"..."}"""
+
+DEFAULT_TERMS_PROMPT = """从这句问题里抽出 3~5 个搜索关键词，实体词优先。
+问题：「{{question}}」
+【输出 JSON】{"terms": ["词1", "词2"]}"""
+
+DEFAULT_QUESTION_PROMPT = """根据下面这页内容，提出 1~2 个下一页值得讨论的新问题，每条 30 字以内。
+【页面内容】
+{{content}}
+【输出 JSON】{"next_questions": ["问题1"]}"""
+
+
+def load_prompt(name, fallback, **vars):
+    """从 config/prompts/{name}.md 读模板，用 {{var}} 占位替换；文件缺失时用内置兜底"""
+    path = os.path.join(PROMPT_DIR, name + ".md")
+    tpl = load_text(path) or fallback
+    for k, v in vars.items():
+        tpl = tpl.replace("{{%s}}" % k, str(v))
+    return tpl
 
 
 def load_writing():
@@ -499,24 +539,19 @@ def script_terms(text, keywords):
     return out[:6]
 
 
-def extract_query_terms(text, models):
+def extract_query_terms(text, models, keywords=None):
     """让模型从选题里抽出用于检索的关键词；失败就用 2-gram 兜底"""
     try:
         data, _ = ask_json([
             {"role": "system", "content": "只输出 JSON，不要解释。"},
-            {"role": "user", "content": (
-                "从下面这句问题里抽出 3~5 个可以用来搜索的关键词。\n"
-                "要求：实体词优先（产品名、场景、动作），不要「怎么」「如何」「值得」这类虚词。\n"
-                "问题：「%s」\n"
-                '【输出 JSON】{"terms": ["词1", "词2", "词3"]}' % text
-            )},
+            {"role": "user", "content": load_prompt("terms", DEFAULT_TERMS_PROMPT, question=text)},
         ], models, temperature=0.2, timeout=60)
         terms = data.get("terms") or []
         terms = [str(t).strip() for t in terms if str(t).strip()]
-        return terms[:5] or fallback_terms(text)
+        return terms[:5] or script_terms(text, keywords or [])
     except BaseException as e:
-        log("抽检索词失败（%r），用字符切分兜底" % (e,))
-        return fallback_terms(text)
+        log("抽检索词失败（%r），用脚本切分兜底" % (e,))
+        return script_terms(text, keywords or [])
 
 
 def rank_by_terms(items, terms):
@@ -595,12 +630,7 @@ def ensure_next_questions(content_md, models):
     try:
         data, _ = ask_json([
             {"role": "system", "content": "你是论坛帖的楼主。只输出 JSON。"},
-            {"role": "user", "content": (
-                "根据讨论的内容，提出 1~2 个「值得讨论的新问题」。\n"
-                "要求：具体，能落到「怎么办 / 值不值 / 该选哪个 / 哪个更好」，每条 30 字以内。\n\n"
-                "【页面内容】\n" + tail + "\n\n"
-                '【输出 JSON】{"next_questions": ["问题1", "问题2"]}'
-            )},
+            {"role": "user", "content": load_prompt("question", DEFAULT_QUESTION_PROMPT, content=tail)},
         ], models, temperature=0.8, timeout=REQUEST_TIMEOUT)
         qs = data.get("next_questions") or []
         if isinstance(qs, str):
@@ -626,7 +656,7 @@ def step_write_page(site, persona, editorial, seed, material_block, history, mod
     recent_block = "\n".join("- 第 %s 页：%s" % (it.get("slug", ""), it.get("title", ""))
                              for it in recent) or "（这是第一页）"
 
-    seed_block = ('话题：\n「%s」\n（来自第 %s 页《%s》）\n'
+    seed_block = ('这一页要讨论的问题：\n「%s」\n（来自第 %s 页《%s》）\n'
                   '**1 楼必须原样提出这句话，一个字都不要改**，后面所有楼层都围绕它讨论。'
                   % (seed.get("text", ""), seed.get("from", "?"), seed.get("from_title", "")))
 
@@ -638,65 +668,14 @@ def step_write_page(site, persona, editorial, seed, material_block, history, mod
     page_max = mw + fc_max * fw_max
     extra = writing.get("extra_rules") or ""
 
-    avoid = ("\n\n【不要写这些】" + editorial[:400]) if editorial else ""
+    avoid = ("\n\n【不要写这些】\n" + editorial[:1500]) if editorial else ""
 
     system = (persona + avoid +
               "\n\n你在维护一个论坛式连载帖，每天更新一页。"
               "\n这一页由「1 楼提出问题 + 若干楼层讨论」组成，只输出 JSON。")
 
-    user = """今天是 {today}。这是连载帖子的新一页。
-
-{seed}
-
-【可用的信源素材】（只能引用这里的事实，不要编造）
-{material}
-
-【最近写过的页】（别重复同样的话题）
-{recent}
-
-【篇幅】
-1 楼最多 {mw} 字，楼层 {fc_min}~{fc_max} 个、每个 {fw_min}~{fw_max} 字，整页不超过 {page_max} 字。
-短。宁可少写一层，也不要凑字数。
-
-【这一页的结构（必须遵守）】
-1. **1 楼**：把上面那个问题原样摆出来，可以补一两句具体背景（谁遇到的、什么情况下）。
-   **不要在这一层展开答案。** 第一句就是问题本身，不要"大家好""今天聊聊"这种开头。
-2. **2 楼到倒数第 3 楼**：围绕问题讨论、问答、辩论。
-   - 有人给具体做法（带代价、带前提）
-   - 有人反驳，或者说"这招对我没用，因为……"
-   - 有人追问细节
-   - 楼主可以出来回一两条
-   **答案在这些楼层里一点点拼出来，不要一次说完。**
-3. **最后 2~3 层**：各自抛出一个**新的、具体的问题**，作为下一页的候选。
-   好的例子：「19 块的卡用三个月后限速，续费还划算吗？」
-   差的例子：「还有什么要注意的吗？」「大家怎么看？」
-
-【干货规则】
-1. 每层必须带一个具体信息：一个做法、一个数字、一个坑、或者一个明确判断。做不到就别写这层。
-2. 禁止铺垫句、转场句、总结句、空洞形容（"非常重要""十分强大"）。
-3. 不科普常识，同一件事只说一遍。
-4. 宁可短，不要长。
-{extra}
-
-【出场的人】（只能从这份名单里选昵称，签名会自动显示出来）
-{names}
-
-【楼层写法】
-- 楼层标题格式：## @昵称 · 时间
-- 昵称只能用上面名单里的，不要自己编，也不要写「楼主」「网友」。
-- 1 楼也要有昵称，从名单里选一个。
-- 同一个人可以在不同楼层重复出现（像真在跟帖）。
-
-【格式】
-- **不要输出一级标题（# ）**，标题放在 JSON 的 title 字段。
-- 1 楼格式：## @昵称 · 时间，下面紧跟问题本身，不要"大家好"这种开场。
-- 不写楼层号，页面上不显示第几楼。
-
-【输出 JSON】
-{{"title": "页面标题，20字以内",
-  "question": "1 楼要讨论的问题（一句话）",
-  "next_questions": ["新问题1", "新问题2"],
-  "content_md": "1 楼内容 + 楼层，不含一级标题"}}""".format(
+    user = load_prompt(
+        "write", DEFAULT_WRITE_PROMPT,
         today=datetime.datetime.now(BJT).strftime("%Y-%m-%d"),
         seed=seed_block,
         material=material_block,
@@ -826,7 +805,7 @@ def main():
     if mode == "model" or (mode == "auto" and len(hits) < 2):
         if mode == "auto":
             log("脚本抽词只命中 %d 条，改用模型抽词" % len(hits))
-        terms = extract_query_terms(seed["text"], models)
+        terms = extract_query_terms(seed["text"], models, keywords)
         cands = rank_by_terms(cands, terms)
         hits = [c for c in cands if c.get("rel", 0) > 0]
 

@@ -1,0 +1,9 @@
+[
+  {
+    "nick": "广告位",
+    "sign": "招租中",
+    "text": "这里是广告位。改 `config/ads.json` 就能换成你自己的推广内容，支持 markdown 和链接。",
+    "link": "",
+    "link_text": ""
+  }
+]

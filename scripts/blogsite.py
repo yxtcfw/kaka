@@ -190,6 +190,58 @@ def esc(s):
     return html.escape(str(s or ""), quote=True)
 
 
+ADS_FILE = os.path.join(ROOT, "config", "ads.json")
+
+
+def load_ads():
+    try:
+        with open(ADS_FILE, "r", encoding="utf-8") as f:
+            rows = json.load(f)
+    except Exception:
+        return []
+    return [r for r in rows if isinstance(r, dict) and (r.get("text") or "").strip()]
+
+
+def pick_ad(ads, key):
+    """按 slug 取哈希，保证同一页每次构建广告位置和内容都一样"""
+    h = sum(ord(c) * (i + 7) for i, c in enumerate(str(key)))
+    return ads[h % len(ads)], h
+
+
+def ad_html(ad, rel):
+    nick = (ad.get("nick") or "推广").strip()
+    sign = (ad.get("sign") or "").strip()
+    text_html = md_to_html((ad.get("text") or "").strip())
+    link = (ad.get("link") or "").strip()
+    if link:
+        label = (ad.get("link_text") or "了解详情").strip()
+        ext = "" if link.startswith(rel) else ' target="_blank" rel="noopener nofollow"'
+        text_html += '<p><a class="ad-link" href="%s"%s>%s</a></p>' % (esc(link), ext, esc(label))
+
+    return ('<article class="floor ad">'
+            '<div class="fav ad-fav">%s</div>'
+            '<div class="fmain"><div class="fhead">'
+            '<span class="fnick">%s</span>'
+            '%s'
+            '<span class="ad-tag">推广</span>'
+            '</div><div class="fbody prose ad-body">%s</div></div></article>') % (
+        esc(nick[:1] or "推"), esc(nick),
+        ('<span class="fsign">%s</span>' % esc(sign)) if sign else "",
+        text_html,
+    )
+
+
+def md_plain(md):
+    """把 markdown 抹成纯文本，给分享卡片用"""
+    t = re.sub(r"```.*?```", " ", md or "", flags=re.S)
+    t = re.sub(r"!\[[^\]]*\]\([^)]*\)", " ", t)
+    t = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", t)
+    t = re.sub(r"^#{1,6}\s*", "", t, flags=re.M)
+    t = re.sub(r"[*_`>]", "", t)
+    t = re.sub(r"\s+", " ", t)
+    return t.strip()
+
+
 def names_map():
     """config/names.json → {昵称: 签名}"""
     global _NAMES
@@ -356,6 +408,9 @@ PAGE_TMPL = """<!doctype html>
 <header class="topbar">
   <a class="brand" href="{rel}index.html">{site}</a>
   <span class="board">{tagline}</span>
+  <a class="search-ico" href="{rel}search.html" aria-label="搜索">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 L21 21"/></svg>
+  </a>
 </header>
 <main class="wrap">
 {body}
@@ -403,6 +458,7 @@ def floor_html(f, is_main=False, rel=""):
     if sign:
         head.append('<span class="fsign">%s</span>' % esc(sign))
     # 时间默认不显示（md 里保留，需要时可加回来）
+    head = head + ['<button class="fcard" type="button" aria-label="生成分享卡片">卡片</button>']
     head_html = ('<div class="fhead">%s</div>' % "".join(head)) if head else ""
 
     avatar = ""
@@ -410,9 +466,12 @@ def floor_html(f, is_main=False, rel=""):
         color = AVATAR_COLORS[sum(map(ord, nick)) % len(AVATAR_COLORS)]
         avatar = '<div class="fav" style="background:%s">%s</div>' % (color, esc(nick[:1]))
 
-    return ('<article class="%s">%s<div class="fmain">%s'
+    plain = md_plain(f.get("body") or "")
+    return ('<article class="%s" data-nick="%s" data-sign="%s" data-text="%s">'
+            '%s<div class="fmain">%s'
             '<div class="fbody prose">%s</div></div></article>') % (
-        cls, avatar, head_html, md_to_html(f.get("body") or ""))
+        cls, esc(nick), esc(sign), esc(plain[:600]),
+        avatar, head_html, md_to_html(f.get("body") or ""))
 
 
 def pager_html(cur, total, rel, slugs):
@@ -487,6 +546,7 @@ def build(site, docs_dir, base_url=""):
                 os.remove(os.path.join(pdir, f))
 
     total = max(1, len(pages))
+    ads = load_ads()
 
     if not pages:
         # 空站也要有个能打开的首页
@@ -508,10 +568,19 @@ def build(site, docs_dir, base_url=""):
         # 页面标题只进 <title>，正文直接从 1 楼开始
         body += floor_html({"nick": p.get("main_nick"), "time": p.get("main_time"),
                             "body": p["main"]}, is_main=True, rel=rel)
-        for f in p["floors"]:
+        floors = p["floors"]
+        ad, h = pick_ad(ads, p["slug"]) if ads else (None, 0)
+        ad_pos = (h % (len(floors) + 1)) if ad else -1
+
+        for idx, f in enumerate(floors):
+            if idx == ad_pos:
+                body += ad_html(ad, rel)
             body += floor_html(f, rel=rel)
+        if ad and ad_pos >= len(floors):
+            body += ad_html(ad, rel)
 
         body += pager_html(cur, total, rel, slugs)
+        body += card_modal(rel)
 
         write(out, page_shell(
             site, rel,
@@ -519,6 +588,8 @@ def build(site, docs_dir, base_url=""):
             (p["main"][:80] + "…") if len(p["main"]) > 80 else p["main"],
             body,
         ))
+
+    write(os.path.join(base, "assets", "cards.js"), CARD_JS)
 
     build_search(site, pages, base, slugs)
     build_feed(site, pages, base, base_url, slugs)
@@ -546,34 +617,43 @@ def build_search(site, pages, base, slugs):
     write(os.path.join(base, "search.json"), json.dumps(index, ensure_ascii=False))
 
     body = """<h1 class="page-title">搜索</h1>
-<div class="page-meta">全站 %d 页</div>
+<div class="page-meta">全站 __TOTAL__ 页</div>
 <form class="search-box" onsubmit="return false;">
   <input id="q" type="search" placeholder="输入关键词，比如：小程序、自动化、备份" autocomplete="off" autofocus>
 </form>
-<p id="hint" class="site-tagline">输入关键词开始搜。</p>
+<p id="hint" class="site-tagline">正在加载搜索索引…</p>
 <ul id="results" class="list"></ul>
 <script>
 (function(){
-  var data = %s, q = document.getElementById('q'),
-      out = document.getElementById('results'), hint = document.getElementById('hint');
+  var q = document.getElementById('q'), out = document.getElementById('results'),
+      hint = document.getElementById('hint'), data = null;
+
+  fetch('search.json').then(function(r){ return r.json(); }).then(function(d){
+    data = d;
+    hint.textContent = '共 ' + d.length + ' 页，输入关键词开始搜。';
+  }).catch(function(){
+    hint.textContent = '索引加载失败。用 file:// 直接打开会有这个限制，请通过 http 访问。';
+  });
+
   function run(){
+    if (!data) return;
     var kw = q.value.trim().toLowerCase();
-    if(!kw){ out.innerHTML=''; hint.textContent='输入关键词开始搜。'; return; }
+    if (!kw){ out.innerHTML = ''; hint.textContent = '共 ' + data.length + ' 页，输入关键词开始搜。'; return; }
     var hits = data.filter(function(p){
-      return (p.title+' '+p.text).toLowerCase().indexOf(kw) > -1;
+      return (p.title + ' ' + p.text).toLowerCase().indexOf(kw) > -1;
     }).slice(0, 40);
     hint.textContent = '找到 ' + hits.length + ' 页';
     out.innerHTML = hits.map(function(p){
-      var t = p.text.replace(/</g,'&lt;');
-      var idx = t.toLowerCase().indexOf(kw);
-      var snip = idx > -1 ? t.slice(Math.max(0, idx-40), idx+80) : t.slice(0, 80);
-      return '<li class="card"><a href="'+p.url+'"><h2>第 '+p.page+' 页 · '+p.title+'</h2>'+
-             '<p>…'+snip+'…</p></a></li>';
+      var t = p.text.replace(/</g, '&lt;');
+      var i = t.toLowerCase().indexOf(kw);
+      var snip = i > -1 ? t.slice(Math.max(0, i - 40), i + 80) : t.slice(0, 80);
+      return '<li class="card"><a href="' + p.url + '"><h2>第 ' + p.page + ' 页 · ' + p.title +
+             '</h2><p>…' + snip + '…</p></a></li>';
     }).join('');
   }
   q.addEventListener('input', run);
 })();
-</script>""" % (len(pages), json.dumps(index, ensure_ascii=False))
+</script>""".replace("__TOTAL__", str(len(pages)))
 
     write(os.path.join(base, "search.html"),
           page_shell(site, "", "搜索 · " + (site.get("name") or ""), "站内搜索", body))
@@ -624,3 +704,166 @@ def build_sitemap(site, pages, base, base_url, slugs):
     xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n%s\n</urlset>\n') % "\n".join(rows)
     write(os.path.join(base, "sitemap.xml"), xml)
+
+
+# ---------------------------------------------------------------- 分享卡片
+
+CARD_MODAL = """<div class="card-modal" id="cardModal" data-cards="__CARDS_JSON__">
+  <div class="card-box">
+    <canvas id="cardCanvas"></canvas>
+    <div class="card-actions">
+      <a id="cardDownload" class="card-btn" download>下载图片</a>
+      <button id="cardClose" class="card-btn ghost" type="button">关闭</button>
+    </div>
+  </div>
+</div>
+<script src="__REL__assets/cards.js" defer></script>"""
+
+CARD_JS = r"""(function(){
+  var modal = document.getElementById('cardModal');
+  if (!modal) return;
+  var CARDS = {};
+  try { CARDS = JSON.parse(modal.getAttribute('data-cards') || '{}'); } catch (e) {}
+  var canvas = document.getElementById('cardCanvas');
+  var ctx = canvas.getContext('2d');
+  var dl = document.getElementById('cardDownload');
+  var closeBtn = document.getElementById('cardClose');
+  var cache = {};
+
+  function load(src){
+    return new Promise(function(res){
+      if (!src) return res(null);
+      if (cache[src] !== undefined) return res(cache[src]);
+      var im = new Image();
+      im.onload = function(){ cache[src] = im; res(im); };
+      im.onerror = function(){ cache[src] = null; res(null); };
+      im.src = src;
+    });
+  }
+
+  function wrap(text, maxW){
+    var lines = [], line = '';
+    for (var i = 0; i < text.length; i++){
+      var ch = text.charAt(i);
+      var t = line + ch;
+      if (ctx.measureText(t).width > maxW && line){ lines.push(line); line = ch; }
+      else line = t;
+    }
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  function render(nick, sign, text, img){
+    var W = img ? img.naturalWidth : 1080;
+    var H = img ? img.naturalHeight : 1440;
+    canvas.width = W; canvas.height = H;
+
+    if (img) {
+      ctx.drawImage(img, 0, 0, W, H);
+    } else {
+      var gr = ctx.createLinearGradient(0, 0, W, H);
+      gr.addColorStop(0, '#2a251f'); gr.addColorStop(1, '#443a2e');
+      ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
+    }
+
+    var pad = Math.round(W * 0.08);
+    var maxW = W - pad * 2;
+    var y = Math.round(H * 0.18);
+
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = 'rgba(0,0,0,.4)';
+    ctx.shadowBlur = Math.round(W * 0.012);
+
+    ctx.font = 'bold ' + Math.round(W * 0.052) + 'px "Songti SC","Noto Serif SC",serif';
+    ctx.fillText(nick || '匿名', pad, y);
+    y += Math.round(W * 0.08);
+
+    if (sign){
+      ctx.globalAlpha = 0.72;
+      ctx.font = Math.round(W * 0.028) + 'px "Songti SC","Noto Serif SC",serif';
+      ctx.fillText(sign, pad, y);
+      ctx.globalAlpha = 1;
+      y += Math.round(W * 0.062);
+    }
+
+    var fs = W * 0.036, lines = [], lh = 0;
+    for (var k = 0; k < 5; k++){
+      ctx.font = Math.round(fs) + 'px "Songti SC","Noto Serif SC",serif';
+      lines = wrap(text || '（这一层没有正文）', maxW);
+      lh = Math.round(fs * 1.75);
+      if (y + lines.length * lh <= H - pad) break;
+      fs *= 0.87;
+    }
+
+    var maxLines = Math.floor((H - pad - y) / lh);
+    if (maxLines > 0 && lines.length > maxLines){
+      lines = lines.slice(0, maxLines);
+      lines[lines.length - 1] = lines[lines.length - 1].slice(0, -1) + '…';
+    }
+
+    for (var j = 0; j < lines.length; j++){
+      ctx.fillText(lines[j], pad, y);
+      y += lh;
+    }
+    ctx.shadowBlur = 0;
+
+    if (canvas.toBlob){
+      canvas.toBlob(function(blob){
+        if (!blob) return;
+        dl.href = URL.createObjectURL(blob);
+        dl.download = (nick || 'card') + '.png';
+      }, 'image/png');
+    } else {
+      dl.href = canvas.toDataURL('image/png');
+      dl.download = (nick || 'card') + '.png';
+    }
+  }
+
+  function open(floor){
+    var nick = floor.getAttribute('data-nick') || '匿名';
+    var sign = floor.getAttribute('data-sign') || '';
+    var text = floor.getAttribute('data-text') || '';
+    modal.classList.add('on');
+    load(CARDS[nick]).then(function(img){ render(nick, sign, text, img); });
+  }
+
+  document.addEventListener('click', function(e){
+    var t = e.target;
+    if (t && t.classList && t.classList.contains('fcard')){
+      open(t.closest('.floor'));
+      return;
+    }
+    if (t === modal || t === closeBtn) modal.classList.remove('on');
+  });
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') modal.classList.remove('on');
+  });
+})();
+"""
+
+
+def cards_json(rel):
+    """{昵称: 背景图地址}，只包含配了 card 的"""
+    out = {}
+    for r in load_names_rows():
+        card = (r.get("card") or "").strip()
+        if card:
+            out[r["nick"]] = rel + "assets/cards/" + quote(card)
+    # JSON 里的双引号必须转义，否则会把 HTML 属性截断
+    return html.escape(json.dumps(out, ensure_ascii=False), quote=True)
+
+
+def load_names_rows():
+    try:
+        with open(NAMES_FILE, "r", encoding="utf-8") as f:
+            return [r for r in json.load(f) if isinstance(r, dict) and r.get("nick")]
+    except Exception:
+        return []
+
+
+def card_modal(rel):
+    return (CARD_MODAL
+            .replace("__CARDS_JSON__", cards_json(rel))
+            .replace("__REL__", rel))
