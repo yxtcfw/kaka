@@ -194,41 +194,63 @@ ADS_FILE = os.path.join(ROOT, "config", "ads.json")
 
 
 def load_ads():
+    """支持两种写法：数组（每页 1 条），或 {per_page, items}"""
     try:
         with open(ADS_FILE, "r", encoding="utf-8") as f:
-            rows = json.load(f)
+            data = json.load(f)
     except Exception:
-        return []
-    return [r for r in rows if isinstance(r, dict) and (r.get("text") or "").strip()]
+        return {"per_page": 0, "items": []}
+
+    if isinstance(data, list):
+        items, per = data, 1
+    elif isinstance(data, dict):
+        items, per = data.get("items") or [], data.get("per_page", 1)
+    else:
+        return {"per_page": 0, "items": []}
+
+    items = [r for r in items if isinstance(r, dict) and (r.get("text") or "").strip()]
+    try:
+        per = max(0, int(per))
+    except Exception:
+        per = 0
+    return {"per_page": per, "items": items}
 
 
-def pick_ad(ads, key):
-    """按 slug 取哈希，保证同一页每次构建广告位置和内容都一样"""
-    h = sum(ord(c) * (i + 7) for i, c in enumerate(str(key)))
-    return ads[h % len(ads)], h
+def hash_of(key):
+    return sum(ord(c) * (i + 7) for i, c in enumerate(str(key)))
 
 
-def ad_html(ad, rel):
-    nick = (ad.get("nick") or "推广").strip()
-    sign = (ad.get("sign") or "").strip()
-    text_html = md_to_html((ad.get("text") or "").strip())
+def ad_to_floor(ad):
+    body = (ad.get("text") or "").strip()
     link = (ad.get("link") or "").strip()
     if link:
-        label = (ad.get("link_text") or "了解详情").strip()
-        ext = "" if link.startswith(rel) else ' target="_blank" rel="noopener nofollow"'
-        text_html += '<p><a class="ad-link" href="%s"%s>%s</a></p>' % (esc(link), ext, esc(label))
+        body += "\n\n[%s](%s)" % ((ad.get("link_text") or "了解详情").strip(), link)
+    return {
+        "nick": (ad.get("nick") or "").strip(),
+        "time": "",
+        "body": body,
+    }
 
-    return ('<article class="floor ad">'
-            '<div class="fav ad-fav">%s</div>'
-            '<div class="fmain"><div class="fhead">'
-            '<span class="fnick">%s</span>'
-            '%s'
-            '<span class="ad-tag">推广</span>'
-            '</div><div class="fbody prose ad-body">%s</div></div></article>') % (
-        esc(nick[:1] or "推"), esc(nick),
-        ('<span class="fsign">%s</span>' % esc(sign)) if sign else "",
-        text_html,
-    )
+
+def merge_extra_floors(floors, ads, slug):
+    """把额外内容按均匀间隔插进楼层里，位置由页码哈希决定（每次构建结果一致）"""
+    items, per = ads["items"], ads["per_page"]
+    if not items or per <= 0:
+        return floors
+
+    # 优先用正文里没出现过的昵称，避免出现「同一个人连发两条」
+    used = {(f.get("nick") or "") for f in floors}
+    pool = [a for a in items if (a.get("nick") or "").strip() not in used] or items
+
+    h = hash_of(slug)
+    picked = [ad_to_floor(pool[(h + i) % len(pool)]) for i in range(min(per, len(pool)))]
+
+    out = list(floors)
+    gap = max(1, (len(floors) + len(picked)) // (len(picked) + 1))
+    for i, extra in enumerate(reversed(picked)):
+        pos = min(len(out), gap * (len(picked) - i))
+        out.insert(pos, extra)
+    return out
 
 
 def md_plain(md):
@@ -458,7 +480,6 @@ def floor_html(f, is_main=False, rel=""):
     if sign:
         head.append('<span class="fsign">%s</span>' % esc(sign))
     # 时间默认不显示（md 里保留，需要时可加回来）
-    head = head + ['<button class="fcard" type="button" aria-label="生成分享卡片">卡片</button>']
     head_html = ('<div class="fhead">%s</div>' % "".join(head)) if head else ""
 
     avatar = ""
@@ -568,16 +589,8 @@ def build(site, docs_dir, base_url=""):
         # 页面标题只进 <title>，正文直接从 1 楼开始
         body += floor_html({"nick": p.get("main_nick"), "time": p.get("main_time"),
                             "body": p["main"]}, is_main=True, rel=rel)
-        floors = p["floors"]
-        ad, h = pick_ad(ads, p["slug"]) if ads else (None, 0)
-        ad_pos = (h % (len(floors) + 1)) if ad else -1
-
-        for idx, f in enumerate(floors):
-            if idx == ad_pos:
-                body += ad_html(ad, rel)
+        for f in merge_extra_floors(p["floors"], ads, p["slug"]):
             body += floor_html(f, rel=rel)
-        if ad and ad_pos >= len(floors):
-            body += ad_html(ad, rel)
 
         body += pager_html(cur, total, rel, slugs)
         body += card_modal(rel)
@@ -830,11 +843,19 @@ CARD_JS = r"""(function(){
 
   document.addEventListener('click', function(e){
     var t = e.target;
-    if (t && t.classList && t.classList.contains('fcard')){
-      open(t.closest('.floor'));
+    if (!t) return;
+
+    if (t === modal || t === closeBtn || (t.closest && t.closest('#cardClose'))){
+      modal.classList.remove('on');
       return;
     }
-    if (t === modal || t === closeBtn) modal.classList.remove('on');
+    if (modal.classList.contains('on')) return;      // 弹层开着时不响应楼层
+    if (t.closest && t.closest('a')) return;         // 点链接不弹
+    var sel = window.getSelection ? String(window.getSelection()) : '';
+    if (sel && sel.trim()) return;                   // 选中文字时不弹
+
+    var floor = t.closest ? t.closest('.floor') : null;
+    if (floor) open(floor);
   });
 
   document.addEventListener('keydown', function(e){
