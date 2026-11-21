@@ -536,11 +536,15 @@ def pager_html(cur, total, rel, slugs):
 
 
 def board_intro(docs_dir, rel):
-    """首页顶部的站点说明，取自 docs/index.md"""
+    """每页顶部的站点说明，取自 docs/index.md"""
     text = read(os.path.join(docs_dir, "index.md")).strip()
     if not text:
         return ""
-    return '<section class="board-intro prose">%s</section>' % md_to_html(text)
+    inner = md_to_html(text)
+    if rel:
+        # 介绍里的相对链接在子目录页面要补前缀，否则会指错
+        inner = re.sub(r'href="(?!https?:|#|/|\.\.?/)', 'href="%s' % rel, inner)
+    return '<section class="board-intro prose">%s</section>' % inner
 
 
 def build(site, docs_dir, base_url=""):
@@ -587,9 +591,7 @@ def build(site, docs_dir, base_url=""):
         rel = "" if cur == 1 else "../"
         out = os.path.join(base, "index.html") if cur == 1 else os.path.join(base, "posts", p["slug"] + ".html")
 
-        body = ""
-        if cur == 1:
-            body += board_intro(docs_dir, rel)
+        body = board_intro(docs_dir, rel)
 
         # 页面标题只进 <title>，正文直接从 1 楼开始
         body += floor_html({"nick": p.get("main_nick"), "time": p.get("main_time"),
