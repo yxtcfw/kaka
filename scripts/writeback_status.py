@@ -14,6 +14,7 @@
   RUN_URL            本次 Actions 运行地址（可选）
 """
 
+import base64
 import datetime
 import json
 import os
@@ -101,7 +102,7 @@ def main():
 
     payload = {
         "message": "chore: status %s from %s [skip ci]" % (status["result"], SITE_ID),
-        "content": content.encode("utf-8").decode("utf-8"),
+        "content": base64.b64encode(content.encode("utf-8")).decode("ascii"),
         "branch": BRANCH,
     }
     if sha:
