@@ -1,7 +1,7 @@
 {
   "site_id": "kaka",
-  "fetched_at": "2026-11-22T10:06:00Z",
-  "config_sha256": "241fd9ad80699e9bfc78b5a7b467261e716e7dcfb01cbb43407032276e82c737",
+  "fetched_at": "2026-11-22T10:23:49Z",
+  "config_sha256": "cf3aa953f9efeaecc5d48c8517b4be5a278fe25e1aaac6e13d8ca33ab17ffcbf",
   "theme": "forum",
   "slots": {
     "virtual_users": {
