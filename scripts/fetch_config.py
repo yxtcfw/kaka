@@ -91,11 +91,27 @@ def validate(cfg, theme, names, ads, digests):
     if len(nicks) < 5:
         log("警告：虚拟用户不足 5 个")
 
+    # v0.8：只校验 active 名单可用；tier / 全局 role_policy 已废弃
+    active = [u for u in names if isinstance(u, dict) and u.get("active", True)
+              and u.get("nick")]
+    if not active:
+        die("全局名单没有 active=true 的虚拟用户")
+    # v0.8：tier 与全局 role_policy 已废弃；主笔策略下沉站点 writing，
+    # fixed_lead 合法性在 generate.py 用 active 名单兜底（不在名单则回退随机）。
+
     ads_items = (ads or {}).get("items") or []
     for a in ads_items:
         nick = (a.get("nick") or "").strip()
         if nick and nick not in nicks:
             die("广告 nick <%s> 不在虚拟用户名单中" % nick)
+    # v0.9：广告条数下沉站点 settings，global/ads.json 只放内容
+    app = (cfg.get("shared") or {}).get("ads_per_page")
+    if app is not None:
+        try:
+            if int(app) < 0:
+                die("shared.ads_per_page 不能为负")
+        except (TypeError, ValueError):
+            die("shared.ads_per_page 不是整数")
 
     shared = cfg.get("shared") or {}
     if shared.get("names"):
@@ -107,8 +123,23 @@ def validate(cfg, theme, names, ads, digests):
         if expected and digests.get("_ads") and expected != digests["_ads"]:
             die("ads.json sha256 不匹配")
 
-    log("校验通过：%d 个冻结关键词 / %d 条信源 / %d 个虚拟用户 / %d 条广告" %
-        (len(kw["picked"]), len(sources), len(nicks), len(ads_items)))
+    # 主题契约校验：content 缺失按旧版 forum 行为降级（不中断），只提示补齐
+    theme_name = theme.get("theme") or "?"
+    content = theme.get("content") or {}
+    required = ("system_role", "structure_block", "format_block", "output_fields")
+    missing = [k for k in required if not content.get(k)]
+    if missing:
+        log("警告：主题 <%s> 的 content 契约缺字段 %s，将用内置 forum 兜底" %
+            (theme_name, ",".join(missing)))
+    renderer = theme.get("renderer") or ""
+    if renderer and renderer != "blogsite.py":
+        renderer_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), renderer)
+        if not os.path.isfile(renderer_path):
+            log("警告：主题 <%s> 声明的渲染器 %s 不存在，将回退到 blogsite.py" %
+                (theme_name, renderer))
+
+    log("校验通过：%d 个冻结关键词 / %d 条信源 / %d 个虚拟用户 / %d 条广告 / 主题 <%s>" %
+        (len(kw["picked"]), len(sources), len(nicks), len(ads_items), theme_name))
 
 
 def materialize(cfg, theme, names, ads, config_sha):
@@ -136,6 +167,11 @@ def materialize(cfg, theme, names, ads, config_sha):
     ai = cfg.get("ai") or {}
     write_json("writing.json", ai.get("writing") or {})
 
+    # 兼容旧配置：新版把完整提示词模板放在 ai.persona/editorial/prompts，
+    # 老配置可能只在 ai.prompt_* 里，统一在这里归一。
+    if not ai.get("persona") and ai.get("prompt_role"):
+        ai["persona"] = ai["prompt_role"]
+
     kw = cfg.get("keywords") or {}
     lines = ["# 由主站配置生成，请勿手动编辑",
              "# frozen_at: %s" % kw.get("frozen_at", "")]
@@ -145,6 +181,26 @@ def materialize(cfg, theme, names, ads, config_sha):
     with open(path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
     log("写入 config/keywords.txt（%d 条）" % (len(lines) - 2))
+
+    # 提示词 md：主站配置里的 ai.persona / ai.editorial / ai.prompts 是唯一事实来源，
+    # 每次拉取都覆盖到 config/，分站不再依赖仓库里手写的静态 md。
+    def write_text(name, text):
+        path = os.path.join(CONFIG, name)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(text if text.endswith("\n") else text + "\n")
+        log("写入 config/%s" % name)
+
+    prompts = ai.get("prompts") or {}
+    # 空值不落盘：让 generate.py 用它自己的内置兜底，避免写出空模板反而坏掉
+    if (ai.get("persona") or "").strip():
+        write_text("persona.md", ai["persona"])
+    if (ai.get("editorial") or "").strip():
+        write_text("editorial.md", ai["editorial"])
+    for key in ("write", "terms", "question"):
+        body = prompts.get(key) or ""
+        if body.strip():
+            write_text("prompts/%s.md" % key, body)
 
     write_json("names.json", names)
     write_json("ads.json", ads)
@@ -156,9 +212,16 @@ def materialize(cfg, theme, names, ads, config_sha):
                       .strftime("%Y-%m-%dT%H:%M:%SZ"),
         "config_sha256": config_sha,
         "theme": theme.get("theme", ""),
+        "renderer": theme.get("renderer", ""),
         "slots": theme.get("slots") or {},
+        # 内容契约：主题定义"产出什么结构"，生成脚本据此拼 prompt，零硬编码新增主题
+        "content": theme.get("content") or {},
         "request_policy": ai.get("request_policy") or {},
+        # v0.8：写作配置（主笔/评论/主题约束）透传给 generate.py
+        "writing": ai.get("writing") or {},
         "keyword_anchor": bool((ai.get("constraints") or {}).get("keyword_anchor")),
+        # v0.9：广告条数属于站点设置，global/ads.json 只保留内容
+        "ads_per_page": (cfg.get("shared") or {}).get("ads_per_page", 0),
     }
     write_json("generated.json", runtime_cfg)
 
@@ -185,7 +248,6 @@ def main():
     ads_rel = shared.get("ads") or "global/ads.json"
     names, names_sha = fetch_json(names_rel)
     ads, ads_sha = fetch_json(ads_rel)
-
     digests = {}
     for entry in (manifest.get("global") or []):
         if entry.get("file"):

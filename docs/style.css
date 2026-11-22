@@ -7,8 +7,19 @@
   --card: #ffffff;
 }
 
+/* 暗色主题：与同源主站共用 localStorage.yx.theme，用 data-theme 统一切换。
+   无脚本时退回系统偏好（html:not([data-theme])）。配色与主站完全一致。 */
+html[data-theme="dark"] {
+  --bg: #16151a;
+  --fg: #e8e4dd;
+  --muted: #8f8a82;
+  --line: #2b2830;
+  --accent: #e0746a;
+  --card: #1d1c22;
+  color-scheme: dark;
+}
 @media (prefers-color-scheme: dark) {
-  :root {
+  html:not([data-theme]) {
     --bg: #16151a;
     --fg: #e8e4dd;
     --muted: #8f8a82;
@@ -102,6 +113,30 @@ a { color: inherit; text-decoration: none; }
   margin: 0 0 10px;
   color: var(--muted);
   font-size: 14px;
+}
+
+/* 文章头部：主笔署名 + 标签（是否显示由主题 slots.header 决定） */
+.post-byline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 6px 0 18px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  font-size: 13px;
+}
+.byline-author { color: var(--accent); font-weight: 600; }
+.byline-tags { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.byline-tag {
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: 12px;
 }
 
 /* ---------------- 楼层 ---------------- */
@@ -334,9 +369,27 @@ a { color: inherit; text-decoration: none; }
 }
 .topbar .search-ico:hover { opacity: 1; color: var(--accent); }
 
+/* 主题切换按钮：与主站同款 ◐ / ☀ */
+.topbar .theme-ico {
+  margin-left: auto;
+  padding: 6px 0 6px 12px;
+  display: flex;
+  align-items: center;
+  color: var(--muted);
+  opacity: .65;
+  font-size: 15px;
+  line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity .15s, color .15s;
+}
+.topbar .theme-ico:hover { opacity: 1; color: var(--accent); }
+.topbar .search-ico { margin-left: 4px; }
+
 @media (max-width: 480px) {
   .topbar { padding-right: 20px; }
-  .topbar .search-ico { padding-left: 8px; }
+  .topbar .theme-ico, .topbar .search-ico { padding-left: 8px; }
 }
 
 /* ---------------- 看图模式 ---------------- */

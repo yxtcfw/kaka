@@ -88,7 +88,9 @@ jobs:
         run: |
           git config user.name  "daily-bot"
           git config user.email "daily-bot@users.noreply.github.com"
-          git add docs config/generated.json config/names.json config/ads.json config/sources.json config/writing.json config/site.json config/keywords.txt config/theme.json
+          # 只提交站点产物和运行状态；config/ 下的其余文件都是 fetch 从主站物化出的
+          # 临时工作副本，每次运行都会重新生成，不再提交进仓库，避免误当成配置源。
+          git add docs config/generated.json
           if git diff --cached --quiet; then
             echo "没有新内容，跳过提交"
           else

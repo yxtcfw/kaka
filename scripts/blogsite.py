@@ -29,6 +29,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NAMES_FILE = os.path.join(ROOT, "config", "names.json")
 THEME_FILE = os.path.join(ROOT, "config", "theme.json")
 ADS_FILE = os.path.join(ROOT, "config", "ads.json")
+GENERATED_FILE = os.path.join(ROOT, "config", "generated.json")
 _NAMES = None
 
 BJT = datetime.timezone(datetime.timedelta(hours=8))
@@ -202,8 +203,30 @@ def load_theme_slots():
         return {}
 
 
+def header_slots(runtime=None):
+    """文章头部的展示位由主题 slots.header 决定（内容归脚本，位置归主题）。
+    优先用分派时传入的 runtime.slots，回退 config/theme.json；旧主题未声明则默认都显示。
+    """
+    h = None
+    r = runtime or {}
+    if isinstance(r, dict):
+        h = (r.get("slots") or {}).get("header") if isinstance(r.get("slots"), dict) else None
+    if not isinstance(h, dict):
+        try:
+            with open(THEME_FILE, "r", encoding="utf-8") as f:
+                h = ((json.load(f).get("slots") or {}).get("header") or {})
+        except Exception:
+            h = {}
+    return {"byline": h.get("byline", True) is not False,
+            "tags": h.get("tags", True) is not False}
+
+
 def load_ads():
-    """支持两种写法：数组（每页 1 条），或 {per_page, items}"""
+    """内容来自 global/ads.json；条数来自站点设置 shared.ads_per_page（生成时写入 generated.json）。
+
+    兼容旧配置：ads.json 里的 per_page / theme.slots.ads.per_page 仍作为兜底，
+    但站点级 ads_per_page 一旦声明即为唯一来源。
+    """
     try:
         with open(ADS_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -211,13 +234,32 @@ def load_ads():
         return {"per_page": 0, "items": []}
 
     if isinstance(data, list):
-        items, per = data, 1
+        items, legacy_per = data, None
     elif isinstance(data, dict):
-        items, per = data.get("items") or [], data.get("per_page", 1)
+        items, legacy_per = data.get("items") or [], data.get("per_page")
     else:
         return {"per_page": 0, "items": []}
 
     items = [r for r in items if isinstance(r, dict) and (r.get("text") or "").strip()]
+
+    # 站点级条数优先（v0.9）
+    per = None
+    try:
+        with open(GENERATED_FILE, "r", encoding="utf-8") as f:
+            gen = json.load(f)
+        if "ads_per_page" in gen:
+            per = gen.get("ads_per_page")
+    except Exception:
+        pass
+    if per is None:
+        slots = load_theme_slots()
+        if slots.get("per_page") is not None:
+            per = slots.get("per_page")
+    if per is None:
+        per = legacy_per
+    if per is None:
+        per = 1
+
     try:
         per = max(0, int(per))
     except Exception:
@@ -227,11 +269,6 @@ def load_ads():
     position = (slots.get("position") or "between_floors").strip()
     if position == "none":
         per = 0
-    if slots.get("per_page") is not None:
-        try:
-            per = max(0, int(slots["per_page"]))
-        except Exception:
-            pass
     return {"per_page": per, "items": items, "position": position}
 
 
@@ -251,25 +288,42 @@ def ad_to_floor(ad):
     }
 
 
-def merge_extra_floors(floors, ads, slug):
-    """把额外内容按均匀间隔插进楼层里，位置由页码哈希决定（每次构建结果一致）"""
+def pick_ads(ads, slug, used_floors=None):
+    """按页码哈希挑广告条目，保证每次构建结果一致；返回 [{nick,time,body}]"""
     items, per = ads["items"], ads["per_page"]
     if not items or per <= 0:
-        return floors
-
-    # 优先用正文里没出现过的昵称，避免出现「同一个人连发两条」
-    used = {(f.get("nick") or "") for f in floors}
+        return []
+    used = {(f.get("nick") or "") for f in (used_floors or [])}
     pool = [a for a in items if (a.get("nick") or "").strip() not in used] or items
-
     h = hash_of(slug)
-    picked = [ad_to_floor(pool[(h + i) % len(pool)]) for i in range(min(per, len(pool)))]
+    return [ad_to_floor(pool[(h + i) % len(pool)]) for i in range(min(per, len(pool)))]
 
+
+def merge_extra_floors(floors, ads, slug):
+    """把额外内容按均匀间隔插进楼层里（论坛/资源/导航主题用）"""
+    picked = pick_ads(ads, slug, floors)
+    if not picked:
+        return floors
     out = list(floors)
     gap = max(1, (len(floors) + len(picked)) // (len(picked) + 1))
     for i, extra in enumerate(reversed(picked)):
         pos = min(len(out), gap * (len(picked) - i))
         out.insert(pos, extra)
     return out
+
+
+def place_ads(floors, ads, slug):
+    """按主题 slots.ads.position 真实分派广告位置，不再一概插楼层间"""
+    position = (ads.get("position") or "between_floors").strip()
+    if position == "none" or ads["per_page"] <= 0 or not ads["items"]:
+        return floors
+    if position == "after_content":
+        return list(floors) + pick_ads(ads, slug, floors)
+    if position == "comments":
+        # 评论区：追加到末尾，作为跟在正文后的讨论
+        return list(floors) + pick_ads(ads, slug, floors)
+    # between_floors / between_items / recommend_block：均匀插入
+    return merge_extra_floors(floors, ads, slug)
 
 
 def md_plain(md):
@@ -412,10 +466,24 @@ def parse_page(text, slug):
         end = rest[i + 1][0] if i + 1 < len(rest) else len(text)
         floors.append({"nick": mk[2], "time": mk[3], "body": text[mk[1]:end].strip()})
 
+    # v0.12：文章级头部信息来自 frontmatter（作者=主笔 nick，标签=主题词）
+    author = (meta.get("author") or "").strip()
+    tags = []
+    tags_raw = (meta.get("tags") or "").strip()
+    if tags_raw:
+        try:
+            parsed = json.loads(tags_raw)
+            if isinstance(parsed, list):
+                tags = [str(x).strip() for x in parsed if str(x).strip()][:6]
+        except Exception:
+            tags = [x.strip(" #\"'") for x in tags_raw.strip("[]").split(",")
+                    if x.strip(" #\"'")][:6]
+
     words = len(first["body"]) + sum(len(f["body"]) for f in floors)
     return {"slug": slug, "title": title or slug, "main": first["body"],
             "main_nick": first["nick"], "main_time": first["time"],
-            "floors": floors, "words": words, "date": date}
+            "floors": floors, "words": words, "date": date,
+            "author": author, "tags": tags}
 
 
 def load_pages(docs_dir):
@@ -434,6 +502,18 @@ def load_pages(docs_dir):
 
 # ---------------------------------------------------------------- 渲染
 
+# 暗色主题：与同源主站共用 localStorage.yx.theme（主站 theme.js 写的同一个键）。
+# 分站是静态页，内联这段小脚本，不依赖主站文件；首屏即定主题，避免闪白。
+THEME_SCRIPT = """<script>(function(){var k='yx.theme',r=document.documentElement;
+function sys(){return window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+function saved(){try{var v=localStorage.getItem(k);return v==='dark'||v==='light'?v:null;}catch(e){return null;}}
+function apply(t){r.setAttribute('data-theme',t);var b=document.getElementById('btn-theme');if(b)b.textContent=t==='dark'?'☀':'◐';}
+apply(saved()||sys());
+document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('btn-theme');
+if(b)b.addEventListener('click',function(){var n=r.getAttribute('data-theme')==='dark'?'light':'dark';
+try{localStorage.setItem(k,n);}catch(e){}apply(n);});
+window.addEventListener('storage',function(e){if(e.key===k)apply(saved()||sys());});});})();</script>"""
+
 PAGE_TMPL = """<!doctype html>
 <html lang="{lang}">
 <head>
@@ -443,12 +523,14 @@ PAGE_TMPL = """<!doctype html>
 <meta name="description" content="{desc}">
 {author_meta}
 <link rel="stylesheet" href="{rel}style.css">
+{theme_script}
 <link rel="alternate" type="application/rss+xml" title="{site}" href="{rel}feed.xml">
 </head>
 <body>
 <header class="topbar">
   <a class="brand" href="{rel}index.html">{site}</a>
   <span class="board">{tagline}</span>
+  <button class="theme-ico" id="btn-theme" type="button" aria-label="切换主题" title="切换主题">◐</button>
   <a class="search-ico" href="{rel}search.html" aria-label="搜索">
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 L21 21"/></svg>
   </a>
@@ -473,12 +555,25 @@ def page_shell(site, rel, title, desc, body, author=""):
         desc=esc(desc),
         author_meta=('<meta name="author" content="%s">' % esc(author)) if author else "",
         rel=rel,
+        theme_script=THEME_SCRIPT,
         site=esc(site.get("name") or ""),
         tagline=esc(site.get("tagline") or ""),
         body=body,
         footer=esc(site.get("footer") or "自动生成"),
         copy=('<p class="small">© %s</p>' % esc(site["author"])) if site.get("author") else "",
     )
+
+
+def header_html(p, runtime=None):
+    """文章头部：主笔署名 + 标签。显示与否由主题 slots.header 决定，无署名时不渲染署名段。"""
+    hs = header_slots(runtime)
+    parts = []
+    if hs.get("byline") and (p.get("author") or "").strip():
+        parts.append('<span class="byline-author">主笔 @%s</span>' % esc(p["author"]))
+    if hs.get("tags") and p.get("tags"):
+        parts.append('<span class="byline-tags">%s</span>' % "".join(
+            '<span class="byline-tag">#%s</span>' % esc(t) for t in p["tags"]))
+    return ('<div class="post-byline">%s</div>' % "".join(parts)) if parts else ""
 
 
 AVATAR_COLORS = ["#c0392b", "#2980b9", "#27ae60", "#8e44ad", "#d35400", "#16a085", "#7f8c8d"]
@@ -566,7 +661,7 @@ def board_intro(docs_dir, rel):
     return '<section class="board-intro prose">%s</section>' % inner
 
 
-def build(site, docs_dir, base_url=""):
+def build(site, docs_dir, base_url="", runtime=None):
     pages = load_pages(docs_dir)
     base = docs_dir
     slugs = [p["slug"] for p in pages]
@@ -611,19 +706,15 @@ def build(site, docs_dir, base_url=""):
         out = os.path.join(base, "index.html") if cur == 1 else os.path.join(base, "posts", p["slug"] + ".html")
 
         body = board_intro(docs_dir, rel)
+        # 文章头部（作者/标签）由主题 slots.header 决定显示，内容来自 frontmatter
+        body += header_html(p, runtime)
 
         # 页面标题只进 <title>，正文直接从 1 楼开始
         body += floor_html({"nick": p.get("main_nick"), "time": p.get("main_time"),
                             "body": p["main"]}, rel=rel)
-        # 广告位置由主站主题 slots 决定：论坛插在楼层间；其他主题
-        # （after_content / between_items / recommend_block）由各自 renderer 处理，
-        # 当前模板统一按楼层间插入作为兼容兜底。
-        ad_position = ads.get("position") or "between_floors"
-        if ad_position in ("between_floors", "comments", "after_content",
-                           "between_items", "recommend_block"):
-            extra_floors = merge_extra_floors(p["floors"], ads, p["slug"])
-        else:
-            extra_floors = p["floors"]
+        # 广告位置由主站主题 slots.ads.position 决定（between_floors / after_content /
+        # comments / between_items / recommend_block / none），place_ads 负责真实分派。
+        extra_floors = place_ads(p["floors"], ads, p["slug"])
         for f in extra_floors:
             body += floor_html(f, rel=rel)
 
@@ -635,6 +726,7 @@ def build(site, docs_dir, base_url=""):
             "%s · %s" % (p["title"], site.get("name") or ""),
             (p["main"][:80] + "…") if len(p["main"]) > 80 else p["main"],
             body,
+            author=p.get("author", ""),
         ))
 
     write(os.path.join(base, "assets", "cards.js"), CARD_JS)
@@ -992,3 +1084,48 @@ def card_modal(rel):
     return (CARD_MODAL
             .replace("__CARDS_JSON__", cards_json(rel))
             .replace("__REL__", rel))
+
+
+# ---------------------------------------------------------------- 渲染器分派
+# 新增主题只需在主站 themes/<id>.json 里声明 renderer + 在本脚本目录放同名 .py，
+# 该模块提供 build(site, docs_dir, base_url, runtime=None) -> stat 即可，主流程零改动。
+
+RENDERER_DIR = os.path.dirname(os.path.abspath(__file__))
+_RENDERER_CACHE = {}
+
+
+def load_renderer(name):
+    """按文件名加载渲染器模块，返回其 build 函数；失败返回 None"""
+    name = (name or "").strip()
+    if not name or not name.endswith(".py") or "/" in name or "\\" in name:
+        return None
+    if name in _RENDERER_CACHE:
+        return _RENDERER_CACHE[name]
+    path = os.path.join(RENDERER_DIR, name)
+    fn = None
+    if os.path.isfile(path):
+        try:
+            import importlib.util
+            mod_name = "_theme_renderer_" + name[:-3]
+            spec = importlib.util.spec_from_file_location(mod_name, path)
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            if callable(getattr(mod, "build", None)):
+                fn = mod.build
+        except Exception as e:
+            print("[blogsite] 加载渲染器 %s 失败：%s" % (name, e), flush=True)
+    _RENDERER_CACHE[name] = fn
+    return fn
+
+
+def build_dispatch(site, docs_dir, base_url, runtime=None):
+    """按主题契约分派渲染器；未声明/模块缺失/调用失败都回退到内置论坛渲染器"""
+    runtime = runtime or {}
+    renderer = runtime.get("renderer") or ""
+    build_fn = load_renderer(renderer)
+    if build_fn:
+        try:
+            return build_fn(site, docs_dir, base_url, runtime)
+        except Exception as e:
+            print("[blogsite] 渲染器 %s 执行失败，回退内置：%s" % (renderer, e), flush=True)
+    return build(site, docs_dir, base_url)

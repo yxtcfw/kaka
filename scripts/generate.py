@@ -3,11 +3,13 @@
 """
 每日自动连载 pipeline（论坛式，一页多楼层）
 
-  1. 挖题：从已有 md 里捞「疑问 / 痛点」句子，随机挑一条
+  1. 挖题：从历史页面的评论段落里挑一条（无主笔=讨论楼层 / 有主笔=短评）
   2. 取材：按关键词从 config/sources.json 的信源抓最近内容
   3. 写作：模型带着素材，写「主楼长文 + 若干楼层」，输出楼层结构的 markdown
   4. 落盘：写成 docs/posts/00N.md，追加到 .topics.json
   5. 建站：交给 blogsite.build 重新生成整站
+
+  结尾不再留续问钩子：话题全部来自已写过的真实评论，不会为了"下一页"硬抛问题。
 
 用法：
   python scripts/generate.py               # 挖题 → 取材 → 写作 → 建站
@@ -19,6 +21,7 @@
 
 import argparse
 import datetime
+import hashlib
 import random
 import json
 import os
@@ -113,30 +116,289 @@ DEFAULT_WRITING = {
     "floor_count": [4, 6],
     "floor_words": [40, 100],
     "query_terms": "auto",        # auto=脚本优先，命中不够再问模型；script=只脚本；model=只模型
-    "auto_next_question": True,   # 结尾没留问题时，是否补一次小请求
     "extra_rules": "",
+    # v0.8：主笔/评论/主题约束。旧配置无这些字段时由下面逻辑兜底。
+    "lead_mode": "",              # none=无主笔 / random=按seed抽 / fixed=指定；空=按主题默认
+    "fixed_lead": "",             # lead_mode=fixed 时指定的昵称
+    "lead_words": [300, 600],     # 主笔长文字数范围
+    "content_requirements": "",   # 本篇内容硬性要求（站点可编辑；旧名 topic_constraint 兼容）
 }
 
 
-def load_names():
+def load_names(active_only=True):
     rows = load_json(os.path.join(CONFIG, "names.json"), [])
-    return [r for r in rows if isinstance(r, dict) and r.get("nick")]
+    out = [r for r in rows if isinstance(r, dict) and r.get("nick")]
+    if active_only:
+        # v0.7：active=false 的人不出场；旧名单无 active 字段视为 true（兼容）
+        out = [r for r in out if r.get("active", True)]
+    return out
 
 
 def load_runtime_config():
-    """读取 fetch_config.py 落盘的运行配置（主题 slots / 请求策略）"""
+    """读取 fetch_config.py 落盘的运行配置（主题 slots / 请求策略 / 内容契约）"""
     cfg = load_json(GENERATED, {})
     return {
         "site_id": cfg.get("site_id", os.environ.get("SITE_ID", "kaka")),
         "slots": cfg.get("slots") or {},
         "request_policy": cfg.get("request_policy") or {},
         "keyword_anchor": bool(cfg.get("keyword_anchor")),
+        "theme": cfg.get("theme") or "",
+        "content": cfg.get("content") or {},
     }
 
 
+# 主题内容契约的兜底值（= forum 行为）。新主题由主站 themes/<id>.json 的 content 段驱动，
+# 字段缺失时回退到这里，保证旧配置/未下发契约的分站行为不变。
+DEFAULT_CONTENT = {
+    "unit": "floor",
+    "unit_label": "楼层",
+    "first_unit": "1 楼",
+    "page_desc": "连载帖子的新一页",
+    "system_role": "你在维护一个论坛式连载帖，每天更新一页。\n这一页由「1 楼提出问题 + 若干楼层讨论」组成，只输出 JSON。",
+    "virtual_user_hint": "【身份】名单里的人以跟帖楼层用户身份出现，不要写成评论区。",
+    "structure_block": (
+        "【这一页的结构（必须遵守）】\n"
+        "1. **1 楼**：把上面那个问题原样摆出来，可以补一两句具体背景。\n"
+        "2. **2 楼到倒数第 3 楼**：围绕问题讨论、问答、辩论，答案一点点拼出来。\n"
+        "3. **最后 2~3 楼**：把讨论收束到位，给出结论或仍有争议的点。"
+        "不要抛出新问题，也不要留「下一页继续」之类的钩子。"
+    ),
+    "format_block": (
+        "【楼层写法】\n"
+        "- 楼层标题格式：## @昵称 · 时间\n"
+        "- 昵称只能用名单里的，不要自己编。\n"
+        "- 不要输出一级标题，标题放 JSON 的 title 字段。"
+    ),
+    "output_fields": {
+        "title": "页面标题，20字以内",
+        "question": "1 楼要讨论的问题（一句话）",
+        "author": "主笔昵称；无主笔时输出空字符串",
+        "tags": "3~5 个标签词组成的字符串数组",
+        "content_md": "1 楼内容 + 楼层，不含一级标题",
+    },
+}
+
+
+def content_contract(runtime_cfg):
+    """合并主题内容契约：契约字段覆盖兜底值，保证新增主题零改脚本"""
+    out = dict(DEFAULT_CONTENT)
+    c = runtime_cfg.get("content") or {}
+    if isinstance(c, dict):
+        out.update({k: v for k, v in c.items() if v not in (None, "")})
+    return out
+
+
+def persona_block(persona_text, runtime_cfg):
+    """旧入口：仅拼人设段（不含分工）。v0.7 主流程改用 assign_roles()。"""
+    c = runtime_cfg.get("content") or {} if isinstance(runtime_cfg, dict) else {}
+    mode = (c.get("role_model") or c.get("persona_mode") or "single").lower() if isinstance(c, dict) else "single"
+    multi = mode in ("multi", "peers", "discussion", "lead_support", "item_list")
+    if multi:
+        rows = load_names()
+        lines = []
+        for r in rows:
+            p = (r.get("persona") or "").strip() or (r.get("sign") or "").strip()
+            lines.append("- %s：%s" % (r["nick"], p) if p else "- %s" % r["nick"])
+        if lines:
+            return ("【人设】每个出场角色按自己的人设说话，语气与立场可不同：\n" + "\n".join(lines))
+    return (persona_text or "").strip()
+
+
+def _persona_line(row):
+    p = (row.get("persona") or "").strip() or (row.get("sign") or "").strip()
+    return ("%s：%s" % (row["nick"], p)) if p else row["nick"]
+
+
+def has_lead(runtime_cfg, writing=None):
+    """是否启用主笔（无副作用）：主题 role_model 给能力边界，站点 writing.lead_mode 给取值。
+    挖题阶段用它决定话题语义（有主笔=从短评选，无主笔=从讨论选），与 assign_roles 同源。
+    """
+    c = runtime_cfg.get("content") or {} if isinstance(runtime_cfg, dict) else {}
+    model = (c.get("role_model") or "").strip() or (
+        "peers" if (c.get("persona_mode") or "single") == "multi" else "single")
+    lead_allowed = model in ("lead_support", "item_list")
+    if not lead_allowed:
+        return False
+    mode = (((writing or {}).get("lead_mode") or "").strip().lower())
+    if not mode:
+        mode = "random" if model == "lead_support" else "none"
+    return mode != "none"
+
+
+def comment_kind_of(runtime_cfg, writing=None):
+    """署名评论段落的语义标签，决定挖题放宽程度：
+    - item_list（导航/资源）无论有无主笔，都是文末短评 → 短评
+    - 有主笔的长文主题，署名段落是辅助短评 → 短评
+    - 论坛 peers 无主笔，署名段落就是讨论楼层 → 讨论
+    只影响提示措辞与打分阈值，抽取逻辑统一靠 `## @昵称` 识别。
+    """
+    c = runtime_cfg.get("content") or {} if isinstance(runtime_cfg, dict) else {}
+    if (c.get("role_model") or "").strip() == "item_list":
+        return "短评"
+    return "短评" if has_lead(runtime_cfg, writing) else "讨论"
+
+
+def assign_roles(runtime_cfg, seed_text, site_persona="", writing=None):
+    """v0.8 角色分工核心：主题 role_model 决定"能否有主笔"，站点 writing.lead_mode 决定"要不要主笔/谁主笔"。
+
+    返回 dict：
+      lead       主笔 nick（有主笔时）；无主笔为 None
+      supports   辅助 nick 列表
+      names_block 出场名单（带人设）
+      role_block  角色分工说明（注入 user prompt）
+      fields_check 必填字段约束（导航/资源）
+      model      role_model 名
+
+    主笔随机用 seed 文本的 sha256 取模——同一个问题永远抽到同一主笔，保证
+    --rebuild 与同日多次运行幂等（不会因随机导致内容抖动）。
+    v0.8 去掉全局 role_policy.json 与名单 tier：主笔策略全部下沉到站点 writing。
+    """
+    c = runtime_cfg.get("content") or {} if isinstance(runtime_cfg, dict) else {}
+    model = (c.get("role_model") or "").strip() or (
+        "peers" if (c.get("persona_mode") or "single") == "multi" else "single")
+    rows = load_names(active_only=True)
+    w = writing or {}
+
+    # 站点主笔策略：none=不设主笔 / random=按 seed 抽 / fixed=指定
+    lead_mode = (w.get("lead_mode") or "").strip().lower()
+    fixed_lead = (w.get("fixed_lead") or "").strip()
+    # 主题能力：peers 主题禁用主笔（论坛）；lead_support/item_list 才允许
+    lead_allowed = model in ("lead_support", "item_list")
+    if not lead_mode:
+        # 兜底：旧配置无 lead_mode，按主题默认（lead_support 才有主笔）
+        lead_mode = "random" if model == "lead_support" else "none"
+    if not lead_allowed:
+        lead_mode = "none"
+
+    lead = None
+    supports = []
+    parts = []
+
+    if lead_mode != "none" and rows:
+        # 一主多辅 / 条目+主笔导语：主笔从全体 active 人里抽
+        if lead_mode == "fixed" and fixed_lead:
+            pick = next((r for r in rows if r["nick"] == fixed_lead), None)
+        else:
+            pick = None
+        if pick is None:
+            digest = hashlib.sha256((seed_text or "").encode("utf-8")).hexdigest()
+            pick = rows[int(digest[:8], 16) % len(rows)]
+        lead = pick["nick"]
+        sup_pool = [r for r in rows if r["nick"] != lead]
+        supports = [r["nick"] for r in sup_pool]
+        parts.append("【角色分工：一主多辅】")
+        parts.append("- 主笔：%s" % _persona_line(pick))
+        if model == "item_list":
+            parts.append("  主笔只写一段导语（说明这批条目的主题与筛选标准），正文条目列表不得用人物署名。")
+        else:
+            parts.append("  只有主笔写正文长文（完整论证、带细节和边界），正文用普通段落，不署名楼层。")
+        if supports:
+            parts.append("- 辅助短评：以下人物各写一条短评，语气按各自人设，每条只讲一个点：")
+            for r in sup_pool:
+                parts.append("  · %s：%s" % (r["nick"], _persona_line(r)))
+            parts.append("  短评用「## @昵称 · 时间」开头，附在正文之后。")
+    elif model == "item_list":
+        # 条目为主体、无主笔：正文条目列表 + 文末短评（用户确认维持此模式）
+        supports = [r["nick"] for r in rows]
+        parts.append("【角色分工：条目为主体】")
+        parts.append("- 正文是条目列表本身，不写长文导语，不得用虚拟人物署名条目。")
+        if supports:
+            parts.append("- 文末必须附 2~3 条虚拟人物短评（「## @昵称 · 时间」开头），从名单里选人、按各自人设，每条只讲一个点；这是固定的收尾部分，不要省略。")
+            for r in rows:
+                parts.append("  · %s：%s" % (r["nick"], _persona_line(r)))
+    else:
+        # peers / discussion / single（论坛）：不分主次，全员按人设讨论，无主笔
+        supports = [r["nick"] for r in rows]
+        parts.append("【角色分工：不分主次】")
+        parts.append("- 所有出场人物地位平等，各按自己人设发言，不设主笔、不写长文主导。")
+        for r in rows:
+            parts.append("  · %s：%s" % (r["nick"], _persona_line(r)))
+        if model == "single" and site_persona:
+            parts.append("- 站点通用基调：%s" % site_persona.strip())
+
+    # 出场名单段：lead_support 时列全体（主笔+辅助），其余列全体
+    name_lines = ["- %s（%s）" % (r["nick"], r.get("sign") or "") for r in rows]
+    names_block = "\n".join(name_lines) or "- 阿强\n- 小北"
+
+    # 必填字段约束（导航/资源）
+    fields_check = ""
+    required = c.get("required_fields") or []
+    if required:
+        fields_check = ("【条目完整性（硬要求）】正文每个条目必须完整包含：%s。"
+                        "缺少任意一项的条目视为无效，宁可少列也不要凑数。" % " / ".join(required))
+
+    return {
+        "lead": lead,
+        "supports": supports,
+        "names_block": names_block,
+        "role_block": "\n".join(parts),
+        "fields_check": fields_check,
+        "model": model,
+    }
+
+
+def local_validate_fields(content_md, runtime_cfg):
+    """v0.7 本地校验：导航/资源条目完整性。纯字符串检查，不发 AI 请求。
+    对缺必填字段的条目做提示性统计（不擅自删正文，避免破坏排版）；返回报告 dict。"""
+    c = runtime_cfg.get("content") or {} if isinstance(runtime_cfg, dict) else {}
+    required = c.get("required_fields") or []
+    if not required or not content_md:
+        return {"checked": False, "items": 0, "incomplete": 0}
+    # 条目以 ## 小标题分隔
+    blocks = re.split(r"(?m)^##\s+", content_md)
+    items = [b for b in blocks[1:] if b.strip()] if len(blocks) > 1 else []
+    incomplete = 0
+    for b in items:
+        # 链接用 markdown 行内链接判定；名称=小标题本身；简述/缺点看是否有文字段落
+        has_link = bool(re.search(r"\[[^\]]+\]\([^)]+\)", b))
+        body = re.sub(r"\[[^\]]+\]\([^)]+\)", "", b).strip()
+        has_text = len(body) >= 8
+        miss = []
+        if "链接" in required and not has_link:
+            miss.append("链接")
+        if ("简述" in required or "缺点" in required) and not has_text:
+            miss.append("简述")
+        if miss:
+            incomplete += 1
+    report = {"checked": True, "items": len(items), "incomplete": incomplete}
+    if incomplete:
+        log("本地校验：%d/%d 个条目可能缺必填字段（%s）" %
+            (incomplete, len(items), "/".join(required)))
+    return report
+
+
+def keyword_anchor_block(runtime_cfg, seed_text, keywords):
+    """关键词锚点段：把篇幅/话题锁死在本篇问题与冻结关键词内，防抽词续问偏题。
+    旧配置无 keyword_policy 时返回空串，行为不变。"""
+    c = runtime_cfg.get("content") or {} if isinstance(runtime_cfg, dict) else {}
+    kp = c.get("keyword_policy") or {} if isinstance(c, dict) else {}
+    if not isinstance(kp, dict) or not kp.get("anchor"):
+        return ""
+    words = []
+    for k in (keywords or []):
+        w = (k.get("keyword") or "").strip()
+        if w and w not in words:
+            words.append(w)
+    hint = (kp.get("hint") or "").strip()
+    scope = (kp.get("scope") or "same_article").strip()
+    parts = ["【主题锚点（最高优先级）】"]
+    if seed_text:
+        parts.append("本篇只讨论这个问题：%s" % seed_text.strip())
+    if words:
+        parts.append("必须围绕这些关键词及其衍生：%s" % "、".join(words[:12]))
+    if hint:
+        parts.append(hint)
+    parts.append("结尾就本篇自然收束，不要把话题甩向无关方向，也不要留续问钩子。")
+    return "\n".join(parts)
+
+
 def identity_hint(runtime_cfg):
-    """按主题 slots 告诉模型虚拟用户以什么身份出现"""
-    pos = ((runtime_cfg.get("slots") or {}).get("virtual_users") or {}).get("position", "")
+    """虚拟用户身份提示：有内容契约就用契约，否则按旧 slots.position 兜底"""
+    raw = (runtime_cfg or {}).get("content") or {}
+    if isinstance(raw, dict) and (raw.get("virtual_user_hint") or "").strip():
+        return raw["virtual_user_hint"].strip()
+    # 旧版兜底：只有 slots、没有 content 契约的分站（fetch 未下发新契约时）
+    pos = (((runtime_cfg or {}).get("slots") or {}).get("virtual_users") or {}).get("position", "")
     if pos == "comments":
         return "【身份】名单里的人以评论区网友身份出现，不要写成论坛楼层。"
     if pos == "floor":
@@ -146,9 +408,14 @@ def identity_hint(runtime_cfg):
 
 PROMPT_DIR = os.path.join(CONFIG, "prompts")
 
-DEFAULT_WRITE_PROMPT = """今天是 {{today}}。这是连载帖子的新一页。
+# 通用骨架：主题相关段落全部走 {{占位符}}，由 themes/<id>.json 的 content 段填充。
+# 变量名刻意保持与旧模板一致（today/seed/material/recent/mw/fc_min/.../names/identity_hint/extra），
+# 外加结构类占位符，保证旧站点配置和旧缓存 prompt 也能平滑过渡。
+DEFAULT_WRITE_PROMPT = """今天是 {{today}}。这是{{page_desc}}。
 
 {{seed}}
+
+{{anchor}}
 
 【可用的信源素材】（只能引用这里的事实）
 {{material}}
@@ -156,24 +423,32 @@ DEFAULT_WRITE_PROMPT = """今天是 {{today}}。这是连载帖子的新一页�
 【最近写过的页】
 {{recent}}
 
-【篇幅】1 楼 {{mw}} 字以内，{{fc_min}}~{{fc_max}} 个楼层，每层 {{fw_min}}~{{fw_max}} 字。
+【篇幅】{{first_unit}} {{mw}} 字以内，{{fc_min}}~{{fc_max}} 个{{unit_label}}，每个{{unit_label}} {{fw_min}}~{{fw_max}} 字。
 {{extra}}
+
+{{structure_block}}
 
 【出场的人】
 {{names}}
 
-【格式】楼层用 ## @昵称 · 时间；不要一级标题；标题放 JSON 的 title。
-【输出 JSON】{"title":"...","question":"...","next_questions":["..."],"content_md":"..."}"""
+{{role_block}}
+
+{{identity_hint}}
+
+{{fields_check}}
+
+{{format_block}}
+
+【输出 JSON】
+{"title": "{{f_title}}",
+ "question": "{{f_question}}",
+ "author": "{{f_author}}",
+ "tags": {{f_tags}},
+ "content_md": "{{f_content_md}}"}"""
 
 DEFAULT_TERMS_PROMPT = """从这句问题里抽出 3~5 个搜索关键词，实体词优先。
 问题：「{{question}}」
 【输出 JSON】{"terms": ["词1", "词2"]}"""
-
-DEFAULT_QUESTION_PROMPT = """根据下面这页内容，提出 1~2 个下一页值得讨论的新问题，每条 30 字以内。
-【页面内容】
-{{content}}
-【输出 JSON】{"next_questions": ["问题1"]}"""
-
 
 def load_prompt(name, fallback, **vars):
     """从 config/prompts/{name}.md 读模板，用 {{var}} 占位替换；文件缺失时用内置兜底"""
@@ -194,8 +469,15 @@ def load_writing():
         w["main_words"] = int(os.environ["WORD_COUNT"].strip())
     try:
         w["main_words"] = max(200, int(w["main_words"]))
+        # 兼容中性字段：unit_count/unit_words 与旧名 floor_count/floor_words 双向同步
+        if "unit_count" in w and w["unit_count"] not in (None, ""):
+            w["floor_count"] = [int(x) for x in w["unit_count"]]
+        if "unit_words" in w and w["unit_words"] not in (None, ""):
+            w["floor_words"] = [int(x) for x in w["unit_words"]]
         w["floor_count"] = [int(x) for x in w["floor_count"]]
         w["floor_words"] = [int(x) for x in w["floor_words"]]
+        w.setdefault("unit_count", w["floor_count"])
+        w.setdefault("unit_words", w["floor_words"])
     except Exception:
         w = dict(DEFAULT_WRITING)
     return w
@@ -532,12 +814,12 @@ STOP_GRAMS = {"怎么", "什么", "如何", "为什", "么办", "可以", "能�
 BAD_CHARS = "怎什么如何为吗呢吧啊的了是在有和就都也还"
 
 
-def script_terms(text, keywords):
+def script_terms(text, keywords, anchors_only=True):
     """
-    纯脚本抽检索词，不调模型：
-    1. 关键词池里出现的词优先（你自己定的词最准）
-    2. 英文/数字整体当一个词（GitHub、Actions、3.5）
-    3. 中文按 2-gram 切，剔掉带虚词的组合
+    纯脚本抽检索词，不调模型。
+    anchors_only=True（v0.6 默认，防偏题）：只围绕冻结关键词池衍生，
+      2-gram/英文词必须与某个锚点有交集才收，杜绝「流量卡」「划算」这类泛词。
+    anchors_only=False：旧行为（英文/2-gram 全收），仅旧配置兜底用。
     """
     out, seen = [], set()
 
@@ -547,27 +829,51 @@ def script_terms(text, keywords):
             seen.add(k)
             out.append(w)
 
-    for k in keywords:
+    pool = []
+    for k in (keywords or []):
         kw = (k.get("keyword") or "").strip()
-        if kw and kw in text:
+        if kw:
+            pool.append(kw)
+
+    # 1. 关键词池里出现在问题里的，最优先（人工冻结的锚点最准）
+    for kw in pool:
+        if kw in text:
             add(kw)
 
-    for tok in re.findall(r"[A-Za-z][A-Za-z0-9.\-]{1,}", text):
-        add(tok)
+    if anchors_only and pool:
+        # 2. 衍生词必须与锚点有交集（子串关系或共用字），不收无关泛词
+        for tok in re.findall(r"[A-Za-z][A-Za-z0-9.\-]{1,}", text):
+            if any(tok.lower() in p.lower() or p.lower() in tok.lower() for p in pool):
+                add(tok)
+        for seg in re.findall(r"[\u4e00-\u9fff]+", text):
+            for i in range(len(seg) - 1):
+                g = seg[i:i + 2]
+                if g in STOP_GRAMS or any(c in BAD_CHARS for c in g):
+                    continue
+                if any(g in p for p in pool):
+                    add(g)
+    else:
+        # 旧行为：英文/中文 2-gram 全收
+        for tok in re.findall(r"[A-Za-z][A-Za-z0-9.\-]{1,}", text):
+            add(tok)
+        for seg in re.findall(r"[\u4e00-\u9fff]+", text):
+            for i in range(len(seg) - 1):
+                g = seg[i:i + 2]
+                if g in STOP_GRAMS or any(c in BAD_CHARS for c in g):
+                    continue
+                add(g)
 
-    for seg in re.findall(r"[\u4e00-\u9fff]+", text):
-        for i in range(len(seg) - 1):
-            g = seg[i:i + 2]
-            if g in STOP_GRAMS or any(c in BAD_CHARS for c in g):
-                continue
-            add(g)
-
+    # 3. 兜底：一个都没命中（问题措辞和关键词完全不重合）时，用锚点自身拆词组
+    if not out and pool:
+        for kw in pool[:6]:
+            add(kw)
     return out[:6]
 
 
-def extract_query_terms(text, models=None, keywords=None, terms_mode="script"):
+def extract_query_terms(text, models=None, keywords=None, terms_mode="script", anchors_only=True):
     """
     抽检索词。默认 script：纯脚本切分，不发 AI 请求（省资源契约）。
+    anchors_only=True（v0.6）：只围绕冻结关键词池衍生，防话题漂移。
     terms_mode=model 才走模型；那是旧行为，主站配置不应开启。
     """
     if terms_mode == "model":
@@ -578,11 +884,11 @@ def extract_query_terms(text, models=None, keywords=None, terms_mode="script"):
             ], models or [], temperature=0.2, timeout=60)
             terms = data.get("terms") or []
             terms = [str(t).strip() for t in terms if str(t).strip()]
-            return terms[:5] or script_terms(text, keywords or [])
+            return terms[:5] or script_terms(text, keywords or [], anchors_only)
         except BaseException as e:
             log("抽检索词失败（%r），用脚本切分兜底" % (e,))
-            return script_terms(text, keywords or [])
-    return script_terms(text, keywords or [])
+            return script_terms(text, keywords or [], anchors_only)
+    return script_terms(text, keywords or [], anchors_only)
 
 
 def rank_by_terms(items, terms):
@@ -639,38 +945,34 @@ def search_web(query, cfg):
     return []
 
 
+def clean_tags(value, keywords=None):
+    """清洗模型产出的标签（本地处理，不消耗 AI 请求）。
+
+    模型给的可能是数组、逗号串或带 # 的字符串；统一去符号、去重、限 5 个。
+    没产出时用冻结关键词 picked 兜底，保证头部标签栏永远有内容可渲染。
+    """
+    tags = []
+    raw = [value] if isinstance(value, str) else (value or [])
+    for x in raw:
+        s = str(x).strip().strip("[]").strip()
+        s = re.sub(r"^[#＃]+", "", s).strip().strip("\"' ").strip()
+        if s and len(s) <= 12 and s not in tags:
+            tags.append(s)
+        if len(tags) >= 5:
+            break
+    if not tags:
+        for k in (keywords or []):
+            s = ((k.get("keyword") or "").strip() if isinstance(k, dict) else str(k).strip())
+            if s and s not in tags:
+                tags.append(s[:12])
+            if len(tags) >= 3:
+                break
+    return tags
+
+
 # ---------------------------------------------------------------- 写作
-
-def tail_questions(content_md, limit=3):
-    """模型没给 next_questions 时，从最后几层里抠带问号的句子"""
-    parts = re.split(r"^##\s*\d+\s*楼.*$", content_md, flags=re.M)
-    segs = parts[-3:] if len(parts) > 3 else parts[1:]
-    qs, seen = [], set()
-    for seg in segs:
-        for x in re.split(r"(?<=[。！？!?])", seg):
-            x = x.strip()
-            if (("？" in x) or ("?" in x)) and 8 <= len(x) <= 90 and x not in seen:
-                seen.add(x)
-                qs.append(x)
-    return qs[:limit]
-
-
-def ensure_next_questions(content_md, models):
-    """兜底：单独补一次小请求，只要 1~2 个给下一页的问题"""
-    tail = content_md[-1500:]
-    try:
-        data, _ = ask_json([
-            {"role": "system", "content": "你是论坛帖的楼主。只输出 JSON。"},
-            {"role": "user", "content": load_prompt("question", DEFAULT_QUESTION_PROMPT, content=tail)},
-        ], models, temperature=0.8, timeout=REQUEST_TIMEOUT)
-        qs = data.get("next_questions") or []
-        if isinstance(qs, str):
-            qs = [qs]
-        return [str(x).strip()[:100] for x in qs if str(x).strip()][:3]
-    except BaseException as e:
-        log("补问题失败（%r）" % (e,))
-        return []
-
+# v0.11：续问留钩机制已移除。选题只来自历史评论（mine.scan_comment_topics），
+# 结尾由主题 structure_block 要求自然收束，不再生成/校验/补问 next_questions。
 
 def next_page_no(posts_dir):
     nums = []
@@ -683,41 +985,100 @@ def next_page_no(posts_dir):
 
 
 def step_write_page(site, persona, editorial, seed, material_block, history, models, writing,
-                    runtime_cfg=None):
+                    runtime_cfg=None, keywords=None):
+    contract = content_contract(runtime_cfg or {})
+    first_unit = contract.get("first_unit", "1 楼")
+    unit_label = contract.get("unit_label", "楼层")
+
     recent = history["items"][-10:]
     recent_block = "\n".join("- 第 %s 页：%s" % (it.get("slug", ""), it.get("title", ""))
                              for it in recent) or "（这是第一页）"
 
-    seed_block = ('这一页要讨论的问题：\n「%s」\n（来自第 %s 页《%s》）\n'
-                  '**1 楼必须原样提出这句话，一个字都不要改**，后面所有楼层都围绕它讨论。'
-                  % (seed.get("text", ""), seed.get("from", "?"), seed.get("from_title", "")))
+    # v0.11：话题来自历史评论（无主笔=讨论楼层 / 有主笔=短评），措辞按来源走。
+    if seed.get("kind") == "comment":
+        origin = "（摘自第 %s 页《%s》里 @%s 的%s）" % (
+            seed.get("from", "?"), seed.get("from_title", ""),
+            seed.get("speaker", ""), seed.get("comment_kind", "评论"))
+        label = "这一页要接着讨论的话题"
+    else:
+        origin = "（来自 %s）" % seed.get("from", "?")
+        label = "这一页要讨论的问题"
+    seed_block = ('%s：\n「%s」\n%s\n'
+                  '**%s 必须原样摆出这句话，一个字都不要改**，后面所有%s都围绕它讨论。'
+                  % (label, seed.get("text", ""), origin, first_unit, unit_label))
 
-    names_block = "\n".join("- %s（%s）" % (r["nick"], r.get("sign") or "") for r in load_names()) or "- 阿强\n- 小北"
+    # v0.8：角色分工由站点 writing.lead_mode 决定（主题 role_model 锁定能力边界），
+    # 主笔随机按 seed 幂等。names_block/role_block/fields_check 都来自它。
+    roles = assign_roles(runtime_cfg or {}, seed.get("text", ""), persona, writing)
+    names_block = roles["names_block"]
+    role_block = roles["role_block"]
+    fields_check = roles["fields_check"]
+    if roles.get("lead"):
+        log("角色分配：主笔=%s 辅助=%d人（模型 %s）" %
+            (roles["lead"], len(roles["supports"]), roles["model"]))
 
-    mw = writing["main_words"]
-    fc_min, fc_max = writing["floor_count"]
-    fw_min, fw_max = writing["floor_words"]
+    # 篇幅字段泛化：unit_count/unit_words 优先，回落 floor_count/floor_words。
+    # lead_support/item_list 里 fc_range 表示"辅助条数"（短评数/条目数），语义复用。
+    fc_range = writing.get("unit_count") or writing["floor_count"]
+    fw_range = writing.get("unit_words") or writing["floor_words"]
+    # v0.10：主笔字数取站点 lead_words 上限；旧配置没有时用 main_words 兜底
+    lw = writing.get("lead_words") or []
+    mw = int(lw[1]) if len(lw) > 1 and lw[1] else int(writing.get("main_words") or 300)
+    fc_min, fc_max = fc_range
+    fw_min, fw_max = fw_range
     page_max = mw + fc_max * fw_max
-    extra = writing.get("extra_rules") or ""
+    # v0.10：通用编辑规则由主题契约给默认，站点填写才覆盖
+    extra = (writing.get("extra_rules") or "").strip() or \
+            (contract.get("extra_rules_default") or "").strip()
 
-    avoid = ("\n\n【不要写这些】\n" + editorial[:1500]) if editorial else ""
+    # system = 写死的通用约束 + 站点基调 + 主题系统角色。
+    # v0.8：通用约束（关键词锚点 + 信源事实 + 不跑题）是框架级护栏，站点配置不再能改。
+    system = ("【通用写作约束（框架强制，不可覆盖）】\n"
+              "1. 只能围绕本篇问题和冻结关键词展开，不得跑题或另起话题。\n"
+              "2. 所有事实性内容只能来自提供的信源素材；素材没有的不要编造、不要补充记忆里的细节。\n"
+              "3. 不确定就说不确定，宁可少写也不要虚构数据、功能或来源。\n\n")
+    # v0.10：写作风格默认收进主题契约 persona_default；站点 persona.md 非空时优先覆盖。
+    style = (persona or "").strip() or (contract.get("persona_default") or "").strip()
+    if style:
+        system += style + "\n\n"
+    system += contract["system_role"]
 
-    system = (persona + avoid +
-              "\n\n你在维护一个论坛式连载帖，每天更新一页。"
-              "\n这一页由「1 楼提出问题 + 若干楼层讨论」组成，只输出 JSON。")
+    # 内容硬性要求：站点 writing.content_requirements 可编辑（旧名 topic_constraint 兼容）
+    topic_req = (writing.get("content_requirements") or writing.get("topic_constraint") or "").strip()
+    if topic_req:
+        system += "\n\n【本主题的硬性要求（必须满足）】\n" + topic_req
 
+    anchor = keyword_anchor_block(runtime_cfg or {}, seed.get("text", ""), keywords)
+    fields = contract.get("output_fields") or {}
+    skeleton = contract.get("skeleton") or DEFAULT_WRITE_PROMPT   # 骨架来自主题契约
     user = load_prompt(
-        "write", DEFAULT_WRITE_PROMPT,
+        "write", skeleton,
         today=datetime.datetime.now(BJT).strftime("%Y-%m-%d"),
         seed=seed_block,
+        anchor=anchor,
         material=material_block,
         recent=recent_block,
         mw=mw, fc_min=fc_min, fc_max=fc_max,
         fw_min=fw_min, fw_max=fw_max,
         page_max=page_max,
         names=names_block,
+        role_block=role_block,
+        fields_check=fields_check,
         identity_hint=identity_hint(runtime_cfg or {}),
         extra=extra,
+        page_desc=contract.get("page_desc", "连载帖子的新一页"),
+        first_unit=contract.get("first_unit", "1 楼"),
+        unit_label=contract.get("unit_label", "楼层"),
+        structure_block=contract.get("structure_block", ""),
+        format_block=contract.get("format_block", ""),
+        f_title=fields.get("title", "页面标题，20字以内"),
+        f_question=fields.get("question", "这一页要讨论的问题（一句话）"),
+        # 作者是脚本按 seed 幂等分配的主笔，直接写死进 prompt，不让模型自创署名
+        f_author=(roles.get("lead") or ""),
+        f_tags=json.dumps(fields.get("tags", "3~5 个标签词组成的字符串数组"), ensure_ascii=False),
+        # 兼容旧缓存 prompt 里的 {{f_next_questions}} 占位符：填空，避免模型再产出续问字段
+        f_next_questions="[]",
+        f_content_md=fields.get("content_md", "正文内容，不含一级标题"),
     )
 
     return ask_json([
@@ -754,9 +1115,10 @@ def main():
     args = ap.parse_args()
 
     site = load_site()
+    runtime_cfg = load_runtime_config()
 
     if args.rebuild:
-        stat = sitebuilder.build(site, DOCS, site["base_url"])
+        stat = sitebuilder.build_dispatch(site, DOCS, site["base_url"], runtime_cfg)
         log("重建完成：%d 页 / %d 层 / %d 字" % (stat["pages"], stat["floors"], stat["words"]))
         try:
             with open(os.path.join(DOCS, ".run_stat.json"), "w", encoding="utf-8") as f:
@@ -771,19 +1133,16 @@ def main():
         probe(sources_cfg)
         return
 
-    runtime_cfg = load_runtime_config()
     policy = runtime_cfg.get("request_policy") or {}
     terms_mode = (policy.get("terms_mode") or "script").lower()
-    fallback_no_extra = policy.get("fallback_no_extra_call", True)
 
-    persona = load_text(os.path.join(CONFIG, "persona.md"), "你是一位中文写作好手。")
+    # 留空时由主题契约 persona_default 接管，不再用通用兜底压过主题风格
+    persona = load_text(os.path.join(CONFIG, "persona.md"), "")
     editorial = load_text(os.path.join(CONFIG, "editorial.md"), "")
     writing = load_writing()
-    # 省资源契约：脚本抽词、禁止补问
+    # 省资源契约：脚本抽词（v0.11 起补问机制已整体移除，不再有额外请求分支）
     if terms_mode != "model":
         writing["query_terms"] = "script"
-    if fallback_no_extra:
-        writing["auto_next_question"] = False
     keywords = load_keywords()
     history = load_history()
     models = resolve_models(os.environ.get("OPENROUTER_MODEL", ""))
@@ -797,34 +1156,35 @@ def main():
     date_str = now.strftime("%Y-%m-%d")
     if any(it.get("date") == date_str for it in history["items"]) and not forced and not args.force:
         log("今天已经更新过（%s），只重建站点。想再写一页用 --force。" % date_str)
-        sitebuilder.build(site, DOCS, site["base_url"])
+        sitebuilder.build_dispatch(site, DOCS, site["base_url"], runtime_cfg)
         return
 
-    # ---- 1. 挖题
+    # ---- 1. 挖题：只从历史评论里选，不再读结尾续问
+    # 话题来源统一是署名评论段落（## @昵称）：无主笔时是讨论楼层，有主笔时是短评。
+    # 两者都靠 role_model/lead_mode 决定语义，脚本不写死主题名。
     seed = None
     if forced:
         seed = {"kind": "topic", "text": forced, "from": "手动指定"}
         log("手动指定主题：" + forced)
     else:
-        # 首选：从上一页楼层里留下的候选问题中挑一个
-        lq = mine.latest_next_questions(POSTS)
-        if lq:
-            pick = random.choice(lq["questions"])
-            seed = {"kind": "question", "text": pick, "from": lq["slug"],
-                    "from_title": lq["page_title"]}
-            log("第 %s 页留下 %d 个候选，选中：%s"
-                % (lq["slug"], len(lq["questions"]), pick[:60]))
+        comment_kind = comment_kind_of(runtime_cfg, writing)
+        compact = comment_kind == "短评"   # 文末短评偏短，放宽长度门槛
+        recent_slugs = [it.get("slug") for it in history["items"][-6:]]
+        topics = mine.scan_comment_topics(POSTS, exclude_slugs=recent_slugs, compact=compact)
+        if not topics and recent_slugs:
+            # 历史不足 6 页时排除会清空候选池；回退到全量历史，保证站群冷启动能选题
+            topics = mine.scan_comment_topics(POSTS, compact=compact)
+            log("排除最近页后无候选，回退到全量历史评论（%d 条）" % len(topics))
+        pick = mine.pick_topic(topics, seed=date_str)
+        if pick:
+            seed = {"kind": "comment", "text": pick["text"], "from": pick["slug"],
+                    "from_title": pick["page_title"], "speaker": pick["speaker"],
+                    "comment_kind": comment_kind}
+            log("从历史%s里挖到 %d 条话题（排除最近 %d 页），选中 @%s：%s"
+                % (comment_kind, len(topics), len(recent_slugs),
+                   pick["speaker"], pick["text"][:60]))
         else:
-            # 退路：从旧帖里随机挖
-            questions = mine.scan_questions(POSTS)
-            recent_slugs = [it.get("slug") for it in history["items"][-6:]]
-            q = mine.pick_question(questions, recent_slugs)
-            if q:
-                seed = {"kind": "question", "text": q["text"], "from": q["slug"],
-                        "from_title": q["page_title"]}
-                log("上一页没留问题，从旧帖挖到 %d 条疑问，选中：%s" % (len(questions), q["text"][:60]))
-            else:
-                log("旧帖里没挖到疑问（%d 条），走热点选题" % len(questions))
+            log("历史评论里没挖到话题（%d 条），走热点选题" % len(topics))
 
     # ---- 2. 取材
     items = src.collect(sources_cfg.get("sources", []),
@@ -846,7 +1206,12 @@ def main():
     if extra:
         cands = extra + cands
 
-    terms = extract_query_terms(seed["text"], models, keywords, terms_mode=terms_mode)
+    # v0.6：关键词锚定策略从主题契约读取，term_source=picked_only 时抽词只围绕冻结词衍生
+    kp = content_contract(runtime_cfg).get("keyword_policy") or {}
+    term_source = (kp.get("term_source") or "picked_only").lower() if isinstance(kp, dict) else "picked_only"
+    anchors_only = term_source == "picked_only"
+    terms = extract_query_terms(seed["text"], models, keywords, terms_mode=terms_mode,
+                                anchors_only=anchors_only)
     cands = rank_by_terms(cands, terms) if terms else cands
     hits = [c for c in cands if c.get("rel", 0) > 0]
     if terms_mode == "script" and len(hits) < 2:
@@ -866,7 +1231,7 @@ def main():
 
     # ---- 3. 写作：唯一一次 AI 请求，一次产出全部字段
     data, resp = step_write_page(site, persona, editorial, seed, material_block, history,
-                                 models, writing, runtime_cfg)
+                                 models, writing, runtime_cfg, keywords=keywords)
 
     content_md = (data.get("content_md") or data.get("content") or "").strip()
 
@@ -879,27 +1244,29 @@ def main():
     if not title:
         title = (seed.get("text") or "无题")[:20]
 
-    min_words = max(150, int(writing["main_words"] * 0.5))
+    _lw = writing.get("lead_words") or []
+    _mw = int(_lw[1]) if len(_lw) > 1 and _lw[1] else int(writing.get("main_words") or 300)
+    min_words = max(150, int(_mw * 0.5))
     if len(content_md) < min_words:
         sys.exit("产出太短（%d 字，阈值 %d），判定失败" % (len(content_md), min_words))
+
+    # v0.7：导航/资源主题的必填字段本地校验（纯字符串，无额外 AI 请求）
+    field_report = local_validate_fields(content_md, runtime_cfg)
 
     # 落盘时把标题补回去，md 里保持 # 标题 + 正文
     content_md = "# " + title + "\n\n" + content_md
 
-    question = (seed["text"] if seed.get("kind") == "question" else (data.get("question") or "")).strip()
-    next_qs = data.get("next_questions")
-    if isinstance(next_qs, str):
-        next_qs = [next_qs]
-    next_qs = [str(x).strip()[:100] for x in (next_qs or []) if str(x).strip()][:4]
-    if not next_qs:
-        next_qs = tail_questions(content_md, 3)
-    if not next_qs and writing.get("auto_next_question", True):
-        # 仅在明确开启时兜底；主站 request_policy 默认关闭，不发额外请求
-        log("楼层里没抠到新问题，补问一次…")
-        next_qs = ensure_next_questions(content_md, models)
-    elif not next_qs:
-        log("楼层里没抠到新问题，按省资源契约不追加请求")
-    log("留给下一页的候选问题：%s" % (" ｜ ".join(next_qs) or "（没有，下一页随机挖）"))
+    # v0.11：话题来自历史评论，落盘不再写续问字段。question 记本篇实际话题（评论句或指定题）。
+    question = (seed["text"] if seed.get("kind") in ("question", "comment")
+                else (data.get("question") or "")).strip()
+    log("本篇话题：%s" % (question[:60] or "（模型自拟）"))
+
+    # v0.12：作者/标签属于内容，由脚本产出——作者取幂等分配的主笔（不让模型自创署名），
+    # 标签取模型在唯一一次请求里的产出，空则用冻结关键词兜底。展示位置交给主题 slots.header。
+    roles_final = assign_roles(runtime_cfg, seed.get("text", ""), persona, writing)
+    author = (roles_final.get("lead") or "").strip()
+    tags = clean_tags(data.get("tags"), keywords)
+    log("头部信息：作者=%s 标签=%s" % (author or "（无主笔）", "、".join(tags) or "（无）"))
 
     # ---- 4. 落盘
     os.makedirs(POSTS, exist_ok=True)
@@ -913,7 +1280,8 @@ def main():
         "date: %s" % date_str,
         "page: %d" % no,
         "question: %s" % (question or ""),
-        "next_questions: %s" % json.dumps(next_qs, ensure_ascii=False),
+        "author: %s" % author,
+        "tags: %s" % json.dumps(tags, ensure_ascii=False),
         "model: %s" % used_model,
         "model_name: %s" % model_display_name(used_model),
         "---",
@@ -928,7 +1296,8 @@ def main():
         "page": no,
         "title": title,
         "question": question,
-        "next_questions": next_qs,
+        "author": author,
+        "tags": tags,
         "words": len(content_md),
         "model": used_model,
         "model_name": model_display_name(used_model),
@@ -944,8 +1313,8 @@ def main():
     except Exception:
         pass
 
-    # ---- 5. 建站
-    stat = sitebuilder.build(site, DOCS, site["base_url"])
+    # ---- 5. 建站（按主题契约分派渲染器）
+    stat = sitebuilder.build_dispatch(site, DOCS, site["base_url"], runtime_cfg)
 
     u = resp.get("usage") or {}
     log("完成：第 %d 页《%s》 %d 字 | 站内共 %d 页 | tokens %s | AI 请求 %d 次" % (
