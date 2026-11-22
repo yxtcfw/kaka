@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0.0",
+  "theme": "forum",
+  "renderer": "blogsite.py",
+  "params": {
+    "unit": "page",
+    "floor_mark": "@",
+    "next_question_mode": "frontmatter",
+    "pager": true,
+    "use_virtual_users": true,
+    "use_ads": true
+  },
+  "slots": {
+    "virtual_users": {
+      "position": "floor",
+      "render_as": "楼层",
+      "inject_prompt": true
+    },
+    "ads": {
+      "position": "between_floors",
+      "per_page": 2,
+      "strategy": "hash_uniform"
+    }
+  }
+}

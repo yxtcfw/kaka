@@ -7,14 +7,16 @@
       "type": "rss",
       "url": "https://www.ruanyifeng.com/blog/atom.xml",
       "weight": 1.6,
-      "enabled": false
+      "enabled": false,
+      "server_fetchable": true
     },
     {
       "name": "Solidot",
       "type": "rss",
       "url": "https://www.solidot.org/index.rss",
       "weight": 1.3,
-      "enabled": false
+      "enabled": false,
+      "server_fetchable": true
     },
     {
       "name": "少数派",
@@ -23,25 +25,36 @@
       "items_path": "data",
       "id_field": "id",
       "url_template": "https://sspai.com/post/{id}",
-      "fields": { "title": "title", "summary": "summary", "date": "released_time" },
+      "fields": {
+        "title": "title",
+        "summary": "summary",
+        "date": "released_time"
+      },
       "weight": 1.4,
-      "enabled": false
+      "enabled": false,
+      "server_fetchable": true
     },
     {
       "name": "Hacker News",
       "type": "rss",
       "url": "https://hnrss.org/frontpage",
       "weight": 1.1,
-      "enabled": false
+      "enabled": false,
+      "server_fetchable": true
     },
     {
       "name": "卡卡流量卡",
       "type": "json",
       "url": "https://h5api.lot-ml.com/api/ProductEn/Index2?Id=c8570adcb7030e9b&title=&Province=%E5%85%A8%E5%9B%BD&City=%E5%85%A8%E5%9B%BD&PriceTime=%E4%BC%98%E6%83%A0%E6%97%B6%E9%97%B4&LiuLiang=%E5%8F%AF%E7%94%A8%E6%B5%81%E9%87%8F&Tonghua=%E9%80%9A%E8%AF%9D%E6%97%B6%E9%95%BF&Operator=%E7%B2%BE%E9%80%89&page=1&limit=50",
       "items_path": "data",
-      "fields": { "title": "name", "url": "shareUrl", "summary": "taocan" },
+      "fields": {
+        "title": "name",
+        "url": "shareUrl",
+        "summary": "taocan"
+      },
       "weight": 0.7,
-      "enabled": true
+      "enabled": true,
+      "server_fetchable": true
     },
     {
       "name": "36氪",
@@ -49,17 +62,22 @@
       "url": "https://36kr.com/feed",
       "weight": 0.9,
       "enabled": false,
-      "_note": "它给爬虫返回的是反爬 HTML 不是 RSS，先禁用；想用可以先在本地 probe 里看能不能解析"
+      "server_fetchable": true,
+      "_note": "返回反爬 HTML 不是 RSS，保持禁用"
     },
     {
       "name": "知乎热榜",
       "type": "json",
       "url": "https://api.zhihu.com/topstory/hot-list?limit=50",
       "items_path": "data",
-      "fields": { "title": "target.title", "url": "target.url", "summary": "target.excerpt" },
+      "fields": {
+        "title": "target.title",
+        "url": "target.url",
+        "summary": "target.excerpt"
+      },
       "weight": 1.2,
       "enabled": false,
-      "_note": "要 Referer 头、海外 IP 常 403，先关着，本地跑通了再打开"
+      "server_fetchable": true
     },
     {
       "name": "示例列表页",
@@ -70,13 +88,12 @@
       "limit": 30,
       "weight": 1.0,
       "enabled": false,
-      "_note": "列表页抓 <a> 标题，脆，只适合结构稳定的站"
+      "server_fetchable": true
     }
   ],
-    "search": {
+  "search": {
     "provider": "none",
     "searxng_url": "",
-    "max_results": 8,
-    "_note": "provider: none=只用信源素材；searxng=自建 SearXNG 实例"
+    "max_results": 8
   }
 }

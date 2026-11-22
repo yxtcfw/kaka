@@ -1,0 +1,24 @@
+{
+  "site_id": "kaka",
+  "fetched_at": "2026-11-22T10:04:01Z",
+  "config_sha256": "241fd9ad80699e9bfc78b5a7b467261e716e7dcfb01cbb43407032276e82c737",
+  "theme": "forum",
+  "slots": {
+    "virtual_users": {
+      "position": "floor",
+      "render_as": "楼层",
+      "inject_prompt": true
+    },
+    "ads": {
+      "position": "between_floors",
+      "per_page": 2,
+      "strategy": "hash_uniform"
+    }
+  },
+  "request_policy": {
+    "max_calls_per_run": 1,
+    "terms_mode": "script",
+    "fallback_no_extra_call": true
+  },
+  "keyword_anchor": true
+}
