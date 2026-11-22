@@ -113,6 +113,9 @@ def validate(cfg, theme, names, ads, digests):
 
 def materialize(cfg, theme, names, ads, config_sha):
     site = cfg.get("site") or {}
+    # base_url 由主站站点配置给出（自定义域名后为 https://yxtcfw.cn/kaka/）。
+    # 它决定 sitemap/feed 里的绝对链接；留空会退化成相对路径。
+    base_url = (site.get("base_url") or "").strip()
     write_json("site.json", {
         "name": site.get("name", ""),
         "tagline": site.get("tagline", ""),
@@ -120,7 +123,7 @@ def materialize(cfg, theme, names, ads, config_sha):
         "author": site.get("author", ""),
         "footer": site.get("footer", ""),
         "lang": site.get("lang", "zh-CN"),
-        "base_url": "",
+        "base_url": base_url,
     })
 
     write_json("sources.json", {
