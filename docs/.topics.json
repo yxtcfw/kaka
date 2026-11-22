@@ -62,6 +62,22 @@
       "model": "baidu/ernie-5.5-flash-preview:free",
       "model_name": "ERNIE-5.5-Flash-Preview (free)",
       "seed_kind": "question"
+    },
+    {
+      "date": "2026-11-23",
+      "slug": "004",
+      "page": 4,
+      "title": "微信语音没声先查啥",
+      "question": "流量卡能开网页，但微信语音没声音，先查 VoLTE 还是 APN？",
+      "next_questions": [
+        "微信语音总自动切到蓝牙耳机，能不能彻底锁死手机扬声器？",
+        "流量卡开 VoLTE 后待机耗电明显变快，是不是只能关掉？有没有折中的设置，比如只在通话时开？",
+        "19 块的卡用三个月后限速，续费还划算吗？还是换一张同价位的卡更稳？会不会又遇到首月快、次月慢？"
+      ],
+      "words": 6193,
+      "model": "baidu/ernie-5.5-flash-preview:free",
+      "model_name": "ERNIE-5.5-Flash-Preview (free)",
+      "seed_kind": "question"
     }
   ]
 }
