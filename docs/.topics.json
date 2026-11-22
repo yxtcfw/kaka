@@ -46,6 +46,22 @@
       "model": "baidu/ernie-5.5-flash-preview:free",
       "model_name": "ERNIE-5.5-Flash-Preview (free)",
       "seed_kind": "question"
+    },
+    {
+      "date": "2026-11-22",
+      "slug": "003",
+      "page": 3,
+      "title": "流量卡满格打不开网页先查啥",
+      "question": "流量卡信号满格却打不开网页，先查APN还是先查DNS？",
+      "next_questions": [
+        "流量卡能开网页，但微信语音没声音，先查 VoLTE 还是 APN？",
+        "同一张卡换手机后网速变慢，是卡槽问题还是新手机频段不支持？",
+        "定向免流为什么某些 App 不生效？"
+      ],
+      "words": 4664,
+      "model": "baidu/ernie-5.5-flash-preview:free",
+      "model_name": "ERNIE-5.5-Flash-Preview (free)",
+      "seed_kind": "question"
     }
   ]
 }
