@@ -27,6 +27,8 @@ from urllib.parse import quote
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NAMES_FILE = os.path.join(ROOT, "config", "names.json")
+THEME_FILE = os.path.join(ROOT, "config", "theme.json")
+ADS_FILE = os.path.join(ROOT, "config", "ads.json")
 _NAMES = None
 
 BJT = datetime.timezone(datetime.timedelta(hours=8))
@@ -190,7 +192,14 @@ def esc(s):
     return html.escape(str(s or ""), quote=True)
 
 
-ADS_FILE = os.path.join(ROOT, "config", "ads.json")
+def load_theme_slots():
+    """读取主站下发的主题 slots，决定广告插入位置"""
+    try:
+        with open(THEME_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return (data.get("slots") or {}).get("ads") or {}
+    except Exception:
+        return {}
 
 
 def load_ads():
@@ -213,7 +222,17 @@ def load_ads():
         per = max(0, int(per))
     except Exception:
         per = 0
-    return {"per_page": per, "items": items}
+
+    slots = load_theme_slots()
+    position = (slots.get("position") or "between_floors").strip()
+    if position == "none":
+        per = 0
+    if slots.get("per_page") is not None:
+        try:
+            per = max(0, int(slots["per_page"]))
+        except Exception:
+            pass
+    return {"per_page": per, "items": items, "position": position}
 
 
 def hash_of(key):
@@ -596,7 +615,16 @@ def build(site, docs_dir, base_url=""):
         # 页面标题只进 <title>，正文直接从 1 楼开始
         body += floor_html({"nick": p.get("main_nick"), "time": p.get("main_time"),
                             "body": p["main"]}, rel=rel)
-        for f in merge_extra_floors(p["floors"], ads, p["slug"]):
+        # 广告位置由主站主题 slots 决定：论坛插在楼层间；其他主题
+        # （after_content / between_items / recommend_block）由各自 renderer 处理，
+        # 当前模板统一按楼层间插入作为兼容兜底。
+        ad_position = ads.get("position") or "between_floors"
+        if ad_position in ("between_floors", "comments", "after_content",
+                           "between_items", "recommend_block"):
+            extra_floors = merge_extra_floors(p["floors"], ads, p["slug"])
+        else:
+            extra_floors = p["floors"]
+        for f in extra_floors:
             body += floor_html(f, rel=rel)
 
         body += pager_html(cur, total, rel, slugs)
@@ -946,7 +974,8 @@ def cards_json(rel):
     for r in load_names_rows():
         card = (r.get("card") or "").strip()
         if card:
-            out[r["nick"]] = rel + "assets/cards/" + quote(card)
+            # 形象图只在主站存一份，分站用根相对路径同源直引
+            out[r["nick"]] = "/assets/cards/" + quote(card)
     # JSON 里的双引号必须转义，否则会把 HTML 属性截断
     return html.escape(json.dumps(out, ensure_ascii=False), quote=True)
 

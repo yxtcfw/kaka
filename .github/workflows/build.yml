@@ -7,9 +7,10 @@ on:
     paths:
       - 'docs/posts/**'
       - 'docs/**/*.md'
-      - 'config/**'
       - 'docs/style.css'
-      - 'scripts/**'
+      - 'scripts/blogsite.py'
+      # 注意：config/** 由 fetch_config.py 在 daily 工作流里写入，
+      # 故意不加入触发路径，避免“拉取配置 → 提交通知 → 重建 → 提交”循环
   workflow_dispatch:
 
 permissions:

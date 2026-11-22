@@ -38,6 +38,10 @@ DOCS = os.path.join(ROOT, "docs")
 POSTS = os.path.join(DOCS, "posts")
 CONFIG = os.path.join(ROOT, "config")
 HISTORY = os.path.join(DOCS, ".topics.json")
+GENERATED = os.path.join(CONFIG, "generated.json")
+
+# 单次 AI 请求的计数器，writeback 会读取
+AI_CALLS = 0
 
 BJT = datetime.timezone(datetime.timedelta(hours=8))
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -117,6 +121,27 @@ DEFAULT_WRITING = {
 def load_names():
     rows = load_json(os.path.join(CONFIG, "names.json"), [])
     return [r for r in rows if isinstance(r, dict) and r.get("nick")]
+
+
+def load_runtime_config():
+    """读取 fetch_config.py 落盘的运行配置（主题 slots / 请求策略）"""
+    cfg = load_json(GENERATED, {})
+    return {
+        "site_id": cfg.get("site_id", os.environ.get("SITE_ID", "kaka")),
+        "slots": cfg.get("slots") or {},
+        "request_policy": cfg.get("request_policy") or {},
+        "keyword_anchor": bool(cfg.get("keyword_anchor")),
+    }
+
+
+def identity_hint(runtime_cfg):
+    """按主题 slots 告诉模型虚拟用户以什么身份出现"""
+    pos = ((runtime_cfg.get("slots") or {}).get("virtual_users") or {}).get("position", "")
+    if pos == "comments":
+        return "【身份】名单里的人以评论区网友身份出现，不要写成论坛楼层。"
+    if pos == "floor":
+        return "【身份】名单里的人以跟帖楼层用户身份出现。"
+    return ""
 
 
 PROMPT_DIR = os.path.join(CONFIG, "prompts")
@@ -388,7 +413,8 @@ def extract_text(resp):
 
 
 def call_openrouter(messages, models, temperature=0.8, retries=None, timeout=None):
-    global _PREFERRED
+    global _PREFERRED, AI_CALLS
+    AI_CALLS += 1
     key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     if not key:
         sys.exit("缺少环境变量 OPENROUTER_API_KEY")
@@ -539,19 +565,24 @@ def script_terms(text, keywords):
     return out[:6]
 
 
-def extract_query_terms(text, models, keywords=None):
-    """让模型从选题里抽出用于检索的关键词；失败就用 2-gram 兜底"""
-    try:
-        data, _ = ask_json([
-            {"role": "system", "content": "只输出 JSON，不要解释。"},
-            {"role": "user", "content": load_prompt("terms", DEFAULT_TERMS_PROMPT, question=text)},
-        ], models, temperature=0.2, timeout=60)
-        terms = data.get("terms") or []
-        terms = [str(t).strip() for t in terms if str(t).strip()]
-        return terms[:5] or script_terms(text, keywords or [])
-    except BaseException as e:
-        log("抽检索词失败（%r），用脚本切分兜底" % (e,))
-        return script_terms(text, keywords or [])
+def extract_query_terms(text, models=None, keywords=None, terms_mode="script"):
+    """
+    抽检索词。默认 script：纯脚本切分，不发 AI 请求（省资源契约）。
+    terms_mode=model 才走模型；那是旧行为，主站配置不应开启。
+    """
+    if terms_mode == "model":
+        try:
+            data, _ = ask_json([
+                {"role": "system", "content": "只输出 JSON，不要解释。"},
+                {"role": "user", "content": load_prompt("terms", DEFAULT_TERMS_PROMPT, question=text)},
+            ], models or [], temperature=0.2, timeout=60)
+            terms = data.get("terms") or []
+            terms = [str(t).strip() for t in terms if str(t).strip()]
+            return terms[:5] or script_terms(text, keywords or [])
+        except BaseException as e:
+            log("抽检索词失败（%r），用脚本切分兜底" % (e,))
+            return script_terms(text, keywords or [])
+    return script_terms(text, keywords or [])
 
 
 def rank_by_terms(items, terms):
@@ -651,7 +682,8 @@ def next_page_no(posts_dir):
     return (max(nums) + 1) if nums else 1
 
 
-def step_write_page(site, persona, editorial, seed, material_block, history, models, writing):
+def step_write_page(site, persona, editorial, seed, material_block, history, models, writing,
+                    runtime_cfg=None):
     recent = history["items"][-10:]
     recent_block = "\n".join("- 第 %s 页：%s" % (it.get("slug", ""), it.get("title", ""))
                              for it in recent) or "（这是第一页）"
@@ -684,6 +716,7 @@ def step_write_page(site, persona, editorial, seed, material_block, history, mod
         fw_min=fw_min, fw_max=fw_max,
         page_max=page_max,
         names=names_block,
+        identity_hint=identity_hint(runtime_cfg or {}),
         extra=extra,
     )
 
@@ -725,6 +758,12 @@ def main():
     if args.rebuild:
         stat = sitebuilder.build(site, DOCS, site["base_url"])
         log("重建完成：%d 页 / %d 层 / %d 字" % (stat["pages"], stat["floors"], stat["words"]))
+        try:
+            with open(os.path.join(DOCS, ".run_stat.json"), "w", encoding="utf-8") as f:
+                json.dump({"pages": stat["pages"], "floors": stat.get("floors", 0),
+                           "words": stat.get("words", 0), "model": "", "ai_calls": 0}, f)
+        except Exception:
+            pass
         return
 
     sources_cfg = load_json(os.path.join(CONFIG, "sources.json"), {"sources": []})
@@ -732,9 +771,19 @@ def main():
         probe(sources_cfg)
         return
 
+    runtime_cfg = load_runtime_config()
+    policy = runtime_cfg.get("request_policy") or {}
+    terms_mode = (policy.get("terms_mode") or "script").lower()
+    fallback_no_extra = policy.get("fallback_no_extra_call", True)
+
     persona = load_text(os.path.join(CONFIG, "persona.md"), "你是一位中文写作好手。")
     editorial = load_text(os.path.join(CONFIG, "editorial.md"), "")
     writing = load_writing()
+    # 省资源契约：脚本抽词、禁止补问
+    if terms_mode != "model":
+        writing["query_terms"] = "script"
+    if fallback_no_extra:
+        writing["auto_next_question"] = False
     keywords = load_keywords()
     history = load_history()
     models = resolve_models(os.environ.get("OPENROUTER_MODEL", ""))
@@ -791,23 +840,17 @@ def main():
         seed = {"kind": "topic", "text": cands[0]["title"], "from": cands[0]["source"]}
         log("用热点当主题：" + seed["text"])
 
-    # ---- 2b. 按选题检索：先用脚本抽词，命中不够再让模型抽
+    # ---- 2b. 按选题检索：脚本抽词，不发模型请求
     search_cfg = sources_cfg.get("search") or {}
     extra = search_web(seed["text"], search_cfg)   # 元搜索没配时返回空
     if extra:
         cands = extra + cands
 
-    mode = (writing.get("query_terms") or "auto").lower()
-    terms = script_terms(seed["text"], keywords) if mode != "model" else []
+    terms = extract_query_terms(seed["text"], models, keywords, terms_mode=terms_mode)
     cands = rank_by_terms(cands, terms) if terms else cands
     hits = [c for c in cands if c.get("rel", 0) > 0]
-
-    if mode == "model" or (mode == "auto" and len(hits) < 2):
-        if mode == "auto":
-            log("脚本抽词只命中 %d 条，改用模型抽词" % len(hits))
-        terms = extract_query_terms(seed["text"], models, keywords)
-        cands = rank_by_terms(cands, terms)
-        hits = [c for c in cands if c.get("rel", 0) > 0]
+    if terms_mode == "script" and len(hits) < 2:
+        log("脚本抽词只命中 %d 条，按省资源契约不追加模型请求" % len(hits))
 
     relevant = hits[:6]
     log("检索词：%s%s ｜ 命中 %d 条相关素材（信源共 %d 条）"
@@ -821,8 +864,9 @@ def main():
         material_block = ("（信源里没有和这个问题直接相关的内容。"
                           "可以基于你已有的知识回答，但不要编造具体数字、价格、时间和人名。）")
 
-    # ---- 3. 写作
-    data, resp = step_write_page(site, persona, editorial, seed, material_block, history, models, writing)
+    # ---- 3. 写作：唯一一次 AI 请求，一次产出全部字段
+    data, resp = step_write_page(site, persona, editorial, seed, material_block, history,
+                                 models, writing, runtime_cfg)
 
     content_md = (data.get("content_md") or data.get("content") or "").strip()
 
@@ -850,8 +894,11 @@ def main():
     if not next_qs:
         next_qs = tail_questions(content_md, 3)
     if not next_qs and writing.get("auto_next_question", True):
+        # 仅在明确开启时兜底；主站 request_policy 默认关闭，不发额外请求
         log("楼层里没抠到新问题，补问一次…")
         next_qs = ensure_next_questions(content_md, models)
+    elif not next_qs:
+        log("楼层里没抠到新问题，按省资源契约不追加请求")
     log("留给下一页的候选问题：%s" % (" ｜ ".join(next_qs) or "（没有，下一页随机挖）"))
 
     # ---- 4. 落盘
@@ -901,8 +948,22 @@ def main():
     stat = sitebuilder.build(site, DOCS, site["base_url"])
 
     u = resp.get("usage") or {}
-    log("完成：第 %d 页《%s》 %d 字 | 站内共 %d 页 | tokens %s" % (
-        no, title, len(content_md), stat["pages"], u.get("total_tokens", "?")))
+    log("完成：第 %d 页《%s》 %d 字 | 站内共 %d 页 | tokens %s | AI 请求 %d 次" % (
+        no, title, len(content_md), stat["pages"], u.get("total_tokens", "?"), AI_CALLS))
+
+    # 供 workflow 回写状态使用
+    run_stat = {
+        "pages": stat["pages"],
+        "floors": stat.get("floors", 0),
+        "words": stat.get("words", 0),
+        "model": used_model,
+        "ai_calls": AI_CALLS,
+    }
+    try:
+        with open(os.path.join(DOCS, ".run_stat.json"), "w", encoding="utf-8") as f:
+            json.dump(run_stat, f, ensure_ascii=False)
+    except Exception:
+        pass
 
 
 def _dump_error(msg):

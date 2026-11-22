@@ -77,5 +77,6 @@
     "provider": "none",
     "searxng_url": "",
     "max_results": 8,
-    "_note": "provider: none=只用信源素材；searxng=自建
+    "_note": "provider: none=只用信源素材；searxng=自建 SearXNG 实例"
+  }
 }
