@@ -26,7 +26,7 @@ CONFIG = os.path.join(ROOT, "config")
 SITE_ID = os.environ.get("SITE_ID", "kaka").strip() or "kaka"
 TOKEN = os.environ.get("MAIN_STATUS_TOKEN", "").strip()
 MAIN_REPO = os.environ.get("MAIN_REPO", "yxtcfw/yxtcfw.github.io").strip()
-BRANCH = os.environ.get("MAIN_BRANCH", "main").strip()
+BRANCH = os.environ.get("MAIN_BRANCH", "master").strip()
 API = "https://api.github.com/repos/%s/contents/config/status/%s.json" % (MAIN_REPO, SITE_ID)
 
 
