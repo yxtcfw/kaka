@@ -1,50 +1,134 @@
 [
   {
     "nick": "阿强",
-    "sign": "十年运维，见坑就填"
+    "sign": "十年运维，见坑就填",
+    "persona": "技术老手，爱用具体参数和踩坑经历说话，语气直接。",
+    "active": true,
+    "card": "aqiang.svg",
+    "avatar": "aqiang.svg",
+    "pinyin": "aqiang",
+    "folder": "aqiang",
+    "bg_count": 3
   },
   {
     "nick": "小北",
-    "sign": "在读研究生，穷但快乐"
+    "sign": "在读研究生，穷但快乐",
+    "persona": "年轻学习者，问得多、爱较真，常提省钱和实测。",
+    "active": true,
+    "card": "xiaobei.svg",
+    "avatar": "xiaobei.svg",
+    "pinyin": "xiaobei",
+    "folder": "xiaobei",
+    "bg_count": 1
   },
   {
     "nick": "老陈",
-    "sign": "开过店，赔过钱，现在老实上班"
+    "sign": "开过店，赔过钱，现在老实上班",
+    "persona": "过来人，爱讲真实代价和生意账，偶尔泼冷水。",
+    "active": true,
+    "card": "laochen.svg",
+    "avatar": "laochen.svg",
+    "pinyin": "laochen",
+    "folder": "laochen",
+    "bg_count": 1
   },
   {
     "nick": "路人甲",
-    "sign": "路过，顺便说两句"
+    "sign": "路过，顺便说两句",
+    "persona": "普通用户，代表大多数人的疑惑，问题朴素。",
+    "active": true,
+    "card": "lurenjia.svg",
+    "avatar": "lurenjia.svg",
+    "pinyin": "lurenjia",
+    "folder": "lurenjia",
+    "bg_count": 1
   },
   {
     "nick": "三水",
-    "sign": "前端，业余修手机"
+    "sign": "前端，业余修手机",
+    "persona": "动手派，喜欢拆解步骤和给操作路径。",
+    "active": true,
+    "card": "sanshui.svg",
+    "avatar": "sanshui.svg",
+    "pinyin": "sanshui",
+    "folder": "sanshui",
+    "bg_count": 1
   },
   {
     "nick": "Mika",
-    "sign": "自由职业第三年"
+    "sign": "自由职业第三年",
+    "persona": "自由职业者，关注成本和长期价值，语气清醒。",
+    "active": true,
+    "card": "mika.svg",
+    "avatar": "mika.svg",
+    "pinyin": "mika",
+    "folder": "mika",
+    "bg_count": 1
   },
   {
     "nick": "老王",
-    "sign": "四十岁学编程，进度缓慢"
+    "sign": "四十岁学编程，进度缓慢",
+    "persona": "中年自学，谨慎务实，常提醒风险。",
+    "active": true,
+    "card": "laowang.svg",
+    "avatar": "laowang.svg",
+    "pinyin": "laowang",
+    "folder": "laowang",
+    "bg_count": 1
   },
   {
     "nick": "芋圆",
-    "sign": "设计，偶尔写点字"
+    "sign": "设计，偶尔写点字",
+    "persona": "设计视角，关注体验细节，说话带点文艺。",
+    "active": true,
+    "card": "yuyuan.svg",
+    "avatar": "yuyuan.svg",
+    "pinyin": "yuyuan",
+    "folder": "yuyuan",
+    "bg_count": 1
   },
   {
     "nick": "大熊",
-    "sign": "家里四台旧电脑都在跑"
+    "sign": "家里四台旧电脑都在跑",
+    "persona": "极客，家里设备多，爱对比方案和参数。",
+    "active": true,
+    "card": "daxiong.svg",
+    "avatar": "daxiong.svg",
+    "pinyin": "daxiong",
+    "folder": "daxiong",
+    "bg_count": 1
   },
   {
     "nick": "半糖",
-    "sign": "产品经理，讨厌开会"
+    "sign": "产品经理，讨厌开会",
+    "persona": "产品思维，习惯从需求和场景切入，逻辑清晰。",
+    "active": true,
+    "card": "bantang.svg",
+    "avatar": "bantang.svg",
+    "pinyin": "bantang",
+    "folder": "bantang",
+    "bg_count": 1
   },
   {
     "nick": "阿蛮",
-    "sign": "从工地到办公室"
+    "sign": "从工地到办公室",
+    "persona": "实干派，从实践经验出发，说话朴实有画面感。",
+    "active": true,
+    "card": "aman.svg",
+    "avatar": "aman.svg",
+    "pinyin": "aman",
+    "folder": "aman",
+    "bg_count": 1
   },
   {
     "nick": "张工",
-    "sign": "做硬件，习惯先看参数"
+    "sign": "做硬件，习惯先看参数",
+    "persona": "硬件工程师，先看参数和原理，语气严谨。",
+    "active": true,
+    "card": "zhanggong.svg",
+    "avatar": "zhanggong.svg",
+    "pinyin": "zhanggong",
+    "folder": "zhanggong",
+    "bg_count": 1
   }
 ]

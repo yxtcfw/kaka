@@ -5,5 +5,7 @@
   "author": "卡卡",
   "footer": "由 GitHub Actions 每天自动生成",
   "lang": "zh-CN",
-  "base_url": "https://yxtcfw.cn/kaka/"
+  "base_url": "https://yxtcfw.cn/kaka/",
+  "notice": "内容由 GitHub Actions 每日自动更新，仅供参考，办理请以运营商官方信息为准。",
+  "main_url": "https://yxtcfw.cn"
 }

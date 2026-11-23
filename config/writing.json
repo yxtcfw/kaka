@@ -1,12 +1,17 @@
 {
-  "main_words": 100,
-  "floor_count": [
+  "lead_mode": "none",
+  "fixed_lead": "",
+  "lead_words": [
+    300,
+    600
+  ],
+  "unit_count": [
     70,
     100
   ],
-  "floor_words": [
+  "unit_words": [
     40,
     120
   ],
-  "extra_rules": "如果某个点在网上随便一搜就有，就别写；读者是来找你这句话的，不是来找百科的。"
+  "content_requirements": "每条建议必须说明适用的运营商/地区或套餐前提，不能把个别卡的描述当成全国通用结论。"
 }
