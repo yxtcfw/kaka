@@ -1,24 +1,81 @@
 {
   "site_id": "kaka",
-  "fetched_at": "2026-11-22T18:10:27Z",
-  "config_sha256": "cf3aa953f9efeaecc5d48c8517b4be5a278fe25e1aaac6e13d8ca33ab17ffcbf",
+  "fetched_at": "2026-11-23T03:24:19Z",
+  "config_sha256": "c0c9604b2917049049f6cc5146ad08022d49db9fc74cea6fcf0ad5dad9c2fab6",
   "theme": "forum",
+  "renderer": "blogsite.py",
   "slots": {
     "virtual_users": {
-      "position": "floor",
-      "render_as": "楼层",
-      "inject_prompt": true
+      "position": "floor"
     },
     "ads": {
-      "position": "between_floors",
-      "per_page": 2,
-      "strategy": "hash_uniform"
+      "position": "between_floors"
+    },
+    "header": {
+      "byline": true,
+      "tags": true
     }
+  },
+  "content": {
+    "unit": "floor",
+    "unit_label": "楼层",
+    "first_unit": "1 楼",
+    "system_role": "你在维护一个论坛式连载帖，每天更新一页。\n这一页由「1 楼提出问题 + 若干楼层讨论」组成，只输出 JSON。",
+    "virtual_user_hint": "【身份】名单里的人以跟帖楼层用户身份出现，不要写成评论区。",
+    "structure_block": "【这一页的结构（必须遵守）】\n1. **1 楼**：把上面那个问题原样摆出来，可以补一两句具体背景（谁遇到的、什么情况下）。\n   **不要在这一层展开答案。** 第一句就是问题本身，不要\"大家好\"\"今天聊聊\"这种开头。\n2. **2 楼到倒数第 3 楼**：围绕问题讨论、问答、辩论。\n   - 有人给具体做法（带代价、带前提）\n   - 有人反驳，或者说\"这招对我没用，因为……\"\n   - 有人追问细节\n   **答案在这些楼层里一点点拼出来，不要一次说完。**\n3. **最后 2~3 楼**：把讨论收束到位——给出可执行结论、仍有争议的点或还没验证的边界，就停在这里。**不要抛出新问题，也不要留「下一页继续」之类的钩子。**",
+    "format_block": "【楼层写法】\n- 楼层标题格式：## @昵称 · 时间\n- 昵称只能用上面名单里的，不要自己编，也不要写「楼主」「网友」。\n- 1 楼也要有昵称，从名单里选一个。\n- 同一个人可以在不同楼层重复出现（像真在跟帖）。\n\n【格式】\n- **不要输出一级标题（# ）**，标题放在 JSON 的 title 字段。\n- 1 楼格式：## @昵称 · 时间，下面紧跟问题本身，不要\"大家好\"这种开场。\n- 不写楼层号，页面上不显示第几楼。",
+    "output_fields": {
+      "title": "页面标题，20字以内",
+      "question": "1 楼要讨论的问题（一句话）",
+      "author": "主笔昵称，必须与【角色分工】里指定的主笔完全一致；没有主笔时输出空字符串",
+      "tags": "3~5 个标签词组成的字符串数组，围绕本篇主题，每条 6 字以内",
+      "content_md": "1 楼内容 + 楼层，不含一级标题"
+    },
+    "page_desc": "连载帖子的新一页",
+    "skeleton": "今天是 {{today}}。这是{{page_desc}}。\n\n{{seed}}\n\n{{anchor}}\n\n【可用的信源素材】（只能引用这里的事实）\n{{material}}\n\n【最近写过的页】\n{{recent}}\n\n【篇幅】{{first_unit}} {{mw}} 字以内，{{fc_min}}~{{fc_max}} 个{{unit_label}}，每个{{unit_label}} {{fw_min}}~{{fw_max}} 字。\n{{extra}}\n\n{{structure_block}}\n\n【出场的人】\n{{names}}\n\n{{role_block}}\n\n{{identity_hint}}\n\n{{fields_check}}\n\n{{format_block}}\n\n【输出 JSON】\n{\"title\": \"{{f_title}}\",\n \"question\": \"{{f_question}}\",\n \"author\": \"{{f_author}}\",\n \"tags\": {{f_tags}},\n \"content_md\": \"{{f_content_md}}\"}",
+    "editable": {
+      "lead_mode": false,
+      "fixed_lead": false,
+      "lead_words": false,
+      "unit_count": true,
+      "unit_words": true,
+      "content_requirements": true,
+      "persona": true,
+      "extra_rules": true
+    },
+    "keyword_policy": {
+      "anchor": true,
+      "scope": "same_article",
+      "term_source": "picked_only",
+      "hint": "所有楼层与续问必须围绕本篇问题及其关键词衍生，不得另起话题。"
+    },
+    "role_model": "peers",
+    "required_fields": [],
+    "persona_default": "写作风格：\n\n- 口语化，像跟人在论坛上聊天，短句多，允许有情绪和判断\n- 先给场景再给结论，不写\"首先其次最后\"那种作文结构\n- 有观点，不端着；不确定的事就说\"我猜\"\"没验证过\"\n- 不写\"赋能\"\"抓手\"\"闭环\"这类词，也不用\"接下来我将\"\n\n这一页有多个人在说话，每个人的语气可以略有不同，但都要像真人。",
+    "extra_rules_default": "如果某个点在网上随便一搜就有，就别写；读者是来找你这句话的，不是来找百科的。"
   },
   "request_policy": {
     "max_calls_per_run": 1,
     "terms_mode": "script",
     "fallback_no_extra_call": true
   },
-  "keyword_anchor": true
+  "writing": {
+    "lead_mode": "none",
+    "fixed_lead": "",
+    "lead_words": [
+      300,
+      600
+    ],
+    "unit_count": [
+      70,
+      100
+    ],
+    "unit_words": [
+      40,
+      120
+    ],
+    "content_requirements": "每条建议必须说明适用的运营商/地区或套餐前提，不能把个别卡的描述当成全国通用结论。"
+  },
+  "keyword_anchor": false,
+  "ads_per_page": 2
 }
