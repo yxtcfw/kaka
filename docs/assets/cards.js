@@ -13,7 +13,7 @@
 
   var floors = [], idx = 0, cache = {};
 
-  function load(src){
+  function loadOne(src){
     return new Promise(function(res){
       if (!src) return res(null);
       if (cache[src] !== undefined) return res(cache[src]);
@@ -22,6 +22,18 @@
       im.onerror = function(){ cache[src] = null; res(null); };
       im.src = src;
     });
+  }
+
+  // 候选背景按随机顺序逐个尝试，取第一张能加载的；全失败返回 null 用渐变兜底
+  function loadBg(v){
+    var list = Array.isArray(v) ? v.slice() : (v ? [v] : []);
+    for (var i = list.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = list[i]; list[i] = list[j]; list[j] = t;
+    }
+    return list.reduce(function(chain, src){
+      return chain.then(function(img){ return img ? img : loadOne(src); });
+    }, Promise.resolve(null));
   }
 
   function wrap(text, maxW){
@@ -120,7 +132,7 @@
     var text = f.getAttribute('data-text') || '';
     counter.textContent = (idx + 1) + ' / ' + floors.length;
 
-    load(CARDS[nick]).then(function(img){
+    loadBg(CARDS[nick]).then(function(img){
       paint(nick, sign, text, img);
       canvas.style.animation = 'none';
       void canvas.offsetWidth;
