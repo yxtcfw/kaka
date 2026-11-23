@@ -192,7 +192,8 @@ def content_contract(runtime_cfg):
 
 
 def persona_block(persona_text, runtime_cfg):
-    """旧入口：仅拼人设段（不含分工）。v0.7 主流程改用 assign_roles()。"""
+    """旧入口：仅拼人设段（不含分工）。v0.7 主流程改用 assign_roles()。
+    v0.12：多人场景评论人设一律取签名（sign），persona 只留给主笔。"""
     c = runtime_cfg.get("content") or {} if isinstance(runtime_cfg, dict) else {}
     mode = (c.get("role_model") or c.get("persona_mode") or "single").lower() if isinstance(c, dict) else "single"
     multi = mode in ("multi", "peers", "discussion", "lead_support", "item_list")
@@ -200,16 +201,26 @@ def persona_block(persona_text, runtime_cfg):
         rows = load_names()
         lines = []
         for r in rows:
-            p = (r.get("persona") or "").strip() or (r.get("sign") or "").strip()
+            p = (r.get("sign") or "").strip() or (r.get("persona") or "").strip()
             lines.append("- %s：%s" % (r["nick"], p) if p else "- %s" % r["nick"])
         if lines:
             return ("【人设】每个出场角色按自己的人设说话，语气与立场可不同：\n" + "\n".join(lines))
     return (persona_text or "").strip()
 
 
-def _persona_line(row):
-    p = (row.get("persona") or "").strip() or (row.get("sign") or "").strip()
-    return ("%s：%s" % (row["nick"], p)) if p else row["nick"]
+def _lead_persona(row):
+    """主笔：只把完整人设(persona)交给 AI，旧配置无 persona 时退到签名。"""
+    return (row.get("persona") or "").strip() or (row.get("sign") or "").strip()
+
+
+def _comment_persona(row):
+    """评论/短评/讨论：人设直接使用签名(sign)，旧配置缺 sign 时退到人设。"""
+    return (row.get("sign") or "").strip() or (row.get("persona") or "").strip()
+
+
+def _named_line(row, persona_text):
+    """名单里的一行：昵称 + 人设。没有人设时只列昵称。"""
+    return ("%s：%s" % (row["nick"], persona_text)) if persona_text else row["nick"]
 
 
 def has_lead(runtime_cfg, writing=None):
@@ -290,15 +301,16 @@ def assign_roles(runtime_cfg, seed_text, site_persona="", writing=None):
         sup_pool = [r for r in rows if r["nick"] != lead]
         supports = [r["nick"] for r in sup_pool]
         parts.append("【角色分工：一主多辅】")
-        parts.append("- 主笔：%s" % _persona_line(pick))
+        parts.append("- 主笔：%s" % _named_line(pick, _lead_persona(pick)))
+        parts.append("  主笔写作时严格遵循上面给出的人设（persona），正文只用这一种口吻。")
         if model == "item_list":
             parts.append("  主笔只写一段导语（说明这批条目的主题与筛选标准），正文条目列表不得用人物署名。")
         else:
             parts.append("  只有主笔写正文长文（完整论证、带细节和边界），正文用普通段落，不署名楼层。")
         if supports:
-            parts.append("- 辅助短评：以下人物各写一条短评，语气按各自人设，每条只讲一个点：")
+            parts.append("- 辅助短评：以下人物各写一条短评，人设直接使用各自签名，每条只讲一个点：")
             for r in sup_pool:
-                parts.append("  · %s：%s" % (r["nick"], _persona_line(r)))
+                parts.append("  · %s" % _named_line(r, _comment_persona(r)))
             parts.append("  短评用「## @昵称 · 时间」开头，附在正文之后。")
     elif model == "item_list":
         # 条目为主体、无主笔：正文条目列表 + 文末短评（用户确认维持此模式）
@@ -306,16 +318,16 @@ def assign_roles(runtime_cfg, seed_text, site_persona="", writing=None):
         parts.append("【角色分工：条目为主体】")
         parts.append("- 正文是条目列表本身，不写长文导语，不得用虚拟人物署名条目。")
         if supports:
-            parts.append("- 文末必须附 2~3 条虚拟人物短评（「## @昵称 · 时间」开头），从名单里选人、按各自人设，每条只讲一个点；这是固定的收尾部分，不要省略。")
+            parts.append("- 文末必须附 2~3 条虚拟人物短评（「## @昵称 · 时间」开头），从名单里选人、按各自签名，每条只讲一个点；这是固定的收尾部分，不要省略。")
             for r in rows:
-                parts.append("  · %s：%s" % (r["nick"], _persona_line(r)))
+                parts.append("  · %s" % _named_line(r, _comment_persona(r)))
     else:
-        # peers / discussion / single（论坛）：不分主次，全员按人设讨论，无主笔
+        # peers / discussion / single（论坛）：不分主次，全员按签名讨论，无主笔
         supports = [r["nick"] for r in rows]
         parts.append("【角色分工：不分主次】")
-        parts.append("- 所有出场人物地位平等，各按自己人设发言，不设主笔、不写长文主导。")
+        parts.append("- 所有出场人物地位平等，各按自己签名发言，不设主笔、不写长文主导。")
         for r in rows:
-            parts.append("  · %s：%s" % (r["nick"], _persona_line(r)))
+            parts.append("  · %s" % _named_line(r, _comment_persona(r)))
         if model == "single" and site_persona:
             parts.append("- 站点通用基调：%s" % site_persona.strip())
 

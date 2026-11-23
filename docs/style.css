@@ -50,10 +50,10 @@ a { color: inherit; text-decoration: none; }
 .topbar {
   max-width: 700px;
   margin: 0 auto;
-  padding: 26px 22px 0;
+  padding: 22px 22px 0;
   display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
   font-size: 14px;
   letter-spacing: .08em;
   color: var(--muted);
@@ -64,14 +64,27 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: .1em;
   font-weight: 600;
   color: var(--fg);
+  flex: none;
 }
 .topbar .brand:hover { color: var(--accent); }
 
 .topbar .board {
-  margin-left: 10px;
-  font-size: 13px;
+  font-size: 12.5px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .topbar .board::before { content: "·"; margin-right: 10px; }
+
+/* 顶栏工具区：主站入口 / 主题 / 搜索统一容器，避免多处 margin:auto 打架 */
+.topbar-tools {
+  margin-left: auto;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 
 /* ---------------- 容器 ---------------- */
 
@@ -159,6 +172,15 @@ a { color: inherit; text-decoration: none; }
   justify-content: center;
   font-size: 15px;
   user-select: none;
+  overflow: hidden;
+  background: var(--line);
+}
+
+.fav-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .fmain { flex: 1; min-width: 0; }
@@ -346,61 +368,53 @@ a { color: inherit; text-decoration: none; }
 /* ---------------- 窄屏 ---------------- */
 
 @media (max-width: 480px) {
+  /* 副标题：窄屏隐藏，避免长 tagline 挤压顶栏工具区 */
+  .topbar .board { display: none; }
+  .topbar { padding: 18px 16px 0; }
+  .wrap { padding: 0 16px 60px; }
   .page-title { font-size: 23px; }
+  .board-intro { margin-top: 20px; padding: 16px; font-size: 14px; }
   .floor { gap: 10px; padding: 18px 0; }
   .fav { width: 30px; height: 30px; font-size: 13px; }
   .fbody { font-size: 16px; }
   .fhead { flex-wrap: wrap; row-gap: 2px; }
   .fsign { font-size: 11.5px; padding-left: 0; border-left: none; }
+  .site-notice { margin: 14px 16px 0; font-size: 12.5px; }
+  .foot { padding: 0 16px; }
 }
 
-/* ---------------- 搜索图标 ---------------- */
+/* ---------------- 顶栏工具：主站 / 主题 / 搜索 ---------------- */
 
-.topbar { padding-right: 24px; }
-
-.topbar .search-ico {
-  margin-left: auto;
-  padding: 6px 0 6px 12px;
-  display: flex;
+/* 三个图标共用一套紧凑按钮基线，暗色下保证足够对比度 */
+.topbar-tools .home-ico,
+.topbar-tools .theme-ico,
+.topbar-tools .search-ico {
+  height: 30px;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   color: var(--muted);
-  opacity: .65;
-  transition: opacity .15s, color .15s;
-}
-.topbar .search-ico:hover { opacity: 1; color: var(--accent); }
-
-/* 主题切换按钮：与主站同款 ◐ / ☀ */
-.topbar .theme-ico {
-  margin-left: auto;
-  padding: 6px 0 6px 12px;
-  display: flex;
-  align-items: center;
-  color: var(--muted);
-  opacity: .65;
-  font-size: 15px;
-  line-height: 1;
+  opacity: .85;
+  letter-spacing: .02em;
   background: none;
   border: none;
+  border-radius: 7px;
   cursor: pointer;
-  transition: opacity .15s, color .15s;
+  transition: opacity .15s, color .15s, background .15s;
 }
-.topbar .theme-ico:hover { opacity: 1; color: var(--accent); }
-.topbar .search-ico { margin-left: 4px; }
+.topbar-tools .home-ico:hover,
+.topbar-tools .theme-ico:hover,
+.topbar-tools .search-ico:hover { opacity: 1; color: var(--accent); background: rgba(128, 128, 128, .1); }
+.topbar-tools .theme-ico:active,
+.topbar-tools .search-ico:active { transform: scale(.92); }
+.topbar-tools .search-ico[aria-current="page"] { color: var(--accent); opacity: 1; }
 
-/* 返回主站入口：与主站风格一致的低调文字链 */
-.topbar .home-ico {
-  margin-left: auto;
-  padding: 6px 0 6px 12px;
-  color: var(--muted);
-  opacity: .65;
-  font-size: 12.5px;
-  letter-spacing: .02em;
-  white-space: nowrap;
-  transition: opacity .15s, color .15s;
-}
-.topbar .home-ico:hover { opacity: 1; color: var(--accent); }
-/* 主站入口已占据 auto 间距，主题按钮回到紧邻位置 */
-.topbar .home-ico + .theme-ico { margin-left: 4px; }
+/* 主站入口：低调文字链 */
+.topbar-tools .home-ico { padding: 0 8px; font-size: 12.5px; white-space: nowrap; }
+/* 主题切换按钮：与主站同款 ◐ / ☀ */
+.topbar-tools .theme-ico { padding: 0 6px; font-size: 16px; line-height: 1; }
+/* 搜索图标 */
+.topbar-tools .search-ico { padding: 0 6px; }
 
 /* 站点公告：顶栏下方的横条，仅配置了 notice 时才输出 */
 .site-notice {
@@ -417,8 +431,9 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (max-width: 480px) {
-  .topbar { padding-right: 20px; }
-  .topbar .theme-ico, .topbar .search-ico { padding-left: 8px; }
+  .topbar-tools { gap: 2px; }
+  .topbar-tools .home-ico { padding: 0 5px; font-size: 12px; }
+  .topbar-tools .theme-ico, .topbar-tools .search-ico { padding: 0 5px; }
 }
 
 /* ---------------- 看图模式 ---------------- */

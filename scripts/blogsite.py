@@ -351,6 +351,31 @@ def names_map():
     return _NAMES
 
 
+def avatars_map():
+    """config/names.json → {昵称: 头像地址}。
+
+    v0.14：每人专属文件夹 docs/assets/people/<folder>/avatar.svg，
+    缺省 folder 时用 pinyin，再缺则用旧 avatar/card 文件名拼旧路径兜底。
+    分站根相对直引主站图片，零副本。"""
+    try:
+        with open(NAMES_FILE, "r", encoding="utf-8") as f:
+            rows = json.load(f)
+    except Exception:
+        rows = []
+    out = {}
+    for r in rows:
+        if not isinstance(r, dict) or not r.get("nick"):
+            continue
+        folder = (r.get("folder") or r.get("pinyin") or "").strip()
+        if folder:
+            out[r["nick"]] = "/docs/assets/people/" + quote(folder) + "/avatar.svg"
+        else:
+            legacy = (r.get("avatar") or r.get("card") or "").strip()
+            if legacy:
+                out[r["nick"]] = "/docs/assets/avatars/" + quote(legacy)
+    return out
+
+
 def strip_fm(text):
     return FM_RE.sub("", text or "", count=1)
 
@@ -532,11 +557,13 @@ PAGE_TMPL = """<!doctype html>
 <header class="topbar">
   <a class="brand" href="{rel}index.html">{site}</a>
   <span class="board">{tagline}</span>
-  <a class="home-ico" href="{main_url}" title="返回主站" aria-label="返回主站">主站 ↗</a>
-  <button class="theme-ico" id="btn-theme" type="button" aria-label="切换主题" title="切换主题">◐</button>
-  <a class="search-ico" href="{rel}search.html" aria-label="搜索">
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 L21 21"/></svg>
-  </a>
+  <div class="topbar-tools">
+    <a class="home-ico" href="{main_url}" title="返回主站" aria-label="返回主站">主站 ↗</a>
+    <button class="theme-ico" id="btn-theme" type="button" aria-label="切换主题" title="切换主题">◐</button>
+    <a class="search-ico" href="{rel}search.html" aria-label="搜索">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 L21 21"/></svg>
+    </a>
+  </div>
 </header>
 {notice_bar}
 <main class="wrap">
@@ -611,8 +638,14 @@ def floor_html(f, is_main=False, rel=""):
 
     avatar = ""
     if nick:
-        color = AVATAR_COLORS[sum(map(ord, nick)) % len(AVATAR_COLORS)]
-        avatar = '<div class="fav" style="background:%s">%s</div>' % (color, esc(nick[:1]))
+        # avatars_map 已返回完整地址（people/<folder>/avatar.svg 或旧路径兜底）
+        src = avatars_map().get(nick, "")
+        if src:
+            avatar = ('<div class="fav"><img class="fav-img" src="%s" alt="" '
+                      'loading="lazy" onerror="this.style.display=\'none\'"></div>') % esc(src)
+        else:
+            color = AVATAR_COLORS[sum(map(ord, nick)) % len(AVATAR_COLORS)]
+            avatar = '<div class="fav" style="background:%s">%s</div>' % (color, esc(nick[:1]))
 
     plain = md_plain(f.get("body") or "")
     return ('<article class="%s" data-nick="%s" data-sign="%s" data-text="%s">'
@@ -883,7 +916,7 @@ CARD_JS = r"""(function(){
 
   var floors = [], idx = 0, cache = {};
 
-  function load(src){
+  function loadOne(src){
     return new Promise(function(res){
       if (!src) return res(null);
       if (cache[src] !== undefined) return res(cache[src]);
@@ -892,6 +925,18 @@ CARD_JS = r"""(function(){
       im.onerror = function(){ cache[src] = null; res(null); };
       im.src = src;
     });
+  }
+
+  // 候选背景按随机顺序逐个尝试，取第一张能加载的；全失败返回 null 用渐变兜底
+  function loadBg(v){
+    var list = Array.isArray(v) ? v.slice() : (v ? [v] : []);
+    for (var i = list.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = list[i]; list[i] = list[j]; list[j] = t;
+    }
+    return list.reduce(function(chain, src){
+      return chain.then(function(img){ return img ? img : loadOne(src); });
+    }, Promise.resolve(null));
   }
 
   function wrap(text, maxW){
@@ -990,7 +1035,7 @@ CARD_JS = r"""(function(){
     var text = f.getAttribute('data-text') || '';
     counter.textContent = (idx + 1) + ' / ' + floors.length;
 
-    load(CARDS[nick]).then(function(img){
+    loadBg(CARDS[nick]).then(function(img){
       paint(nick, sign, text, img);
       canvas.style.animation = 'none';
       void canvas.offsetWidth;
@@ -1069,13 +1114,26 @@ CARD_JS = r"""(function(){
 
 
 def cards_json(rel):
-    """{昵称: 背景图地址}，只包含配了 card 的"""
+    """{昵称: [背景图地址...]}；每人文件夹可放多张 bg-1.svg..bg-N.svg，前端随机取一张。
+
+    v0.14：新结构 people/<folder>/bg-*.svg；旧配置无 folder 时退到旧 cards/<file>。
+    bg_count 缺省按 1 处理，只纳入实际存在的文件（构建期只读 names.json，
+    文件存在性由前端 onerror 兜底）。"""
     out = {}
     for r in load_names_rows():
-        card = (r.get("card") or "").strip()
-        if card:
-            # 形象图只在主站存一份，分站用根相对路径同源直引
-            out[r["nick"]] = "/assets/cards/" + quote(card)
+        folder = (r.get("folder") or r.get("pinyin") or "").strip()
+        if folder:
+            try:
+                count = max(1, min(20, int(r.get("bg_count") or 1)))
+            except (TypeError, ValueError):
+                count = 1
+            urls = ["/docs/assets/people/" + quote(folder) + "/bg-%d.svg" % i
+                    for i in range(1, count + 1)]
+            out[r["nick"]] = urls
+        else:
+            card = (r.get("card") or "").strip()
+            if card:
+                out[r["nick"]] = ["/docs/assets/cards/" + quote(card)]
     # JSON 里的双引号必须转义，否则会把 HTML 属性截断
     return html.escape(json.dumps(out, ensure_ascii=False), quote=True)
 
