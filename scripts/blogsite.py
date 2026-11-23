@@ -951,6 +951,33 @@ CARD_JS = r"""(function(){
     return lines;
   }
 
+  // 画一个半透明深色圆角气泡（带指向头像的小尖角），文字落在气泡上，
+  // 避免被背景插画污染看不清。纯色占位图上也保留气泡，风格统一。
+  function bubble(x, y, w, h, tail){
+    var r = Math.round(w * 0.045);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+    if (tail){
+      var tw = Math.round(w * 0.05);
+      var ty = y + Math.round(h * 0.34);
+      ctx.moveTo(x, ty);
+      ctx.lineTo(x - tw, ty + tw * 0.7);
+      ctx.lineTo(x, ty + tw * 1.4);
+      ctx.closePath();
+    }
+    ctx.fillStyle = 'rgba(16,13,10,0.66)';
+    ctx.fill();
+  }
+
   function paint(nick, sign, text, img){
     var W = img ? img.naturalWidth : 1080;
     var H = img ? img.naturalHeight : 1440;
@@ -964,47 +991,56 @@ CARD_JS = r"""(function(){
       ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
     }
 
-    var pad = Math.round(W * 0.08);
-    var maxW = W - pad * 2;
-    var y = Math.round(H * 0.18);
-
     ctx.textBaseline = 'top';
-    ctx.fillStyle = '#ffffff';
-    ctx.shadowColor = 'rgba(0,0,0,.4)';
-    ctx.shadowBlur = Math.round(W * 0.012);
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
 
-    ctx.font = 'bold ' + Math.round(W * 0.052) + 'px "Songti SC","Noto Serif SC",serif';
-    ctx.fillText(nick || '匿名', pad, y);
-    y += Math.round(W * 0.08);
+    var pad = Math.round(W * 0.08);
+    var gap = Math.round(W * 0.055);
+    var boxW = W - pad * 2;
 
-    if (sign){
-      ctx.globalAlpha = 0.72;
-      ctx.font = Math.round(W * 0.028) + 'px "Songti SC","Noto Serif SC",serif';
-      ctx.fillText(sign, pad, y);
-      ctx.globalAlpha = 1;
-      y += Math.round(W * 0.062);
-    }
+    // 先量好正文排版，再算气泡高度，保证气泡正好包住文字
+    var y = Math.round(H * 0.16);
+    var nickFs = Math.round(W * 0.05);
+    var signFs = Math.round(W * 0.03);
+    var headH = nickFs + (sign ? Math.round(W * 0.03) + signFs : 0);
 
     var fs = W * 0.036, lines = [], lh = 0;
+    var bodyTop = y + headH + gap * 2;
     for (var k = 0; k < 5; k++){
       ctx.font = Math.round(fs) + 'px "Songti SC","Noto Serif SC",serif';
-      lines = wrap(text || '（这一层没有正文）', maxW);
-      lh = Math.round(fs * 1.75);
-      if (y + lines.length * lh <= H - pad) break;
+      lines = wrap(text || '（这一层没有正文）', boxW - pad);
+      lh = Math.round(fs * 1.7);
+      if (bodyTop + lines.length * lh <= H - pad) break;
       fs *= 0.87;
     }
-
-    var maxLines = Math.floor((H - pad - y) / lh);
+    var maxLines = Math.floor((H - pad - bodyTop) / lh);
     if (maxLines > 0 && lines.length > maxLines){
       lines = lines.slice(0, maxLines);
       lines[lines.length - 1] = lines[lines.length - 1].slice(0, -1) + '\u2026';
     }
 
-    for (var j = 0; j < lines.length; j++){
-      ctx.fillText(lines[j], pad, y);
-      y += lh;
+    // 头部气泡（昵称 + 签名）
+    bubble(pad - pad / 2, y - pad / 2, boxW + pad, headH + pad, true);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold ' + nickFs + 'px "Songti SC","Noto Serif SC",serif';
+    ctx.fillText(nick || '匿名', pad, y);
+    var hy = y + nickFs + Math.round(W * 0.03);
+    if (sign){
+      ctx.globalAlpha = 0.82;
+      ctx.font = signFs + 'px "Songti SC","Noto Serif SC",serif';
+      ctx.fillText(sign, pad, hy);
+      ctx.globalAlpha = 1;
     }
-    ctx.shadowBlur = 0;
+
+    // 正文气泡
+    var bodyH = lines.length * lh;
+    bubble(pad - pad / 2, bodyTop - pad / 2, boxW + pad, bodyH + pad, false);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = Math.round(fs) + 'px "Songti SC","Noto Serif SC",serif';
+    for (var j = 0; j < lines.length; j++){
+      ctx.fillText(lines[j], pad, bodyTop + j * lh);
+    }
 
     prepareDownload();
   }
