@@ -512,6 +512,8 @@ apply(saved()||sys());
 document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('btn-theme');
 if(b)b.addEventListener('click',function(){var n=r.getAttribute('data-theme')==='dark'?'light':'dark';
 try{localStorage.setItem(k,n);}catch(e){}apply(n);});
+// 首屏在 <head> 执行时按钮还没渲染，这里补一次同步，修正暗色偏好下的图标/文案
+apply(saved()||sys());
 window.addEventListener('storage',function(e){if(e.key===k)apply(saved()||sys());});});})();</script>"""
 
 PAGE_TMPL = """<!doctype html>
@@ -530,11 +532,13 @@ PAGE_TMPL = """<!doctype html>
 <header class="topbar">
   <a class="brand" href="{rel}index.html">{site}</a>
   <span class="board">{tagline}</span>
+  <a class="home-ico" href="{main_url}" title="返回主站" aria-label="返回主站">主站 ↗</a>
   <button class="theme-ico" id="btn-theme" type="button" aria-label="切换主题" title="切换主题">◐</button>
   <a class="search-ico" href="{rel}search.html" aria-label="搜索">
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 L21 21"/></svg>
   </a>
 </header>
+{notice_bar}
 <main class="wrap">
 {body}
 </main>
@@ -549,6 +553,8 @@ PAGE_TMPL = """<!doctype html>
 
 
 def page_shell(site, rel, title, desc, body, author=""):
+    notice = esc(site.get("notice") or "")
+    notice_bar = ('<aside class="site-notice">%s</aside>' % notice) if notice else ""
     return PAGE_TMPL.format(
         lang=esc(site.get("lang") or "zh-CN"),
         title=esc(title),
@@ -558,6 +564,8 @@ def page_shell(site, rel, title, desc, body, author=""):
         theme_script=THEME_SCRIPT,
         site=esc(site.get("name") or ""),
         tagline=esc(site.get("tagline") or ""),
+        main_url=esc(site.get("main_url") or "https://yxtcfw.cn"),
+        notice_bar=notice_bar,
         body=body,
         footer=esc(site.get("footer") or "自动生成"),
         copy=('<p class="small">© %s</p>' % esc(site["author"])) if site.get("author") else "",

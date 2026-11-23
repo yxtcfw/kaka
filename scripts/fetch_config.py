@@ -155,6 +155,8 @@ def materialize(cfg, theme, names, ads, config_sha):
         "footer": site.get("footer", ""),
         "lang": site.get("lang", "zh-CN"),
         "base_url": base_url,
+        "notice": site.get("notice", ""),
+        "main_url": (site.get("main_url") or "").strip() or "https://yxtcfw.cn",
     })
 
     write_json("sources.json", {

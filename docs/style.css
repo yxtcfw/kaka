@@ -387,6 +387,35 @@ a { color: inherit; text-decoration: none; }
 .topbar .theme-ico:hover { opacity: 1; color: var(--accent); }
 .topbar .search-ico { margin-left: 4px; }
 
+/* 返回主站入口：与主站风格一致的低调文字链 */
+.topbar .home-ico {
+  margin-left: auto;
+  padding: 6px 0 6px 12px;
+  color: var(--muted);
+  opacity: .65;
+  font-size: 12.5px;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  transition: opacity .15s, color .15s;
+}
+.topbar .home-ico:hover { opacity: 1; color: var(--accent); }
+/* 主站入口已占据 auto 间距，主题按钮回到紧邻位置 */
+.topbar .home-ico + .theme-ico { margin-left: 4px; }
+
+/* 站点公告：顶栏下方的横条，仅配置了 notice 时才输出 */
+.site-notice {
+  max-width: 700px;
+  margin: 16px auto 0;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  background: rgba(128, 128, 128, .05);
+  color: var(--fg);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
 @media (max-width: 480px) {
   .topbar { padding-right: 20px; }
   .topbar .theme-ico, .topbar .search-ico { padding-left: 8px; }

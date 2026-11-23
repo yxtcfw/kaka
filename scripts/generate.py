@@ -81,8 +81,11 @@ def load_site():
     site.setdefault("footer", "由 GitHub Actions 每天自动生成")
     site.setdefault("lang", "zh-CN")
     site.setdefault("base_url", "")
+    site.setdefault("notice", "")             # 站点公告：渲染在顶栏下方，可留空
+    site.setdefault("main_url", "https://yxtcfw.cn")  # 顶栏「主站 ↗」入口
     for k, env in (("name", "SITE_NAME"), ("tagline", "SITE_TAGLINE"), ("author", "SITE_AUTHOR"),
-                   ("description", "SITE_DESCRIPTION"), ("footer", "SITE_FOOTER")):
+                   ("description", "SITE_DESCRIPTION"), ("footer", "SITE_FOOTER"),
+                   ("notice", "SITE_NOTICE"), ("main_url", "SITE_MAIN_URL")):
         if os.environ.get(env):
             site[k] = os.environ[env]
 
