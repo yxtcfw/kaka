@@ -1,0 +1,84 @@
+name: Chain Test Trigger (temporary)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/chain-test.yml'
+
+permissions:
+  actions: write
+  contents: write
+
+jobs:
+  trigger-and-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ secrets.ACCOUNT_TOKEN || github.token }}
+    steps:
+      - name: Dispatch daily-post
+        run: |
+          set -e
+          gh workflow run daily.yml --repo yxtcfw/kaka --ref main \
+            -f mode=auto \
+            -f keyword='流量卡怎么办理才划算'
+          echo "已触发 daily-post"
+
+      - name: Wait for daily-post
+        run: |
+          set -e
+          sleep 20
+          RUN_ID=$(gh run list --repo yxtcfw/kaka --workflow daily.yml --limit 1 --json databaseId -q '.[0].databaseId')
+          echo "RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
+          echo "daily run id: $RUN_ID"
+          for i in $(seq 1 90); do
+            STATUS=$(gh run view "$RUN_ID" --repo yxtcfw/kaka --json status -q .status || echo unknown)
+            echo "poll $i: $STATUS"
+            if [ "$STATUS" = "completed" ]; then break; fi
+            sleep 15
+          done
+
+      - name: Collect report
+        run: |
+          set -e
+          {
+            echo "=== DAILY RUN META ==="
+            gh run view "$RUN_ID" --repo yxtcfw/kaka \
+              --json databaseId,status,conclusion,createdAt,updatedAt,url,headBranch || true
+            echo
+            echo "=== DAILY LOG (filtered) ==="
+            gh run view "$RUN_ID" --repo yxtcfw/kaka --log 2>&1 | \
+              grep -E -i 'dispatch|网关|gateway|错误|error|fail|AI_CALLS|post:|rebuild|run_stat|writeback|草稿|生成|回写' | \
+              tail -n 160 || true
+            echo
+            echo "=== GATEWAY RUN META ==="
+            GW_ID=$(gh run list --repo yxtcfw/yxtcfw.github.io --workflow gateway.yml --limit 1 --json databaseId -q '.[0].databaseId' || true)
+            echo "gateway run id: $GW_ID"
+            if [ -n "$GW_ID" ]; then
+              gh run view "$GW_ID" --repo yxtcfw/yxtcfw.github.io \
+                --json databaseId,status,conclusion,createdAt,updatedAt,url || true
+              echo
+              echo "=== GATEWAY LOG (filtered) ==="
+              gh run view "$GW_ID" --repo yxtcfw/yxtcfw.github.io --log 2>&1 | \
+                grep -E -i 'request_id|网关结果|provider|used_model|attempts|错误|error|fail|回写|writeback|key|冷却|HTTP' | \
+                tail -n 160 || true
+            fi
+            echo
+            echo "=== SITE STATUS FILE ==="
+            gh api repos/yxtcfw/yxtcfw.github.io/contents/config/status/kaka.json \
+              --jq .content 2>/dev/null | base64 -d || echo '(status file not found)'
+          } > chain-test-report.txt 2>&1
+
+          CONTENT=$(base64 -w0 chain-test-report.txt)
+          if gh api repos/yxtcfw/kaka/contents/.github/chain-test-report.txt \
+              --jq .sha 2>/dev/null > /tmp/report_sha; then
+            SHA=$(cat /tmp/report_sha)
+            gh api --method PUT repos/yxtcfw/kaka/contents/.github/chain-test-report.txt \
+              -f message='test: gateway chain report [skip ci]' \
+              -f content="$CONTENT" -f branch=main -f sha="$SHA"
+          else
+            gh api --method PUT repos/yxtcfw/kaka/contents/.github/chain-test-report.txt \
+              -f message='test: gateway chain report [skip ci]' \
+              -f content="$CONTENT" -f branch=main
+          fi
