@@ -22,7 +22,7 @@ jobs:
           set -e
           gh workflow run daily.yml --repo yxtcfw/kaka --ref main \
             -f mode=auto \
-            -f keyword='限速后的卡还能救吗'
+            -f keyword='异地号码补卡要多久'
           echo "已触发 daily-post"
 
       - name: Wait for daily-post
@@ -71,14 +71,14 @@ jobs:
           } > chain-test-report.txt 2>&1
 
           CONTENT=$(base64 -w0 chain-test-report.txt)
-          if gh api repos/yxtcfw/kaka/contents/.github/chain-test-report-2.txt \
+          if gh api repos/yxtcfw/kaka/contents/.github/chain-test-report-3.txt \
               --jq .sha 2>/dev/null > /tmp/report_sha; then
             SHA=$(cat /tmp/report_sha)
-            gh api --method PUT repos/yxtcfw/kaka/contents/.github/chain-test-report-2.txt \
+            gh api --method PUT repos/yxtcfw/kaka/contents/.github/chain-test-report-3.txt \
               -f message='test: gateway chain report [skip ci]' \
               -f content="$CONTENT" -f branch=main -f sha="$SHA"
           else
-            gh api --method PUT repos/yxtcfw/kaka/contents/.github/chain-test-report-2.txt \
+            gh api --method PUT repos/yxtcfw/kaka/contents/.github/chain-test-report-3.txt \
               -f message='test: gateway chain report [skip ci]' \
               -f content="$CONTENT" -f branch=main
           fi
