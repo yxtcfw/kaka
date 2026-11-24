@@ -1,6 +1,6 @@
 {
   "site_id": "kaka",
-  "config_sha256": "2dcf0f46de2f2349d61d49e6b8701793f7b03d24541591db9b0175d636cd227b",
+  "config_sha256": "45177157245800164d8c0c028cdd8c00df26eb08125970ed1690feaa74fce539",
   "composition": {
     "modules": [
       "blog",
