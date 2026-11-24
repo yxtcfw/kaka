@@ -1,0 +1,189 @@
+=== DAILY RUN META ===
+{"conclusion":"success","createdAt":"2026-11-24T11:23:59Z","databaseId":45383812177,"headBranch":"main","status":"completed","updatedAt":"2026-11-24T11:24:28Z","url":"https://github.com/yxtcfw/kaka/actions/runs/45383812177"}
+
+=== DAILY LOG (filtered) ===
+write	生成本站运行配置	﻿2026-11-24T11:24:06.0996290Z ##[group]Run python scripts/build_runtime.py
+write	生成本站运行配置	2026-11-24T11:24:06.0998183Z ^[[36;1mpython scripts/build_runtime.py^[[0m
+write	生成本站运行配置	2026-11-24T11:24:06.1067738Z shell: /usr/bin/bash -e {0}
+write	生成本站运行配置	2026-11-24T11:24:06.1069020Z env:
+write	生成本站运行配置	2026-11-24T11:24:06.1070518Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+write	生成本站运行配置	2026-11-24T11:24:06.1072894Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+write	生成本站运行配置	2026-11-24T11:24:06.1075266Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+write	生成本站运行配置	2026-11-24T11:24:06.1077356Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+write	生成本站运行配置	2026-11-24T11:24:06.1079630Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+write	生成本站运行配置	2026-11-24T11:24:06.1081859Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+write	生成本站运行配置	2026-11-24T11:24:06.1083650Z ##[endgroup]
+write	生成本站运行配置	2026-11-24T11:24:06.1794014Z [build_runtime] 写入 config/writing.json
+write	生成本站运行配置	2026-11-24T11:24:06.1796599Z [build_runtime] 写入 config/keywords.txt
+write	生成本站运行配置	2026-11-24T11:24:06.1798594Z [build_runtime] 写入 config/generated.json
+write	生成本站运行配置	2026-11-24T11:24:06.1802264Z [build_runtime] 站点配置构建完成：3 个模块，config_sha256=451771572458
+write	选题 + 写作 + 建站（单次 AI 请求）	2026-11-24T11:24:06.2021036Z   GATEWAY_MODE: central
+write	选题 + 写作 + 建站（单次 AI 请求）	2026-11-24T11:24:06.2022160Z   GATEWAY_TOKEN: ***
+write	选题 + 写作 + 建站（单次 AI 请求）	2026-11-24T11:24:06.2032108Z   GATEWAY_REPO: yxtcfw/yxtcfw.github.io
+write	选题 + 写作 + 建站（单次 AI 请求）	2026-11-24T11:24:06.2033010Z   GATEWAY_EVENT: writing_request
+write	选题 + 写作 + 建站（单次 AI 请求）	2026-11-24T11:24:06.2033874Z   GATEWAY_POLL_TIMEOUT: 600
+write	选题 + 写作 + 建站（单次 AI 请求）	2026-11-24T11:24:08.8365847Z [daily] 已 dispatch 写作请求：20261124192408-4d41975e25 → yxtcfw/yxtcfw.github.io
+write	选题 + 写作 + 建站（单次 AI 请求）	2026-11-24T11:24:08.8367432Z [daily] 等待网关回写：20261124192408-4d41975e25（最多 180s）
+write	选题 + 写作 + 建站（单次 AI 请求）	2026-11-24T11:24:24.3321518Z [daily] 收到网关回写：ok=False provider=None model=None
+write	选题 + 写作 + 建站（单次 AI 请求）	2026-11-24T11:24:24.3326448Z 网关调用失败：全部供应商失败；尝试明细：openrouter/google/gemma-4-31b-it:free:key_degraded; deepseek/-:no_key; dashscope/-:no_key
+write	选题 + 写作 + 建站（单次 AI 请求）	2026-11-24T11:24:24.3458579Z ##[error]Process completed with exit code 1.
+write	回写状态到主站	﻿2026-11-24T11:24:24.3557143Z ##[group]Run if [ -f docs/.run_stat.json ]; then
+write	回写状态到主站	2026-11-24T11:24:24.3557602Z ^[[36;1mif [ -f docs/.run_stat.json ]; then^[[0m
+write	回写状态到主站	2026-11-24T11:24:24.3558157Z ^[[36;1m  export PAGES=$(python -c "import json;print(json.load(open('docs/.run_stat.json')).get('pages',0))")^[[0m
+write	回写状态到主站	2026-11-24T11:24:24.3558910Z ^[[36;1m  export FLOORS=$(python -c "import json;print(json.load(open('docs/.run_stat.json')).get('floors',0))")^[[0m
+write	回写状态到主站	2026-11-24T11:24:24.3559901Z ^[[36;1m  export WORDS=$(python -c "import json;print(json.load(open('docs/.run_stat.json')).get('words',0))")^[[0m
+write	回写状态到主站	2026-11-24T11:24:24.3560620Z ^[[36;1m  export MODEL=$(python -c "import json;print(json.load(open('docs/.run_stat.json')).get('model',''))")^[[0m
+write	回写状态到主站	2026-11-24T11:24:24.3561351Z ^[[36;1m  export AI_CALLS=$(python -c "import json;print(json.load(open('docs/.run_stat.json')).get('ai_calls',0))")^[[0m
+write	回写状态到主站	2026-11-24T11:24:24.3561898Z ^[[36;1mfi^[[0m
+write	回写状态到主站	2026-11-24T11:24:24.3562125Z ^[[36;1mpython scripts/writeback_status.py^[[0m
+write	回写状态到主站	2026-11-24T11:24:24.3598480Z shell: /usr/bin/bash -e {0}
+write	回写状态到主站	2026-11-24T11:24:24.3598794Z env:
+write	回写状态到主站	2026-11-24T11:24:24.3599078Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+write	回写状态到主站	2026-11-24T11:24:24.3599737Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+write	回写状态到主站	2026-11-24T11:24:24.3600186Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+write	回写状态到主站	2026-11-24T11:24:24.3600591Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+write	回写状态到主站	2026-11-24T11:24:24.3600989Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+write	回写状态到主站	2026-11-24T11:24:24.3601393Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+write	回写状态到主站	2026-11-24T11:24:24.3602180Z   MAIN_STATUS_TOKEN: ***
+write	回写状态到主站	2026-11-24T11:24:24.3602450Z   SITE_ID: kaka
+write	回写状态到主站	2026-11-24T11:24:24.3602709Z   RUN_RESULT: failed
+write	回写状态到主站	2026-11-24T11:24:24.3602927Z   ERROR_MESSAGE: 
+write	回写状态到主站	2026-11-24T11:24:24.3603253Z   RUN_URL: https://github.com/yxtcfw/kaka/actions/runs/45383812177
+write	回写状态到主站	2026-11-24T11:24:24.3603658Z ##[endgroup]
+write	回写状态到主站	2026-11-24T11:24:25.5293641Z [writeback_status] 状态已回写：failed / 2026-11-24T11:24:24Z
+write	推送结果到企业微信	2026-11-24T11:24:25.5473566Z   STATUS: failure
+
+=== GATEWAY RUN META ===
+gateway run id: 45383847416
+{"conclusion":"success","createdAt":"2026-11-24T11:24:13Z","databaseId":45383847416,"status":"completed","updatedAt":"2026-11-24T11:24:26Z","url":"https://github.com/yxtcfw/yxtcfw.github.io/actions/runs/45383847416"}
+
+=== GATEWAY LOG (filtered) ===
+call	Set up job	2026-11-24T11:24:17.9969119Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261116.202/images/ubuntu/Ubuntu2604-Readme.md
+call	Set up job	2026-11-24T11:24:17.9971006Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261116.202
+call	Run actions/checkout@v4	2026-11-24T11:24:19.0506989Z [command]/usr/bin/git remote add origin https://github.com/yxtcfw/yxtcfw.github.io
+call	Run actions/checkout@v4	2026-11-24T11:24:19.1322609Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+call	Run actions/checkout@v4	2026-11-24T11:24:19.1359610Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+call	Run actions/checkout@v4	2026-11-24T11:24:19.1976107Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+call	Run actions/checkout@v4	2026-11-24T11:24:19.6743610Z From https://github.com/yxtcfw/yxtcfw.github.io
+call	落盘请求参数	2026-11-24T11:24:19.9554525Z ^[[36;1mecho "request_id=$REQUEST_ID site=$SITE_ID repo=$SITE_REPO"^[[0m
+call	落盘请求参数	2026-11-24T11:24:19.9563735Z ^[[36;1m    raise SystemExit('messages 为空或格式错误，终止')^[[0m
+call	落盘请求参数	2026-11-24T11:24:19.9572095Z ^[[36;1m        'request_id': os.environ['REQUEST_ID'],^[[0m
+call	落盘请求参数	2026-11-24T11:24:19.9729490Z   REQUEST_ID: 20261124192408-4d41975e25
+call	落盘请求参数	2026-11-24T11:24:19.9839023Z request_id=20261124192408-4d41975e25 site=kaka repo=yxtcfw/kaka
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.0445306Z ^[[36;1m  --providers gateway/providers.json \^[[0m
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.0454241Z ^[[36;1mprint('网关结果: ok=%s provider=%s model=%s' % (^[[0m
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.0455852Z ^[[36;1m    r.get('ok'), r.get('provider'), r.get('used_model')))^[[0m
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.0458484Z ^[[36;1m    print('错误:', r.get('error'))^[[0m
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.0459826Z ^[[36;1m    for a in (r.get('attempts') or [])[:10]:^[[0m
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.0515967Z   OPENROUTER_API_KEY: 
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.0517862Z   OPENROUTER_API_KEYS: ***
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.0518939Z   DEEPSEEK_API_KEY: 
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.0519943Z   DEEPSEEK_API_KEYS: 
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.0520960Z   DASHSCOPE_API_KEY: 
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.0521985Z   DASHSCOPE_API_KEYS: 
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.1407445Z [gateway] openrouter：可用 Key 1 条
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.3369189Z [gateway] Key OPENROUTER_API_KEYS[1] 额度/限流：google/gemma-4-31b-it:free HTTP 429 → 冷却 15min，切换下一个 Key
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.3370940Z [gateway] 跳过 deepseek：未配置任何 Key
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.3371910Z [gateway] 跳过 dashscope：未配置任何 Key
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.3660265Z 网关结果: ok=False provider=None model=None
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.3661344Z 错误: 全部供应商失败
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.3664166Z    {'provider': 'openrouter', 'key': 'OPENROUTER_API_KEYS[1]', 'model': 'google/gemma-4-31b-it:free', 'code': 429, 'reason': 'key_degraded', 'body': '{"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own provider key to use y'}
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.3667028Z    {'provider': 'deepseek', 'model': '-', 'code': 0, 'reason': 'no_key'}
+call	调用模型（跨供应商失败驱动降级）	2026-11-24T11:24:20.3668219Z    {'provider': 'dashscope', 'model': '-', 'code': 0, 'reason': 'no_key'}
+call	跨仓回写结果到站点	﻿2026-11-24T11:24:20.3741150Z ##[group]Run python gateway/writeback_result.py
+call	跨仓回写结果到站点	2026-11-24T11:24:20.3741710Z ^[[36;1mpython gateway/writeback_result.py^[[0m
+call	跨仓回写结果到站点	2026-11-24T11:24:20.3776377Z shell: /usr/bin/bash -e {0}
+call	跨仓回写结果到站点	2026-11-24T11:24:20.3776785Z env:
+call	跨仓回写结果到站点	2026-11-24T11:24:20.3777186Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+call	跨仓回写结果到站点	2026-11-24T11:24:20.3778056Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+call	跨仓回写结果到站点	2026-11-24T11:24:20.3778669Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+call	跨仓回写结果到站点	2026-11-24T11:24:20.3779215Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+call	跨仓回写结果到站点	2026-11-24T11:24:20.3779770Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+call	跨仓回写结果到站点	2026-11-24T11:24:20.3780319Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+call	跨仓回写结果到站点	2026-11-24T11:24:20.3781203Z   SITE_PAT_KAKA: ***
+call	跨仓回写结果到站点	2026-11-24T11:24:20.3781578Z   SITE_REPO: yxtcfw/kaka
+call	跨仓回写结果到站点	2026-11-24T11:24:20.3781960Z   REQUEST_ID: 20261124192408-4d41975e25
+call	跨仓回写结果到站点	2026-11-24T11:24:20.3782354Z   SITE_BRANCH: main
+call	跨仓回写结果到站点	2026-11-24T11:24:20.3782721Z   RESULT_FILE: gateway/.gateway-result.json
+call	跨仓回写结果到站点	2026-11-24T11:24:20.3783430Z ##[endgroup]
+call	跨仓回写结果到站点	2026-11-24T11:24:21.4793706Z [writeback_result] 结果已回写到 yxtcfw/kaka / config/.gateway-result/20261124192408-4d41975e25.json (ok=False)
+call	持久化冷却状态	﻿2026-11-24T11:24:21.4976779Z ##[group]Run git config user.name  "gateway-bot"
+call	持久化冷却状态	2026-11-24T11:24:21.4977237Z ^[[36;1mgit config user.name  "gateway-bot"^[[0m
+call	持久化冷却状态	2026-11-24T11:24:21.4977645Z ^[[36;1mgit config user.email "gateway-bot@users.noreply.github.com"^[[0m
+call	持久化冷却状态	2026-11-24T11:24:21.4978061Z ^[[36;1mgit add gateway/.gateway-state.json^[[0m
+call	持久化冷却状态	2026-11-24T11:24:21.4978384Z ^[[36;1mif git diff --cached --quiet; then^[[0m
+call	持久化冷却状态	2026-11-24T11:24:21.4978671Z ^[[36;1m  echo "冷却状态无变化"^[[0m
+call	持久化冷却状态	2026-11-24T11:24:21.4978905Z ^[[36;1melse^[[0m
+call	持久化冷却状态	2026-11-24T11:24:21.4979179Z ^[[36;1m  git commit -m "chore: gateway 冷却状态更新 [skip ci]"^[[0m
+call	持久化冷却状态	2026-11-24T11:24:21.4979503Z ^[[36;1m  git push^[[0m
+call	持久化冷却状态	2026-11-24T11:24:21.4979716Z ^[[36;1mfi^[[0m
+call	持久化冷却状态	2026-11-24T11:24:21.5014409Z shell: /usr/bin/bash -e {0}
+call	持久化冷却状态	2026-11-24T11:24:21.5014691Z env:
+call	持久化冷却状态	2026-11-24T11:24:21.5014968Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+call	持久化冷却状态	2026-11-24T11:24:21.5015436Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+call	持久化冷却状态	2026-11-24T11:24:21.5015909Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+call	持久化冷却状态	2026-11-24T11:24:21.5016351Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+call	持久化冷却状态	2026-11-24T11:24:21.5016753Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+call	持久化冷却状态	2026-11-24T11:24:21.5017145Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+call	持久化冷却状态	2026-11-24T11:24:21.5017482Z ##[endgroup]
+call	持久化冷却状态	2026-11-24T11:24:21.5262675Z [master fdedca9] chore: gateway 冷却状态更新 [skip ci]
+call	持久化冷却状态	2026-11-24T11:24:21.5263367Z  1 file changed, 9 insertions(+)
+call	持久化冷却状态	2026-11-24T11:24:21.5263721Z  create mode 100644 gateway/.gateway-state.json
+call	持久化冷却状态	2026-11-24T11:24:22.9271005Z To https://github.com/yxtcfw/yxtcfw.github.io
+call	持久化冷却状态	2026-11-24T11:24:22.9271847Z    b370d02..fdedca9  master -> master
+call	Post Run actions/checkout@v4	2026-11-24T11:24:23.2320994Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+call	Post Run actions/checkout@v4	2026-11-24T11:24:23.2378162Z http.https://github.com/.extraheader
+call	Post Run actions/checkout@v4	2026-11-24T11:24:23.2380202Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+call	Post Run actions/checkout@v4	2026-11-24T11:24:23.2419158Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+call	Complete job	2026-11-24T11:24:23.3613653Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+=== SITE STATUS FILE ===
+{
+  "schema_version": "1.0.0",
+  "site_id": "kaka",
+  "last_run_at": "2026-11-24T11:24:24Z",
+  "result": "failed",
+  "config_sha256": "45177157245800164d8c0c028cdd8c00df26eb08125970ed1690feaa74fce539",
+  "global_sha256": {},
+  "composition": {
+    "modules": [
+      "blog",
+      "resource",
+      "nav"
+    ],
+    "order": [
+      "blog",
+      "resource",
+      "nav"
+    ],
+    "render": "both",
+    "module_options": {
+      "blog": {
+        "show_summary": true,
+        "quotes_max": 3
+      },
+      "resource": {
+        "max": 6,
+        "verify_url": true
+      },
+      "nav": {
+        "max": 12,
+        "verify_url": true
+      },
+      "comments": {
+        "count": [
+          2,
+          3
+        ],
+        "persona_source": "sign"
+      }
+    }
+  },
+  "ai_calls": 0,
+  "pages": 3,
+  "floors": 4,
+  "words": 320,
+  "model": "",
+  "error": "",
+  "run_url": "https://github.com/yxtcfw/kaka/actions/runs/45383812177"
+}
