@@ -1,13 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-内容树自动生长：采集搜索联想词 → 规则分类 → 追加 proposed 节点。
+内容树自动生长：采集候选词 → 规则分类 → 追加 proposed 节点。
+
+候选来源（按优先级）：
+  1. config/candidates.json —— 油猴在本地浏览器采集并写入的联想词 / 评论话题；
+  2. 内置 suggest 接口 —— 百度 / Google，作为无本地候选时的服务端回退。
 
 设计约束：
-- 纯标准库、服务端 HTTP 采集，不依赖浏览器，不调写作模型（不增加 AI 请求）。
+- 纯标准库，不调写作模型（不增加 AI 请求）。本地候选完全离线，回退才走 HTTP。
 - 只追加 source=suggest 的节点，不改动任何人工节点；节点 id 由词指纹生成，重复运行幂等。
 - 节点关键词必须来自当轮真实素材，保证能被现有 gate 判定通过，不产生永远闲置的死节点。
-- suggest 接口全部失败时静默退出（返回 0），不阻断每日发文。
+- 所有候选源都失败时静默退出（返回 0），不阻断每日发文。
+
+candidates.json 格式（由油猴写入，字段均可缺省）：
+  {"items": [
+    {"text": "流量卡怎么办理", "seed": "流量卡", "kind": "suggest|comment",
+     "source": "baidu", "url": "https://...", "weight": 1.0}
+  ]}
 
 用法：
   python scripts/grow_tree.py
@@ -119,7 +129,7 @@ def fetch_suggest(word, timeout=TIMEOUT):
 
 
 def collect_suggestions(seeds, per_seed=PER_SEED):
-    """遍历种子词采集联想词，保序去重。"""
+    """遍历种子词采集联想词（服务端回退路径），保序去重。"""
     out, seen = [], set()
     for seed in seeds:
         got = fetch_suggest(seed)
@@ -129,9 +139,52 @@ def collect_suggestions(seeds, per_seed=PER_SEED):
             if not k or k in seen:
                 continue
             seen.add(k)
-            out.append({"text": w, "seed": seed})
+            out.append({"text": w, "seed": seed, "kind": "suggest", "source": "suggest-api"})
             if sum(1 for x in out if x["seed"] == seed) >= per_seed:
                 break
+    return out
+
+
+def load_local_candidates(seeds):
+    """读取油猴写入的 config/candidates.json，归一成本模块候选结构。
+
+    返回 [] 表示没有可用本地候选（文件不存在 / 格式不对 / 全部非法），
+    调用方据此回退到 suggest 采集。字段容错：text 必须有，其余缺省补值。
+    """
+    data = load_json("candidates.json", None)
+    if not isinstance(data, dict):
+        return []
+    rows = data.get("items")
+    if not isinstance(rows, list):
+        return []
+    out, seen = [], set()
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        text = str(row.get("text") or "").strip()
+        k = mine.norm(text)
+        if not k or k in seen:
+            continue
+        seen.add(k)
+        seed = str(row.get("seed") or "").strip()
+        # seed 必须是已知冻结词，否则 gate 相关性校验会用它做过滤，给未知词等于放任跑题
+        if seed and seed not in seeds:
+            seed = ""
+        try:
+            weight = max(0.0, min(2.0, float(row.get("weight", 1.0))))
+        except (TypeError, ValueError):
+            weight = 1.0
+        kind = str(row.get("kind") or "suggest")
+        if kind not in ("suggest", "comment"):
+            kind = "suggest"
+        out.append({
+            "text": text,
+            "seed": seed,
+            "kind": kind,
+            "source": str(row.get("source") or "local"),
+            "url": str(row.get("url") or ""),
+            "weight": weight,
+        })
     return out
 
 
@@ -244,9 +297,16 @@ def main():
     pool = material_terms(cands, chars)
     log("素材 %d 条，可命中词候选 %d 个" % (len(cands), len(pool)))
 
-    suggestions = collect_suggestions(seeds)
+    suggestions = load_local_candidates(seeds)
+    if suggestions:
+        n_sug = sum(1 for x in suggestions if x["kind"] == "suggest")
+        n_com = sum(1 for x in suggestions if x["kind"] == "comment")
+        log("用本地油猴候选 %d 条（联想词 %d / 评论话题 %d）" % (len(suggestions), n_sug, n_com))
+    else:
+        log("本地无候选，回退服务端 suggest 采集")
+        suggestions = collect_suggestions(seeds)
     if not suggestions:
-        log("联想词接口全部不可用，本轮跳过（不影响发文）")
+        log("本地候选与联想词接口都不可用，本轮跳过（不影响发文）")
         return
 
     td = treeutil.load_tree(CONFIG)
@@ -272,7 +332,10 @@ def main():
         text = str(item["text"]).strip()
         if not (4 <= len(text) <= 24):
             continue
-        if relevance(text, item["seed"]) < 0.6 or lcs_len(text, item["seed"]) < 3:
+        # 联想词有 seed：用字符重叠 + LCS 过滤跑题长尾；
+        # 评论话题无 seed：靠领域字 + 后续 gate 素材命中兜底，不在此处误杀。
+        seed = item.get("seed") or ""
+        if seed and (relevance(text, seed) < 0.6 or lcs_len(text, seed) < 3):
             continue
         if not any(ch in text for ch in domain_chars):
             continue
@@ -296,7 +359,10 @@ def main():
             "parent": None,
             "keywords": terms,
             "source": "suggest",
-            "origin_seed": item["seed"],
+            "origin_seed": seed,
+            "harvest_kind": item.get("kind", "suggest"),
+            "harvest_source": item.get("source", ""),
+            "harvest_url": item.get("url", ""),
             "collected_at": today,
             "idle_rounds": 0,
             "written_count": 0,
