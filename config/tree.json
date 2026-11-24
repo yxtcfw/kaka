@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "nodes": [
+    { "id": "n1", "title": "流量卡怎么选", "intent": "how", "status": "planned", "parent": null },
+    { "id": "n2", "title": "限速后能否解除", "intent": "problem", "status": "proposed", "parent": "n1" },
+    { "id": "n3", "title": "异地补卡流程", "intent": "how", "status": "planned", "parent": "n1" },
+    { "id": "n4", "title": "流量卡怎么办理才划算", "intent": "how", "status": "planned", "parent": "n1" }
+  ],
+  "gate": { "min_keywords": 2, "min_sources": 2, "min_hits": 15 },
+  "prune": { "idle_rounds": 3 }
+}

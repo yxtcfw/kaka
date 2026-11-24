@@ -100,17 +100,27 @@ def load_site():
 
 
 def load_keywords():
+    """优先读站点本地 keywords.json；keywords.txt 仅作旧格式兜底。"""
+    data = load_json(os.path.join(CONFIG, "keywords.json"), {})
+    rows = (data.get("picked") or []) + (data.get("cores") or [])
     items = []
-    with open(os.path.join(CONFIG, "keywords.txt"), "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            if "|" in line:
-                kw, note = line.split("|", 1)
-                items.append({"keyword": kw.strip(), "note": note.strip()})
-            else:
-                items.append({"keyword": line, "note": ""})
+    for row in rows:
+        if isinstance(row, str):
+            items.append({"keyword": row.strip(), "note": ""})
+        elif isinstance(row, dict) and row.get("keyword"):
+            items.append({"keyword": row["keyword"].strip(),
+                          "note": str(row.get("note", "")).strip()})
+    if items:
+        return items
+    for line in load_text(os.path.join(CONFIG, "keywords.txt"), "").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "|" in line:
+            kw, note = line.split("|", 1)
+            items.append({"keyword": kw.strip(), "note": note.strip()})
+        else:
+            items.append({"keyword": line, "note": ""})
     return items
 
 
@@ -138,7 +148,7 @@ def load_names(active_only=True):
 
 
 def load_runtime_config():
-    """读取 fetch_config.py 落盘的运行配置（模块组合 / 请求策略 / 合并内容契约）"""
+    """读取本站 build_runtime.py 落盘的运行配置（模块组合 / 请求策略 / 合并内容契约）"""
     cfg = load_json(GENERATED, {})
     return {
         "site_id": cfg.get("site_id", os.environ.get("SITE_ID", "kaka")),

@@ -1,19 +1,19 @@
 name: rebuild-site
 
-# 你本地改了 md / 配置 / 样式并 push，自动重建整站
+# 本地改了配置 / 内容 / 样式并 push，自动重建整站。
 on:
   push:
     branches: [main, master]
     paths:
+      - 'config/**'
       - 'docs/posts/**'
       - 'docs/**/*.md'
       - 'docs/style.css'
+      - 'scripts/build_runtime.py'
       - 'scripts/blogsite.py'
       - 'scripts/compositor.py'
       - 'scripts/navsite.py'
       - 'scripts/resourcesite.py'
-      # 注意：config/** 由 fetch_config.py 在 daily 工作流里写入，
-      # 故意不加入触发路径，避免“拉取配置 → 提交通知 → 重建 → 提交”循环
   workflow_dispatch:
 
 permissions:
@@ -34,6 +34,9 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: 重建本地运行配置
+        run: python scripts/build_runtime.py
+
       - name: 重建整站
         env:
           SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
@@ -43,7 +46,7 @@ jobs:
         run: |
           git config user.name  "rebuild-bot"
           git config user.email "rebuild-bot@users.noreply.github.com"
-          git add docs
+          git add docs config/generated.json config/writing.json config/keywords.txt
           if git diff --cached --quiet; then
             echo "页面无变化，跳过提交"
           else

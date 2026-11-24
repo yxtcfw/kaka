@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'auto=拉取配置并写作 / probe=只测采集源 / rebuild=只重建整站'
+        description: 'auto=生成本站配置并写作 / probe=只测采集源 / rebuild=只重建整站'
         required: false
         default: 'auto'
         type: choice
@@ -20,8 +20,6 @@ on:
         description: '留空即用全部免费模型轮换'
         required: false
         type: string
-  repository_dispatch:
-    types: [site-config-updated]
 
 permissions:
   contents: write
@@ -41,25 +39,10 @@ jobs:
         with:
           python-version: '3.12'
 
-      # 只处理发给自己的 dispatch 事件
-      - name: 检查 dispatch 目标
-        id: dispatch_check
-        env:
-          EVENT_SITE: ${{ github.event.client_payload.site_id }}
-        run: |
-          if [ -n "$EVENT_SITE" ] && [ "$EVENT_SITE" != "kaka" ]; then
-            echo "事件属于 $EVENT_SITE，跳过本站"
-            echo "matched=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "matched=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: 拉取主站配置
-        id: fetch
-        if: ${{ steps.dispatch_check.outputs.matched != 'false' && (github.event_name == 'repository_dispatch' || github.event.inputs.mode == 'auto' || github.event.inputs.mode == '' || github.event.inputs.mode == 'probe') }}
-        env:
-          SITE_ID: kaka
-        run: python scripts/fetch_config.py
+      # 站点自包含：只读本站 config/，不再从主站拉取配置。
+      - name: 生成本站运行配置
+        id: runtime
+        run: python scripts/build_runtime.py
 
       - name: 采集源自检
         if: ${{ github.event.inputs.mode == 'probe' }}
@@ -71,7 +54,7 @@ jobs:
 
       - name: 选题 + 写作 + 建站（单次 AI 请求）
         id: gen
-        if: ${{ steps.dispatch_check.outputs.matched != 'false' && steps.fetch.outcome == 'success' && (github.event_name == 'repository_dispatch' || github.event.inputs.mode == 'auto' || github.event.inputs.mode == '') }}
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.mode == 'auto' || github.event.inputs.mode == '' }}
         continue-on-error: true
         env:
           # 集中式写作网关：Key 只在主站，本站只持有 dispatch/读回写的 token
@@ -97,13 +80,12 @@ jobs:
         run: python scripts/generate.py
 
       - name: 提交并推送
-        if: ${{ steps.dispatch_check.outputs.matched != 'false' && (steps.gen.outcome == 'success' || github.event.inputs.mode == 'rebuild') }}
+        if: ${{ steps.gen.outcome == 'success' || github.event.inputs.mode == 'rebuild' }}
         run: |
           git config user.name  "daily-bot"
           git config user.email "daily-bot@users.noreply.github.com"
-          # 只提交站点产物和运行状态；config/ 下的其余文件都是 fetch 从主站物化出的
-          # 临时工作副本，每次运行都会重新生成，不再提交进仓库，避免误当成配置源。
-          git add docs config/generated.json
+          # 配置源与生成本地运行配置都需要提交，保证仓库自包含。
+          git add docs config/generated.json config/writing.json config/keywords.txt
           if git diff --cached --quiet; then
             echo "没有新内容，跳过提交"
           else
@@ -112,12 +94,12 @@ jobs:
           fi
 
       - name: 回写状态到主站
-        if: ${{ always() && steps.dispatch_check.outputs.matched != 'false' && github.event_name != 'pull_request' }}
+        if: ${{ always() && github.event_name != 'pull_request' }}
         env:
           # 账号级 Classic PAT（repo 权限）统一跨仓使用；旧 MAIN_STATUS_TOKEN 保留兼容。
           MAIN_STATUS_TOKEN: ${{ secrets.ACCOUNT_TOKEN || secrets.MAIN_STATUS_TOKEN }}
           SITE_ID: kaka
-          RUN_RESULT: ${{ (steps.fetch.outcome == 'failure' || steps.gen.outcome == 'failure') && 'failed' || 'success' }}
+          RUN_RESULT: ${{ (steps.runtime.outcome == 'failure' || steps.gen.outcome == 'failure') && 'failed' || 'success' }}
           ERROR_MESSAGE: ${{ steps.gen.outputs.error || '' }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
@@ -131,7 +113,7 @@ jobs:
           python scripts/writeback_status.py
 
       - name: 推送结果到企业微信
-        if: ${{ always() && steps.dispatch_check.outputs.matched != 'false' && (github.event.inputs.mode == 'auto' || github.event.inputs.mode == '' || github.event_name == 'schedule' || github.event_name == 'repository_dispatch') }}
+        if: ${{ always() && (github.event.inputs.mode == 'auto' || github.event.inputs.mode == '' || github.event_name == 'schedule') }}
         env:
           WECOM_WEBHOOK: ${{ secrets.WECOM_WEBHOOK }}
           STATUS: ${{ steps.gen.outcome }}

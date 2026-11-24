@@ -1,7 +1,6 @@
 {
   "site_id": "kaka",
-  "fetched_at": "2026-11-24T05:04:38Z",
-  "config_sha256": "c64953ca06d75c3977f91416bd7d644cdd0be3943c90da6d01aa473da28ebbb1",
+  "config_sha256": "2dcf0f46de2f2349d61d49e6b8701793f7b03d24541591db9b0175d636cd227b",
   "composition": {
     "modules": [
       "blog",
@@ -37,10 +36,9 @@
     }
   },
   "module_sha256": {
-    "modules/blog.json": "2df833527d24d2c8cd1b0598040c9fc0c3b074a91aa4459d1408449006240a73",
-    "modules/comments.json": "e254a576aea5493b1b1d0011cf457017adc2e15019a270c3b1bd57b8b7c36da4",
-    "modules/nav.json": "f01d611a0c131f2f937bab2e5a5fbc2b54037ec9ada9e7fc9e4a5fda228511df",
-    "modules/resource.json": "9066f4b222345030faca3d3467beec8f58fad4d91619672b3299c77369b5a4ad"
+    "modules/blog.json": "67238c9e93611b07aa108d68b608074e47152251b8bcbc503297e47ca43560e5",
+    "modules/nav.json": "9a04990632411991ec2017eb0b283df21d78a554b37bb007f482c95db697405a",
+    "modules/resource.json": "bee537f4500379904e031ad33746e5c86b79953e9a9cc7854be2acf27657126c"
   },
   "renderer": "compositor.py",
   "content": {
@@ -104,5 +102,6 @@
     "content_requirements": "每条建议必须说明适用的运营商/地区或套餐前提，不能把个别卡的描述当成全国通用结论。"
   },
   "keyword_anchor": true,
-  "ads_per_page": 2
+  "ads_per_page": 2,
+  "template": "default"
 }

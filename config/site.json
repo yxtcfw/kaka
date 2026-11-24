@@ -1,11 +1,56 @@
 {
+  "schema_version": "2.1.0",
+  "id": "kaka",
   "name": "卡卡流量卡",
   "tagline": "专注于流量卡的长篇帖子。",
   "description": "专注于流量卡的长篇帖子，解决流量卡相关的所有问题。",
   "author": "卡卡",
   "footer": "由 GitHub Actions 每天自动生成",
   "lang": "zh-CN",
+  "base_path": "/kaka/",
   "base_url": "https://yxtcfw.cn/kaka/",
+  "main_url": "https://yxtcfw.cn",
   "notice": "内容由 GitHub Actions 每日自动更新，仅供参考，办理请以运营商官方信息为准。",
-  "main_url": "https://yxtcfw.cn"
+  "template": "default",
+  "composition": {
+    "modules": ["blog", "resource", "nav"],
+    "order": ["blog", "resource", "nav"],
+    "render": "both",
+    "module_options": {
+      "blog": { "show_summary": true, "quotes_max": 3 },
+      "resource": { "max": 6, "verify_url": true },
+      "nav": { "max": 12, "verify_url": true },
+      "comments": { "count": [2, 3], "persona_source": "sign" }
+    }
+  },
+  "ai": {
+    "max_calls_per_run": 1,
+    "writing": {
+      "lead_mode": "none",
+      "fixed_lead": "",
+      "lead_words": [300, 600],
+      "unit_count": [70, 100],
+      "unit_words": [40, 120],
+      "content_requirements": "每条建议必须说明适用的运营商/地区或套餐前提，不能把个别卡的描述当成全国通用结论。"
+    },
+    "request_policy": {
+      "max_calls_per_run": 1,
+      "terms_mode": "script",
+      "fallback_no_extra_call": true
+    },
+    "keyword_anchor": true
+  },
+  "shared": {
+    "names": "names.json",
+    "ads": "ads.json",
+    "ads_per_page": 2,
+    "use_names": true,
+    "use_ads": true
+  },
+  "gateway": {
+    "mode": "central_actions",
+    "repo": "yxtcfw/yxtcfw.github.io",
+    "dispatch_event": "writing_request",
+    "poll_timeout_seconds": 600
+  }
 }

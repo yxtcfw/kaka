@@ -1,39 +1,36 @@
 # config/ 说明
 
-本目录下的所有文件都是**运行时从主站配置物化生成的临时工作副本**，不是配置源，请勿手动编辑或提交。
+v3 起本目录就是**本站配置的唯一事实来源**，全部文件都随站点仓库提交、由本站前端或本地服务修改后推送；主站不再下发配置，本仓库也不再拉取主站配置。
 
-## 事实来源
+## 配置源
 
-配置的唯一事实来源是主站仓库 `yxtcfw/yxtcfw.github.io` 的 `config/sites/kaka.json`，
-发布到 `docs/config/` 后由本仓库 `.github/workflows/daily.yml` 中的
-`python scripts/fetch_config.py` 拉取并物化到本目录。
-
-## 生成的文件
-
-| 文件 | 来源（主站站点配置的字段） |
+| 文件 | 用途 |
 |---|---|
-| `site.json` | `site` |
-| `sources.json` | `sources` / `window_hours` / `search` |
-| `writing.json` | `ai.writing` |
-| `keywords.txt` | `keywords.cores` + `keywords.picked` |
-| `persona.md` | `ai.persona` |
-| `editorial.md` | `ai.editorial` |
-| `prompts/write.md` | `ai.prompts.write` |
-| `prompts/terms.md` | `ai.prompts.terms` |
-| `prompts/question.md` | `ai.prompts.question` |
-| `names.json` / `ads.json` | 主站 `global/names.json`、`global/ads.json` |
-| `theme.json` | 主站 `themes/<theme>.json` |
-| `generated.json` | 本次拉取的元信息（site_id / 时间 / sha256），会提交回仓库作留痕 |
+| `site.json` | 基础信息、`composition` 模块组合、`template`、`ai`、`shared`、`gateway` |
+| `keywords.json` | 关键词，`picked` 为冻结选题锚 |
+| `sources.json` | 信源清单与分级字段 |
+| `tree.json` | 内容树（选题层级 / 三重闸 / 剪枝） |
+| `names.json` | 本站启用的虚拟人 |
+| `ads.json` | 本站广告 |
+| `modules/*.json` | 模块契约（blog / nav / resource / comments） |
+| `persona.md` / `editorial.md` / `prompts/*.md` | 本站写作提示词 |
 
-其中 `ai.persona` / `ai.editorial` / `ai.prompts` 是原仓库里 5 个手写 md 的内容，
-现已收进主站 JSON，可在主站工作台「提示词配置 → 高级」里编辑。
+## 本地生成物
+
+`python scripts/build_runtime.py` 只读取上述本地文件，校验后生成：
+
+- `generated.json`：运行时配置（模块组合、合并内容契约、请求策略、配置指纹）
+- `writing.json`：从 `site.json.ai.writing` 物化，兼容现有 `generate.py`
+- `keywords.txt`：从 `keywords.json` 物化，兼容旧读取路径
+
+构建失败直接退出，不使用旧配置兜底。日常无需手动改这三个生成物。
 
 ## 本地调试
 
 ```bash
-MAIN_CONFIG_BASE=https://raw.githubusercontent.com/yxtcfw/yxtcfw.github.io/master/docs/config \
-  python scripts/fetch_config.py
+python scripts/build_runtime.py
 python scripts/generate.py --probe
+python scripts/generate.py --rebuild
 ```
 
-任何一步配置拉取失败都会直接退出，不会用本目录的旧文件兜底。
+站点 Workflow 中 `daily.yml` 与 `build.yml` 都会先跑 `build_runtime.py`，再写作或重建。
