@@ -3,7 +3,7 @@
 """
 从主站拉取站群配置，校验后 materialize 到本仓库 config/。
 
-流程：manifest → 站点配置 → 主题配置 → 全局 names/ads → 校验 → 落盘。
+流程：manifest → 站点配置 → 模块契约（按 composition.modules 拉取并合并）→ 全局 names/ads → 校验 → 落盘。
 任何一步失败都直接退出，绝不使用本地旧配置兜底。
 
 环境变量：
@@ -62,7 +62,7 @@ def write_json(name, data):
     log("写入 config/%s" % name)
 
 
-def validate(cfg, theme, names, ads, digests):
+def validate(cfg, modules, names, ads, digests):
     if cfg.get("schema_version") != "1.0.0":
         die("站点配置 schema_version 不匹配")
 
@@ -123,26 +123,25 @@ def validate(cfg, theme, names, ads, digests):
         if expected and digests.get("_ads") and expected != digests["_ads"]:
             die("ads.json sha256 不匹配")
 
-    # 主题契约校验：content 缺失按旧版 forum 行为降级（不中断），只提示补齐
-    theme_name = theme.get("theme") or "?"
-    content = theme.get("content") or {}
-    required = ("system_role", "structure_block", "format_block", "output_fields")
-    missing = [k for k in required if not content.get(k)]
-    if missing:
-        log("警告：主题 <%s> 的 content 契约缺字段 %s，将用内置 forum 兜底" %
-            (theme_name, ",".join(missing)))
-    renderer = theme.get("renderer") or ""
-    if renderer and renderer != "blogsite.py":
-        renderer_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), renderer)
-        if not os.path.isfile(renderer_path):
-            log("警告：主题 <%s> 声明的渲染器 %s 不存在，将回退到 blogsite.py" %
-                (theme_name, renderer))
+    # 模块契约校验：composition.modules 必须非空，且每个模块契约要有 system_role
+    comp = cfg.get("composition") or {}
+    mod_ids = comp.get("modules") or []
+    if not mod_ids:
+        die("站点配置缺少 composition.modules")
+    if "blog" not in mod_ids:
+        die("composition.modules 必须包含 blog（正文模块是合集枢纽）")
+    for mid in mod_ids:
+        mdoc = modules.get(mid)
+        if not mdoc:
+            die("模块 <%s> 的契约未拉到" % mid)
+        if not (mdoc.get("system_role") or "").strip():
+            die("模块 <%s> 契约缺 system_role" % mid)
 
-    log("校验通过：%d 个冻结关键词 / %d 条信源 / %d 个虚拟用户 / %d 条广告 / 主题 <%s>" %
-        (len(kw["picked"]), len(sources), len(nicks), len(ads_items), theme_name))
+    log("校验通过：%d 个冻结关键词 / %d 条信源 / %d 个虚拟用户 / %d 条广告 / 模块 <%s>" %
+        (len(kw["picked"]), len(sources), len(nicks), len(ads_items), ",".join(mod_ids)))
 
 
-def materialize(cfg, theme, names, ads, config_sha):
+def materialize(cfg, modules, module_meta, names, ads, config_sha):
     site = cfg.get("site") or {}
     # base_url 由主站站点配置给出（自定义域名后为 https://yxtcfw.cn/kaka/）。
     # 它决定 sitemap/feed 里的绝对链接；留空会退化成相对路径。
@@ -206,23 +205,46 @@ def materialize(cfg, theme, names, ads, config_sha):
 
     write_json("names.json", names)
     write_json("ads.json", ads)
-    write_json("theme.json", theme)
+
+    # 模块契约整份落盘（供 compositor / 调试读取）
+    for mid, doc in modules.items():
+        write_json("modules/%s.json" % mid, doc)
+
+    # 合并各模块契约 → 一次请求的 prompt。顺序跟随 composition.modules。
+    comp = cfg.get("composition") or {}
+    mod_ids = comp.get("modules") or []
+    merged = {
+        "system_role": "\n\n".join(
+            "[%s] %s" % (mid, modules[mid].get("system_role", ""))
+            for mid in mod_ids if modules.get(mid, {}).get("system_role")),
+        "structure_block": "\n\n".join(
+            modules[mid].get("structure_block", "")
+            for mid in mod_ids if modules.get(mid, {}).get("structure_block")),
+        "format_block": "\n\n".join(
+            modules[mid].get("format_block", "")
+            for mid in mod_ids if modules.get(mid, {}).get("format_block")),
+        "module_fields": {mid: modules[mid].get("fields", {}) for mid in mod_ids},
+    }
+    # 正文模块提供角色模型/风格默认（主笔策略仍由站点 writing 决定）
+    blog = modules.get("blog") or {}
+    merged["role_model"] = blog.get("role_model", "lead_support")
+    merged["persona_default"] = blog.get("persona_default", "")
+    merged["extra_rules_default"] = blog.get("extra_rules_default", "")
+    merged["keyword_policy"] = blog.get("keyword_policy") or {}
+    merged["editable"] = blog.get("editable") or {}
 
     runtime_cfg = {
         "site_id": SITE_ID,
         "fetched_at": datetime.datetime.now(datetime.timezone.utc)
                       .strftime("%Y-%m-%dT%H:%M:%SZ"),
         "config_sha256": config_sha,
-        "theme": theme.get("theme", ""),
-        "renderer": theme.get("renderer", ""),
-        "slots": theme.get("slots") or {},
-        # 内容契约：主题定义"产出什么结构"，生成脚本据此拼 prompt，零硬编码新增主题
-        "content": theme.get("content") or {},
+        "composition": comp,
+        "module_sha256": module_meta,
+        "renderer": "compositor.py",
+        "content": merged,
         "request_policy": ai.get("request_policy") or {},
-        # v0.8：写作配置（主笔/评论/主题约束）透传给 generate.py
         "writing": ai.get("writing") or {},
-        "keyword_anchor": bool((ai.get("constraints") or {}).get("keyword_anchor")),
-        # v0.9：广告条数属于站点设置，global/ads.json 只保留内容
+        "keyword_anchor": bool(merged["keyword_policy"].get("anchor")),
         "ads_per_page": (cfg.get("shared") or {}).get("ads_per_page", 0),
     }
     write_json("generated.json", runtime_cfg)
@@ -242,8 +264,23 @@ def main():
     if cfg_sha != mine.get("sha256"):
         die("站点配置 sha256 不匹配（期望 %s，实际 %s）" % (mine.get("sha256"), cfg_sha))
 
-    theme_rel = "themes/%s.json" % ((cfg.get("theme") or {}).get("id") or "forum")
-    theme, _ = fetch_json(theme_rel)
+    # 按 composition.modules 拉取模块契约，逐份校验 sha256
+    comp = cfg.get("composition") or {}
+    mod_ids = comp.get("modules") or []
+    if not mod_ids:
+        die("站点配置缺少 composition.modules")
+    mod_meta = {}
+    for entry in (manifest.get("modules") or []):
+        if entry.get("file"):
+            mod_meta[entry["file"]] = entry.get("sha256", "")
+    modules = {}
+    for mid in mod_ids:
+        rel = "modules/%s.json" % mid
+        doc, sha = fetch_json(rel)
+        expected = mod_meta.get(rel)
+        if expected and expected != sha:
+            die("模块 %s sha256 不匹配（期望 %s，实际 %s）" % (mid, expected, sha))
+        modules[mid] = doc
 
     shared = cfg.get("shared") or {}
     names_rel = shared.get("names") or "global/names.json"
@@ -257,10 +294,10 @@ def main():
     digests["_names"] = names_sha
     digests["_ads"] = ads_sha
 
-    validate(cfg, theme, names, ads, digests)
+    validate(cfg, modules, names, ads, digests)
 
-    materialize(cfg, theme, names, ads, cfg_sha)
-    log("完成：配置已就绪，可以开始生成")
+    materialize(cfg, modules, mod_meta, names, ads, cfg_sha)
+    log("完成：配置已就绪（%d 个模块），可以开始生成" % len(modules))
 
 
 if __name__ == "__main__":

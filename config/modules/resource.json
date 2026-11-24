@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "module": "resource",
+  "label": "资源下载",
+  "consumes": [
+    "links.resources",
+    "comments.resource"
+  ],
+  "system_role": "你在写资源下载模块：从信源素材里挑出真实存在的可下载资源，做成资源条目。只按结构化 JSON 输出。",
+  "structure_block": "【资源下载模块的结构（必须遵守）】\n1. **资源条目 links.resources**：逐条列出，每条含 name（资源名）、url（真实下载/落地链接）、desc（一句话简介）、detail（2~4 句完整详情：适合谁用、核心优点、一个明确的缺点或限制）。\n   - 只写素材里真实出现的资源，url 必须是素材里的真实地址，不确定就不填 url\n   - 宁可少列几条，也不要凑数或编造评分\n2. **资源专属评论 comments.resource**：2~3 条虚拟人物短评，对这批资源做简短点评（谁适合用、坑在哪），用「## @昵称 · 时间」署名，nick 只能用名单里的人。",
+  "format_block": "【资源写法】\n- 简短克制，先说资源是什么、适合谁，再给一个明确的缺点。\n- url 必须是素材中真实出现的完整地址；拿不准就留空字符串，不要拼凑。\n- 这些条目只写进 links.resources 字段，不要混进正文 content_md。",
+  "fields": {
+    "resources": "资源数组，每项 {name, url, desc, detail}",
+    "comments_resource": "资源专属评论数组，每项 {nick, text}"
+  },
+  "persona_default": "写作风格：\n\n- 简短克制，先说资源是什么、适合谁，再给一个明确的缺点\n- 不堆形容词，不写\"强烈推荐\"这类营销话术\n- 只收信源里真实出现的资源，不确定的不收",
+  "extra_rules_default": "如果某个点在网上随便一搜就有，就别写；读者是来找你这句话的，不是来找百科的。",
+  "role_model": "item_list",
+  "required_fields": [
+    "资源名称",
+    "链接",
+    "简介",
+    "缺点"
+  ],
+  "keyword_policy": {
+    "anchor": true,
+    "scope": "same_article",
+    "term_source": "picked_only",
+    "hint": "资源条目必须围绕本篇需求及其关键词，不得推荐无关资源。"
+  },
+  "editable": {
+    "unit_count": true,
+    "unit_words": true,
+    "content_requirements": true,
+    "persona": true,
+    "extra_rules": true
+  }
+}

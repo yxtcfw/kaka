@@ -9,6 +9,7 @@ on:
       - 'docs/**/*.md'
       - 'docs/style.css'
       - 'scripts/blogsite.py'
+      - 'scripts/compositor.py'
       - 'scripts/navsite.py'
       - 'scripts/resourcesite.py'
       # 注意：config/** 由 fetch_config.py 在 daily 工作流里写入，

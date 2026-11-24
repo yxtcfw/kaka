@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "module": "nav",
+  "label": "站点导航",
+  "consumes": [
+    "links.sites",
+    "comments.site"
+  ],
+  "system_role": "你在写站点导航模块：从信源素材里挑出真实存在的站点，做成导航条目。只按结构化 JSON 输出。",
+  "structure_block": "【站点导航模块的结构（必须遵守）】\n1. **站点条目 links.sites**：逐条列出，每条含 name（站点名）、url（真实链接）、desc（一句话说明解决什么问题）、detail（2~4 句完整点评：适用场景、核心取舍、使用限制）。\n   - 只写素材里真实出现的站点，url 必须是素材里的真实地址，不确定就不填 url\n   - 宁可少列几条，也不要凑数或编造\n2. **站点专属评论 comments.site**：2~3 条虚拟人物短评，对这批站点做简短点评（哪个适合谁、哪里要留意），用「## @昵称 · 时间」署名，nick 只能用名单里的人。",
+  "format_block": "【导航写法】\n- 简短克制，只说这个站点解决什么问题，不堆形容词，不写营销话术。\n- url 必须是素材中真实出现的完整地址；拿不准就留空字符串，不要拼凑。\n- 这些条目只写进 links.sites 字段，不要混进正文 content_md。",
+  "fields": {
+    "sites": "站点数组，每项 {name, url, desc, detail}",
+    "comments_site": "站点专属评论数组，每项 {nick, text}"
+  },
+  "persona_default": "写作风格：\n\n- 简短克制，先说这个站点解决什么问题，再给一个明确的适用边界\n- 不堆形容词，不写\"强烈推荐\"这类营销话术\n- 只收信源里真实出现的站点，不确定的不收",
+  "extra_rules_default": "如果某个点在网上随便一搜就有，就别写；读者是来找你这句话的，不是来找百科的。",
+  "role_model": "item_list",
+  "required_fields": [
+    "站点名称",
+    "链接",
+    "简述"
+  ],
+  "keyword_policy": {
+    "anchor": true,
+    "scope": "same_article",
+    "term_source": "picked_only",
+    "hint": "导航站点必须围绕本篇需求及其关键词，不得收录无关站点。"
+  },
+  "editable": {
+    "unit_count": true,
+    "unit_words": true,
+    "content_requirements": true,
+    "persona": true,
+    "extra_rules": true
+  }
+}

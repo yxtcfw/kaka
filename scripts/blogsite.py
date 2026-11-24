@@ -1221,13 +1221,10 @@ def load_renderer(name):
 
 
 def build_dispatch(site, docs_dir, base_url, runtime=None):
-    """按主题契约分派渲染器；未声明/模块缺失/调用失败都回退到内置论坛渲染器"""
+    """按 renderer 分派。默认 compositor.py（多模块合集）；无兼容兜底，失败直接抛出。"""
     runtime = runtime or {}
-    renderer = runtime.get("renderer") or ""
+    renderer = runtime.get("renderer") or "compositor.py"
     build_fn = load_renderer(renderer)
-    if build_fn:
-        try:
-            return build_fn(site, docs_dir, base_url, runtime)
-        except Exception as e:
-            print("[blogsite] 渲染器 %s 执行失败，回退内置：%s" % (renderer, e), flush=True)
-    return build(site, docs_dir, base_url)
+    if not build_fn:
+        raise RuntimeError("渲染器 %s 加载失败，无法建站" % renderer)
+    return build_fn(site, docs_dir, base_url, runtime)

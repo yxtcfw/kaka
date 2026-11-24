@@ -138,46 +138,39 @@ def load_names(active_only=True):
 
 
 def load_runtime_config():
-    """读取 fetch_config.py 落盘的运行配置（主题 slots / 请求策略 / 内容契约）"""
+    """读取 fetch_config.py 落盘的运行配置（模块组合 / 请求策略 / 合并内容契约）"""
     cfg = load_json(GENERATED, {})
     return {
         "site_id": cfg.get("site_id", os.environ.get("SITE_ID", "kaka")),
-        "slots": cfg.get("slots") or {},
+        "composition": cfg.get("composition") or {},
+        "module_sha256": cfg.get("module_sha256") or {},
+        "renderer": cfg.get("renderer") or "compositor.py",
         "request_policy": cfg.get("request_policy") or {},
         "keyword_anchor": bool(cfg.get("keyword_anchor")),
-        "theme": cfg.get("theme") or "",
         "content": cfg.get("content") or {},
     }
 
 
-# 主题内容契约的兜底值（= forum 行为）。新主题由主站 themes/<id>.json 的 content 段驱动，
-# 字段缺失时回退到这里，保证旧配置/未下发契约的分站行为不变。
+# 模块内容契约的兜底值。主站 modules/*.json 合并后的 content 会整体覆盖这里。
+# 测试项目无兼容负担，这里只作为契约字段缺失时的最小占位。
 DEFAULT_CONTENT = {
-    "unit": "floor",
-    "unit_label": "楼层",
-    "first_unit": "1 楼",
-    "page_desc": "连载帖子的新一页",
-    "system_role": "你在维护一个论坛式连载帖，每天更新一页。\n这一页由「1 楼提出问题 + 若干楼层讨论」组成，只输出 JSON。",
-    "virtual_user_hint": "【身份】名单里的人以跟帖楼层用户身份出现，不要写成评论区。",
-    "structure_block": (
-        "【这一页的结构（必须遵守）】\n"
-        "1. **1 楼**：把上面那个问题原样摆出来，可以补一两句具体背景。\n"
-        "2. **2 楼到倒数第 3 楼**：围绕问题讨论、问答、辩论，答案一点点拼出来。\n"
-        "3. **最后 2~3 楼**：把讨论收束到位，给出结论或仍有争议的点。"
-        "不要抛出新问题，也不要留「下一页继续」之类的钩子。"
-    ),
-    "format_block": (
-        "【楼层写法】\n"
-        "- 楼层标题格式：## @昵称 · 时间\n"
-        "- 昵称只能用名单里的，不要自己编。\n"
-        "- 不要输出一级标题，标题放 JSON 的 title 字段。"
-    ),
+    "page_desc": "新的一篇内容",
+    "system_role": "你在写一篇围绕本篇问题展开的内容。只输出 JSON。",
+    "virtual_user_hint": "【身份】名单里的人以评论区网友身份出现。",
+    "structure_block": "",
+    "format_block": "",
+    "role_model": "lead_support",
+    "persona_default": "",
+    "extra_rules_default": "",
+    "keyword_policy": {},
+    "editable": {},
+    "module_fields": {},
     "output_fields": {
         "title": "页面标题，20字以内",
-        "question": "1 楼要讨论的问题（一句话）",
+        "question": "这篇讨论的问题（一句话）",
         "author": "主笔昵称；无主笔时输出空字符串",
         "tags": "3~5 个标签词组成的字符串数组",
-        "content_md": "1 楼内容 + 楼层，不含一级标题",
+        "content_md": "正文全文，不含一级标题",
     },
 }
 
@@ -423,27 +416,26 @@ def identity_hint(runtime_cfg):
 
 PROMPT_DIR = os.path.join(CONFIG, "prompts")
 
-# 通用骨架：主题相关段落全部走 {{占位符}}，由 themes/<id>.json 的 content 段填充。
-# 变量名刻意保持与旧模板一致（today/seed/material/recent/mw/fc_min/.../names/identity_hint/extra），
-# 外加结构类占位符，保证旧站点配置和旧缓存 prompt 也能平滑过渡。
+# 通用骨架：正文/站点/资源/评论各模块的结构由 modules/*.json 合并后注入 {{structure_block}}。
+# 一次请求产出全部字段，脚本按字段分发给各模块，不再有第二次请求。
 DEFAULT_WRITE_PROMPT = """今天是 {{today}}。这是{{page_desc}}。
 
 {{seed}}
 
 {{anchor}}
 
-【可用的信源素材】（只能引用这里的事实）
+【可用的信源素材】（只能引用这里的事实，站点与资源的 url 只能从这里取）
 {{material}}
 
 【最近写过的页】
 {{recent}}
 
-【篇幅】{{first_unit}} {{mw}} 字以内，{{fc_min}}~{{fc_max}} 个{{unit_label}}，每个{{unit_label}} {{fw_min}}~{{fw_max}} 字。
+【篇幅】正文 {{mw}} 字以内，{{fc_min}}~{{fc_max}} 组要点，每组 {{fw_min}}~{{fw_max}} 字。
 {{extra}}
 
 {{structure_block}}
 
-【出场的人】
+【出场的人】（nick 只能从这份名单里选）
 {{names}}
 
 {{role_block}}
@@ -454,12 +446,29 @@ DEFAULT_WRITE_PROMPT = """今天是 {{today}}。这是{{page_desc}}。
 
 {{format_block}}
 
-【输出 JSON】
-{"title": "{{f_title}}",
+【链接真实性（强制）】
+正文里提到的外部站点与下载资源，一律写进 links.sites / links.resources 字段，不要混进正文段落。
+每条的 url 必须是【可用的信源素材】里真实出现的完整地址；素材里没有的，url 留空字符串 ""，绝不拼凑或编造。
+
+【输出 JSON（严格按此结构，全部字段都要有）】
+{
+ "title": "{{f_title}}",
  "question": "{{f_question}}",
  "author": "{{f_author}}",
  "tags": {{f_tags}},
- "content_md": "{{f_content_md}}"}"""
+ "summary": "两三句简述，概括结论与适用边界",
+ "content_md": "{{f_content_md}}",
+ "quotes": ["正文里逐字出现的金句原句1", "金句原句2"],
+ "links": {
+   "sites": [{"name": "站点名", "url": "素材里的真实地址或空串", "desc": "一句话说明", "detail": "完整点评/适用场景/限制"}],
+   "resources": [{"name": "资源名", "url": "素材里的真实地址或空串", "desc": "一句话简介", "detail": "详情/适合谁/一个明确缺点"}]
+ },
+ "comments": {
+   "body": [{"nick": "名单里的昵称", "text": "正文专属短评，## @昵称 署名那种文字内容，不要带 ## 前缀"}],
+   "site": [{"nick": "名单里的昵称", "text": "站点专属短评文字"}],
+   "resource": [{"nick": "名单里的昵称", "text": "资源专属短评文字"}]
+ }
+}"""
 
 DEFAULT_TERMS_PROMPT = """从这句问题里抽出 3~5 个搜索关键词，实体词优先。
 问题：「{{question}}」
@@ -999,6 +1008,114 @@ def next_page_no(posts_dir):
     return (max(nums) + 1) if nums else 1
 
 
+# ---------------------------------------------------------------- 结构化产物解析
+
+URL_IN_MATERIAL = re.compile(r"https?://[^\s<>\"'）)】]+")
+
+
+def _clean_item(raw, fields=("name", "url", "desc", "detail")):
+    """把模型给的一条站点/资源字典规整成统一结构，url 非法则清空。"""
+    if not isinstance(raw, dict):
+        return None
+    name = str(raw.get("name") or raw.get("title") or "").strip()
+    if not name:
+        return None
+    url = str(raw.get("url") or "").strip()
+    if url and not re.match(r"^https?://", url):
+        url = ""   # 非 http(s) 一律不给链接
+    return {
+        "name": name,
+        "url": url,
+        "desc": str(raw.get("desc") or raw.get("summary") or "").strip(),
+        "detail": str(raw.get("detail") or raw.get("desc") or "").strip(),
+    }
+
+
+def parse_structured(data, content_md, material_block, names, keywords, max_links=6):
+    """解析 AI 的 9 字段输出，做链接真实性校验与字段兜底，返回可落盘的结构化 dict。
+
+    护栏：
+    - links 里 url 必须出现在信源素材里（命中才保留，否则清空为 ""，只留名称文字）
+    - quotes 必须是正文里逐字出现的句子（不命中则丢弃）
+    - comments 的 nick 必须在名单里，且 text 去掉模型可能误带的 ## 前缀
+    """
+    sites = []
+    resources = []
+    links = data.get("links") or {}
+    if isinstance(links, dict):
+        material_urls = set(URL_IN_MATERIAL.findall(material_block or ""))
+        for raw in (links.get("sites") or [])[:max_links]:
+            it = _clean_item(raw)
+            if not it:
+                continue
+            if it["url"] and material_urls and it["url"] not in material_urls:
+                # 精确命中失败再做一次"去尾斜杠/查询串"的宽松匹配
+                base = it["url"].rstrip("/").split("?")[0]
+                if not any(base == u.rstrip("/").split("?")[0] for u in material_urls):
+                    it["url"] = ""   # 防失真：素材里没有就不给链接
+            sites.append(it)
+        for raw in (links.get("resources") or [])[:max_links]:
+            it = _clean_item(raw)
+            if not it:
+                continue
+            if it["url"] and material_urls and it["url"] not in material_urls:
+                base = it["url"].rstrip("/").split("?")[0]
+                if not any(base == u.rstrip("/").split("?")[0] for u in material_urls):
+                    it["url"] = ""
+            resources.append(it)
+
+    quotes = []
+    for q in (data.get("quotes") or []):
+        q = str(q).strip().strip("\"“”")
+        if q and q in content_md and q not in quotes:
+            quotes.append(q)
+
+    valid_nicks = {r.get("nick") for r in names if r.get("nick")}
+    comments = {}
+    raw_comments = data.get("comments") or {}
+    if isinstance(raw_comments, dict):
+        for key in ("body", "site", "resource"):
+            arr = []
+            for c in (raw_comments.get(key) or [])[:3]:
+                if not isinstance(c, dict):
+                    continue
+                nick = str(c.get("nick") or "").strip().lstrip("@")
+                text = re.sub(r"^\s*##\s*@?[^\s·]*[^\n]*\n?", "", str(c.get("text") or "")).strip()
+                if nick in valid_nicks and text:
+                    arr.append({"nick": nick, "text": text})
+            comments[key] = arr
+
+    tags = clean_tags(data.get("tags"), keywords)
+    return {
+        "summary": str(data.get("summary") or "").strip(),
+        "quotes": quotes,
+        "links": {"sites": sites, "resources": resources},
+        "comments": comments,
+        "tags": tags,
+    }
+
+
+def comments_to_md(comments):
+    """把三类专属评论渲染成署名段落，追加到 md 正文末尾，供 mine.py 挖题与阅读。
+    正文评论→正文区；站点/资源评论统一作为文末短评。"""
+    parts = []
+    body = comments.get("body") or []
+    site = comments.get("site") or []
+    resource = comments.get("resource") or []
+    if body:
+        parts.append("\n\n### 读者短评\n")
+        for c in body:
+            parts.append("\n## @%s · %s\n%s\n" % (
+                c["nick"], datetime.datetime.now(BJT).strftime("%Y-%m-%d %H:%M"), c["text"]))
+    extra = site + resource
+    if extra:
+        parts.append("\n\n### 站点与资源短评\n")
+        for c in extra:
+            parts.append("\n## @%s · %s\n%s\n" % (
+                c["nick"], datetime.datetime.now(BJT).strftime("%Y-%m-%d %H:%M"), c["text"]))
+    return "".join(parts)
+
+
 def step_write_page(site, persona, editorial, seed, material_block, history, models, writing,
                     runtime_cfg=None, keywords=None):
     contract = content_contract(runtime_cfg or {})
@@ -1250,7 +1367,7 @@ def main():
 
     content_md = (data.get("content_md") or data.get("content") or "").strip()
 
-    # 正文不许有一级标题：模型要是写了就剥掉，标题统一用 JSON 里的
+    # 标题不许出现在正文：剥掉模型可能写的一级标题，统一用 JSON 的 title
     title = (data.get("title") or "").strip()
     m = re.match(r"\A\s*#\s+(.+?)\s*\n", content_md)
     if m:
@@ -1265,22 +1382,34 @@ def main():
     if len(content_md) < min_words:
         sys.exit("产出太短（%d 字，阈值 %d），判定失败" % (len(content_md), min_words))
 
-    # v0.7：导航/资源主题的必填字段本地校验（纯字符串，无额外 AI 请求）
-    field_report = local_validate_fields(content_md, runtime_cfg)
+    # 结构化字段解析 + 链接真实性校验（站点/资源 url 必须来自信源素材）
+    names_rows = load_names(active_only=True)
+    comp = runtime_cfg.get("composition") or {}
+    opts = comp.get("module_options") or {}
+    max_links = 6
+    try:
+        max_links = max(1, int((opts.get("resource") or {}).get("max", 6)))
+    except Exception:
+        pass
+    structured = parse_structured(data, content_md, material_block, names_rows, keywords,
+                                  max_links=max_links)
+    log("结构化：简述 %d 字 / 金句 %d 条 / 站点 %d 条(有效链接 %d) / 资源 %d 条(有效链接 %d)" % (
+        len(structured["summary"]), len(structured["quotes"]),
+        len(structured["links"]["sites"]),
+        sum(1 for x in structured["links"]["sites"] if x["url"]),
+        len(structured["links"]["resources"]),
+        sum(1 for x in structured["links"]["resources"] if x["url"])))
 
-    # 落盘时把标题补回去，md 里保持 # 标题 + 正文
-    content_md = "# " + title + "\n\n" + content_md
+    # md 正文：# 标题 + 正文 + 三类专属评论的署名段落（供 mine 挖题与直接阅读）
+    md_body = "# " + title + "\n\n" + content_md + comments_to_md(structured["comments"])
 
-    # v0.11：话题来自历史评论，落盘不再写续问字段。question 记本篇实际话题（评论句或指定题）。
     question = (seed["text"] if seed.get("kind") in ("question", "comment")
                 else (data.get("question") or "")).strip()
     log("本篇话题：%s" % (question[:60] or "（模型自拟）"))
 
-    # v0.12：作者/标签属于内容，由脚本产出——作者取幂等分配的主笔（不让模型自创署名），
-    # 标签取模型在唯一一次请求里的产出，空则用冻结关键词兜底。展示位置交给主题 slots.header。
     roles_final = assign_roles(runtime_cfg, seed.get("text", ""), persona, writing)
     author = (roles_final.get("lead") or "").strip()
-    tags = clean_tags(data.get("tags"), keywords)
+    tags = structured["tags"]
     log("头部信息：作者=%s 标签=%s" % (author or "（无主笔）", "、".join(tags) or "（无）"))
 
     # ---- 4. 落盘
@@ -1303,7 +1432,27 @@ def main():
         "",
     ]
     with open(os.path.join(POSTS, slug + ".md"), "w", encoding="utf-8") as f:
-        f.write("\n".join(front) + content_md + "\n")
+        f.write("\n".join(front) + md_body + "\n")
+
+    # sidecar 结构化产物：compositor 读它渲染合集页/聚合页，md 仅作正文源与挖题源
+    sidecar = {
+        "slug": slug,
+        "page": no,
+        "date": date_str,
+        "title": title,
+        "question": question,
+        "author": author,
+        "tags": tags,
+        "summary": structured["summary"],
+        "content_md": content_md,
+        "quotes": structured["quotes"],
+        "links": structured["links"],
+        "comments": structured["comments"],
+        "model": used_model,
+        "words": len(content_md),
+    }
+    with open(os.path.join(POSTS, slug + ".data.json"), "w", encoding="utf-8") as f:
+        json.dump(sidecar, f, ensure_ascii=False, indent=2)
 
     meta = {
         "date": date_str,
@@ -1328,7 +1477,7 @@ def main():
     except Exception:
         pass
 
-    # ---- 5. 建站（按主题契约分派渲染器）
+    # ---- 5. 建站（compositor 按模块组合渲染合集页与聚合页）
     stat = sitebuilder.build_dispatch(site, DOCS, site["base_url"], runtime_cfg)
 
     u = resp.get("usage") or {}

@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "module": "blog",
+  "label": "正文",
+  "consumes": [
+    "content_md",
+    "summary",
+    "quotes",
+    "comments.body"
+  ],
+  "system_role": "你在写正文模块：一篇围绕本篇问题展开的长文。只按结构化 JSON 输出。",
+  "structure_block": "【正文模块的结构（必须遵守）】\n1. **简述 summary**：两三句话概括本篇结论与适用边界，独立成段。\n2. **正文 content_md**：把问题层层推进——先给结论，再补证据和权衡，最后交代边界。每段只讲一件事，段首就是判断句；尽量带具体做法、数字、亲历场景；主动写反例或代价。用 ## 小标题切分，不写一级标题。\n3. **金句 quotes**：从正文里挑 2~4 句最有信息量的原句，必须是正文里真实出现过的完整句子，逐字一致。\n4. **正文专属评论 comments.body**：2~3 条虚拟人物短评，围绕正文观点做补充、质疑或举例，用「## @昵称 · 时间」署名。",
+  "format_block": "【正文写法】\n- 语气口语化但不松散，像给同行写一封长信；先给判断，再补证据和权衡，最后交代边界。\n- 不写\"赋能\"\"抓手\"\"闭环\"这类词，也不用\"接下来我将\"。\n- 若正文提到具体外部站点或下载资源，不要写进正文段落，改写到 links 字段（见输出 JSON），正文里可用「见下方站点/资源」指代。\n- 不写开场白，第一句就进入正题；结尾自然收束，不留钩子。",
+  "fields": {
+    "summary": "两三句的简述，概括结论与边界",
+    "content_md": "正文全文，用 ## 小标题切分，不含一级标题",
+    "quotes": "2~4 句金句原句组成的字符串数组，必须逐字出自 content_md",
+    "comments_body": "正文专属评论数组，每项 {nick, text}，nick 只能用名单里的人"
+  },
+  "persona_default": "写作风格：\n\n- 口语化但不松散，像给同行写一封长信\n- 先给判断，再补证据和权衡，最后交代边界\n- 有观点，不端着；不确定的事直接说不确定\n- 不写\"赋能\"\"抓手\"\"闭环\"这类词，也不用\"接下来我将\"",
+  "extra_rules_default": "如果某个点在网上随便一搜就有，就别写；读者是来找你这句话的，不是来找百科的。",
+  "role_model": "lead_support",
+  "required_fields": [],
+  "keyword_policy": {
+    "anchor": true,
+    "scope": "same_article",
+    "term_source": "picked_only",
+    "hint": "正文与金句必须围绕本篇问题及其关键词展开，不得跳到无关话题。"
+  },
+  "editable": {
+    "lead_mode": true,
+    "fixed_lead": true,
+    "lead_words": true,
+    "content_requirements": true,
+    "persona": true,
+    "extra_rules": true
+  }
+}

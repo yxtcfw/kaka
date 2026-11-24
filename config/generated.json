@@ -1,58 +1,85 @@
 {
   "site_id": "kaka",
-  "fetched_at": "2026-11-23T09:35:37Z",
-  "config_sha256": "8f04a28fe3227e85f01c75f5baa0f28a3c8b190d20eff91bf59a3fbc3708fac0",
-  "theme": "forum",
-  "renderer": "blogsite.py",
-  "slots": {
-    "virtual_users": {
-      "position": "floor"
-    },
-    "ads": {
-      "position": "between_floors"
-    },
-    "header": {
-      "byline": true,
-      "tags": true
+  "fetched_at": "2026-11-24T05:04:38Z",
+  "config_sha256": "c64953ca06d75c3977f91416bd7d644cdd0be3943c90da6d01aa473da28ebbb1",
+  "composition": {
+    "modules": [
+      "blog",
+      "resource",
+      "nav"
+    ],
+    "order": [
+      "blog",
+      "resource",
+      "nav"
+    ],
+    "render": "both",
+    "module_options": {
+      "blog": {
+        "show_summary": true,
+        "quotes_max": 3
+      },
+      "resource": {
+        "max": 6,
+        "verify_url": true
+      },
+      "nav": {
+        "max": 12,
+        "verify_url": true
+      },
+      "comments": {
+        "count": [
+          2,
+          3
+        ],
+        "persona_source": "sign"
+      }
     }
   },
+  "module_sha256": {
+    "modules/blog.json": "2df833527d24d2c8cd1b0598040c9fc0c3b074a91aa4459d1408449006240a73",
+    "modules/comments.json": "e254a576aea5493b1b1d0011cf457017adc2e15019a270c3b1bd57b8b7c36da4",
+    "modules/nav.json": "f01d611a0c131f2f937bab2e5a5fbc2b54037ec9ada9e7fc9e4a5fda228511df",
+    "modules/resource.json": "9066f4b222345030faca3d3467beec8f58fad4d91619672b3299c77369b5a4ad"
+  },
+  "renderer": "compositor.py",
   "content": {
-    "unit": "floor",
-    "unit_label": "楼层",
-    "first_unit": "1 楼",
-    "system_role": "你在维护一个论坛式连载帖，每天更新一页。\n这一页由「1 楼提出问题 + 若干楼层讨论」组成，只输出 JSON。",
-    "virtual_user_hint": "【身份】名单里的人以跟帖楼层用户身份出现，不要写成评论区。",
-    "structure_block": "【这一页的结构（必须遵守）】\n1. **1 楼**：把上面那个问题原样摆出来，可以补一两句具体背景（谁遇到的、什么情况下）。\n   **不要在这一层展开答案。** 第一句就是问题本身，不要\"大家好\"\"今天聊聊\"这种开头。\n2. **2 楼到倒数第 3 楼**：围绕问题讨论、问答、辩论。\n   - 有人给具体做法（带代价、带前提）\n   - 有人反驳，或者说\"这招对我没用，因为……\"\n   - 有人追问细节\n   **答案在这些楼层里一点点拼出来，不要一次说完。**\n3. **最后 2~3 楼**：把讨论收束到位——给出可执行结论、仍有争议的点或还没验证的边界，就停在这里。**不要抛出新问题，也不要留「下一页继续」之类的钩子。**",
-    "format_block": "【楼层写法】\n- 楼层标题格式：## @昵称 · 时间\n- 昵称只能用上面名单里的，不要自己编，也不要写「楼主」「网友」。\n- 1 楼也要有昵称，从名单里选一个。\n- 同一个人可以在不同楼层重复出现（像真在跟帖）。\n\n【格式】\n- **不要输出一级标题（# ）**，标题放在 JSON 的 title 字段。\n- 1 楼格式：## @昵称 · 时间，下面紧跟问题本身，不要\"大家好\"这种开场。\n- 不写楼层号，页面上不显示第几楼。",
-    "output_fields": {
-      "title": "页面标题，20字以内",
-      "question": "1 楼要讨论的问题（一句话）",
-      "author": "主笔昵称，必须与【角色分工】里指定的主笔完全一致；没有主笔时输出空字符串",
-      "tags": "3~5 个标签词组成的字符串数组，围绕本篇主题，每条 6 字以内",
-      "content_md": "1 楼内容 + 楼层，不含一级标题"
+    "system_role": "[blog] 你在写正文模块：一篇围绕本篇问题展开的长文。只按结构化 JSON 输出。\n\n[resource] 你在写资源下载模块：从信源素材里挑出真实存在的可下载资源，做成资源条目。只按结构化 JSON 输出。\n\n[nav] 你在写站点导航模块：从信源素材里挑出真实存在的站点，做成导航条目。只按结构化 JSON 输出。",
+    "structure_block": "【正文模块的结构（必须遵守）】\n1. **简述 summary**：两三句话概括本篇结论与适用边界，独立成段。\n2. **正文 content_md**：把问题层层推进——先给结论，再补证据和权衡，最后交代边界。每段只讲一件事，段首就是判断句；尽量带具体做法、数字、亲历场景；主动写反例或代价。用 ## 小标题切分，不写一级标题。\n3. **金句 quotes**：从正文里挑 2~4 句最有信息量的原句，必须是正文里真实出现过的完整句子，逐字一致。\n4. **正文专属评论 comments.body**：2~3 条虚拟人物短评，围绕正文观点做补充、质疑或举例，用「## @昵称 · 时间」署名。\n\n【资源下载模块的结构（必须遵守）】\n1. **资源条目 links.resources**：逐条列出，每条含 name（资源名）、url（真实下载/落地链接）、desc（一句话简介）、detail（2~4 句完整详情：适合谁用、核心优点、一个明确的缺点或限制）。\n   - 只写素材里真实出现的资源，url 必须是素材里的真实地址，不确定就不填 url\n   - 宁可少列几条，也不要凑数或编造评分\n2. **资源专属评论 comments.resource**：2~3 条虚拟人物短评，对这批资源做简短点评（谁适合用、坑在哪），用「## @昵称 · 时间」署名，nick 只能用名单里的人。\n\n【站点导航模块的结构（必须遵守）】\n1. **站点条目 links.sites**：逐条列出，每条含 name（站点名）、url（真实链接）、desc（一句话说明解决什么问题）、detail（2~4 句完整点评：适用场景、核心取舍、使用限制）。\n   - 只写素材里真实出现的站点，url 必须是素材里的真实地址，不确定就不填 url\n   - 宁可少列几条，也不要凑数或编造\n2. **站点专属评论 comments.site**：2~3 条虚拟人物短评，对这批站点做简短点评（哪个适合谁、哪里要留意），用「## @昵称 · 时间」署名，nick 只能用名单里的人。",
+    "format_block": "【正文写法】\n- 语气口语化但不松散，像给同行写一封长信；先给判断，再补证据和权衡，最后交代边界。\n- 不写\"赋能\"\"抓手\"\"闭环\"这类词，也不用\"接下来我将\"。\n- 若正文提到具体外部站点或下载资源，不要写进正文段落，改写到 links 字段（见输出 JSON），正文里可用「见下方站点/资源」指代。\n- 不写开场白，第一句就进入正题；结尾自然收束，不留钩子。\n\n【资源写法】\n- 简短克制，先说资源是什么、适合谁，再给一个明确的缺点。\n- url 必须是素材中真实出现的完整地址；拿不准就留空字符串，不要拼凑。\n- 这些条目只写进 links.resources 字段，不要混进正文 content_md。\n\n【导航写法】\n- 简短克制，只说这个站点解决什么问题，不堆形容词，不写营销话术。\n- url 必须是素材中真实出现的完整地址；拿不准就留空字符串，不要拼凑。\n- 这些条目只写进 links.sites 字段，不要混进正文 content_md。",
+    "module_fields": {
+      "blog": {
+        "summary": "两三句的简述，概括结论与边界",
+        "content_md": "正文全文，用 ## 小标题切分，不含一级标题",
+        "quotes": "2~4 句金句原句组成的字符串数组，必须逐字出自 content_md",
+        "comments_body": "正文专属评论数组，每项 {nick, text}，nick 只能用名单里的人"
+      },
+      "resource": {
+        "resources": "资源数组，每项 {name, url, desc, detail}",
+        "comments_resource": "资源专属评论数组，每项 {nick, text}"
+      },
+      "nav": {
+        "sites": "站点数组，每项 {name, url, desc, detail}",
+        "comments_site": "站点专属评论数组，每项 {nick, text}"
+      }
     },
-    "page_desc": "连载帖子的新一页",
-    "skeleton": "今天是 {{today}}。这是{{page_desc}}。\n\n{{seed}}\n\n{{anchor}}\n\n【可用的信源素材】（只能引用这里的事实）\n{{material}}\n\n【最近写过的页】\n{{recent}}\n\n【篇幅】{{first_unit}} {{mw}} 字以内，{{fc_min}}~{{fc_max}} 个{{unit_label}}，每个{{unit_label}} {{fw_min}}~{{fw_max}} 字。\n{{extra}}\n\n{{structure_block}}\n\n【出场的人】\n{{names}}\n\n{{role_block}}\n\n{{identity_hint}}\n\n{{fields_check}}\n\n{{format_block}}\n\n【输出 JSON】\n{\"title\": \"{{f_title}}\",\n \"question\": \"{{f_question}}\",\n \"author\": \"{{f_author}}\",\n \"tags\": {{f_tags}},\n \"content_md\": \"{{f_content_md}}\"}",
-    "editable": {
-      "lead_mode": false,
-      "fixed_lead": false,
-      "lead_words": false,
-      "unit_count": true,
-      "unit_words": true,
-      "content_requirements": true,
-      "persona": true,
-      "extra_rules": true
-    },
+    "role_model": "lead_support",
+    "persona_default": "写作风格：\n\n- 口语化但不松散，像给同行写一封长信\n- 先给判断，再补证据和权衡，最后交代边界\n- 有观点，不端着；不确定的事直接说不确定\n- 不写\"赋能\"\"抓手\"\"闭环\"这类词，也不用\"接下来我将\"",
+    "extra_rules_default": "如果某个点在网上随便一搜就有，就别写；读者是来找你这句话的，不是来找百科的。",
     "keyword_policy": {
       "anchor": true,
       "scope": "same_article",
       "term_source": "picked_only",
-      "hint": "所有楼层与续问必须围绕本篇问题及其关键词衍生，不得另起话题。"
+      "hint": "正文与金句必须围绕本篇问题及其关键词展开，不得跳到无关话题。"
     },
-    "role_model": "peers",
-    "required_fields": [],
-    "persona_default": "写作风格：\n\n- 口语化，像跟人在论坛上聊天，短句多，允许有情绪和判断\n- 先给场景再给结论，不写\"首先其次最后\"那种作文结构\n- 有观点，不端着；不确定的事就说\"我猜\"\"没验证过\"\n- 不写\"赋能\"\"抓手\"\"闭环\"这类词，也不用\"接下来我将\"\n\n这一页有多个人在说话，每个人的语气可以略有不同，但都要像真人。",
-    "extra_rules_default": "如果某个点在网上随便一搜就有，就别写；读者是来找你这句话的，不是来找百科的。"
+    "editable": {
+      "lead_mode": true,
+      "fixed_lead": true,
+      "lead_words": true,
+      "content_requirements": true,
+      "persona": true,
+      "extra_rules": true
+    }
   },
   "request_policy": {
     "max_calls_per_run": 1,
@@ -76,6 +103,6 @@
     ],
     "content_requirements": "每条建议必须说明适用的运营商/地区或套餐前提，不能把个别卡的描述当成全国通用结论。"
   },
-  "keyword_anchor": false,
+  "keyword_anchor": true,
   "ads_per_page": 2
 }

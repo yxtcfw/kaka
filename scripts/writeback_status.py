@@ -66,11 +66,7 @@ def build_status():
         "result": result,
         "config_sha256": gen.get("config_sha256", ""),
         "global_sha256": {},
-        "theme": gen.get("theme", ""),
-        "slots_used": {
-            "virtual_users": (slots.get("virtual_users") or {}).get("position", ""),
-            "ads": (slots.get("ads") or {}).get("position", ""),
-        },
+        "composition": gen.get("composition") or {},
         "ai_calls": int(os.environ.get("AI_CALLS", "0") or 0),
         "pages": int(os.environ.get("PAGES", "0") or 0),
         "floors": int(os.environ.get("FLOORS", "0") or 0),

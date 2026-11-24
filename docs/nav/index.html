@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>站点导航 · 卡卡流量卡</title>
+<meta name="description" content="专注于流量卡的长篇帖子，解决流量卡相关的所有问题。">
+
+<link rel="stylesheet" href="../style.css">
+<script>(function(){var k='yx.theme',r=document.documentElement;
+function sys(){return window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+function saved(){try{var v=localStorage.getItem(k);return v==='dark'||v==='light'?v:null;}catch(e){return null;}}
+function apply(t){r.setAttribute('data-theme',t);var b=document.getElementById('btn-theme');if(b)b.textContent=t==='dark'?'☀':'◐';}
+apply(saved()||sys());
+document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('btn-theme');
+if(b)b.addEventListener('click',function(){var n=r.getAttribute('data-theme')==='dark'?'light':'dark';
+try{localStorage.setItem(k,n);}catch(e){}apply(n);});
+// 首屏在 <head> 执行时按钮还没渲染，这里补一次同步，修正暗色偏好下的图标/文案
+apply(saved()||sys());
+window.addEventListener('storage',function(e){if(e.key===k)apply(saved()||sys());});});})();</script>
+<link rel="alternate" type="application/rss+xml" title="卡卡流量卡" href="../feed.xml">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html">卡卡流量卡</a>
+  <span class="board">专注于流量卡的长篇帖子。</span>
+  <div class="topbar-tools">
+    <a class="home-ico" href="https://yxtcfw.cn" title="返回主站" aria-label="返回主站">主站 ↗</a>
+    <button class="theme-ico" id="btn-theme" type="button" aria-label="切换主题" title="切换主题">◐</button>
+    <a class="search-ico" href="../search.html" aria-label="搜索">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 L21 21"/></svg>
+    </a>
+  </div>
+</header>
+<aside class="site-notice">内容由 GitHub Actions 每日自动更新，仅供参考，办理请以运营商官方信息为准。</aside>
+<main class="wrap">
+<h1 class="page-title">站点导航索引</h1><p class="page-meta">按篇汇总，点条目进入合集页查看完整内容。</p><article class="agg-item"><h2><a href="001/index.html">流量卡办前先问清三件事</a></h2><p class="page-meta">运营商官方App、工信部备案查询</p></article>
+</main>
+<footer class="foot">
+  <p>卡卡流量卡<span class="dot">·</span>专注于流量卡的长篇帖子。</p>
+  <p class="small"><a href="../feed.xml">RSS</a> · <a href="../search.html">搜索</a> · 由 GitHub Actions 每天自动生成</p>
+  <p class="small">© 卡卡</p>
+</footer>
+</body>
+</html>
