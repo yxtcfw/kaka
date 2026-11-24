@@ -40,6 +40,9 @@ TIMEOUT = 8
 
 STOP_CHARS = set("的了在是和与及或我你他她它们这那有无不没很就都还也把被从对为以之其于而")
 STOP_GRAMS = ("怎么", "什么", "如何", "可以", "是否", "有没有", "哪些", "哪个", "一下", "不了")
+# 语义去重：去掉疑问/语气/虚词后留下的实词字符，用于识别同义标题变体
+SEMANTIC_STOP = set("怎么什么如何哪里哪儿多少才是的了啊吗呢呀着过把被在从对为以之其于而并及或与哦嗯吗")
+SIMILARITY = 0.68
 
 INTENT_RULES = (
     ("how", ("怎么", "如何", "流程", "办理", "方法", "步骤", "申请", "开通",
@@ -158,6 +161,20 @@ def lcs_len(text, seed):
     return best
 
 
+def semantic_key(text):
+    """标题实词字符集合：剥离疑问/语气/虚词，供同义变体去重。"""
+    chars = set(re.findall(r"[\u4e00-\u9fff]", text)) - SEMANTIC_STOP
+    return chars
+
+
+def similar(a_title, b_title):
+    """两个标题的实词 Jaccard 相似度，判同义变体（如「怎么选最划算」/「怎么买最划算」）。"""
+    a, b = semantic_key(a_title), semantic_key(b_title)
+    if not a or not b:
+        return False
+    return len(a & b) / float(len(a | b)) >= SIMILARITY
+
+
 def classify_intent(text):
     for intent, words in INTENT_RULES:
         if any(w in text for w in words):
@@ -238,6 +255,7 @@ def main():
         return
 
     existing = {mine.norm(n.get("title", "")) for n in td["nodes"] if isinstance(n, dict)}
+    existing_titles = [n.get("title", "") for n in td["nodes"] if isinstance(n, dict)]
     auto_count = sum(1 for n in td["nodes"]
                      if isinstance(n, dict) and n.get("source") == "suggest")
     if auto_count >= MAX_TOTAL_SUGGEST:
@@ -260,6 +278,9 @@ def main():
             continue
         k = mine.norm(text)
         if not k or k in existing:
+            continue
+        # 同义变体去重：「怎么选最划算」/「怎么买最划算」/「怎么办才最划算」视为同一主题
+        if any(similar(text, old) for old in existing_titles):
             continue
         terms = build_terms(text, pool, seeds)
         if not terms:
@@ -285,6 +306,7 @@ def main():
         }
         td["nodes"].append(node)
         existing.add(k)
+        existing_titles.append(text)
         added.append(node)
 
     if not added:

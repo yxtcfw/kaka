@@ -77,65 +77,8 @@
       "source": "manual"
     },
     {
-      "id": "sug-3c8bdd2a",
-      "title": "流量卡怎么办理在哪里办",
-      "intent": "how",
-      "status": "proposed",
-      "parent": null,
-      "keywords": [
-        "流量",
-        "卡"
-      ],
-      "source": "suggest",
-      "origin_seed": "流量卡怎么办理才划算",
-      "collected_at": "2026-11-24",
-      "idle_rounds": 0,
-      "written_count": 0,
-      "last_written_at": "",
-      "last_slug": "",
-      "last_title": ""
-    },
-    {
-      "id": "sug-04c71efb",
-      "title": "流量卡什么时候办理最划算",
-      "intent": "how",
-      "status": "proposed",
-      "parent": null,
-      "keywords": [
-        "流量",
-        "卡"
-      ],
-      "source": "suggest",
-      "origin_seed": "流量卡怎么办理才划算",
-      "collected_at": "2026-11-24",
-      "idle_rounds": 0,
-      "written_count": 0,
-      "last_written_at": "",
-      "last_slug": "",
-      "last_title": ""
-    },
-    {
       "id": "sug-2857c193",
       "title": "流量卡去哪里办理",
-      "intent": "how",
-      "status": "proposed",
-      "parent": null,
-      "keywords": [
-        "流量",
-        "卡"
-      ],
-      "source": "suggest",
-      "origin_seed": "流量卡怎么办理才划算",
-      "collected_at": "2026-11-24",
-      "idle_rounds": 0,
-      "written_count": 0,
-      "last_written_at": "",
-      "last_slug": "",
-      "last_title": ""
-    },
-    {
-      "id": "sug-fc5cc58c",
-      "title": "流量卡怎么办理",
       "intent": "how",
       "status": "proposed",
       "parent": null,
@@ -174,25 +117,6 @@
     {
       "id": "sug-2f4e8689",
       "title": "异地号码补卡要多久能拿到",
-      "intent": "how",
-      "status": "proposed",
-      "parent": null,
-      "keywords": [
-        "卡",
-        "异地号码补卡要多久"
-      ],
-      "source": "suggest",
-      "origin_seed": "异地号码补卡要多久",
-      "collected_at": "2026-11-24",
-      "idle_rounds": 0,
-      "written_count": 0,
-      "last_written_at": "",
-      "last_slug": "",
-      "last_title": ""
-    },
-    {
-      "id": "sug-4a1b2946",
-      "title": "异地号码补卡要多久才能拿到",
       "intent": "how",
       "status": "proposed",
       "parent": null,
@@ -249,25 +173,6 @@
       "last_title": ""
     },
     {
-      "id": "sug-f3123c6f",
-      "title": "流量卡怎么选购不踩坑",
-      "intent": "how",
-      "status": "proposed",
-      "parent": null,
-      "keywords": [
-        "流量",
-        "卡"
-      ],
-      "source": "suggest",
-      "origin_seed": "流量卡怎么选不踩坑",
-      "collected_at": "2026-11-24",
-      "idle_rounds": 0,
-      "written_count": 0,
-      "last_written_at": "",
-      "last_slug": "",
-      "last_title": ""
-    },
-    {
       "id": "sug-e5a9cfd6",
       "title": "流量卡怎么选最划算",
       "intent": "how",
@@ -299,83 +204,6 @@
       ],
       "source": "suggest",
       "origin_seed": "流量卡怎么选不踩坑",
-      "collected_at": "2026-11-24",
-      "idle_rounds": 0,
-      "written_count": 0,
-      "last_written_at": "",
-      "last_slug": "",
-      "last_title": ""
-    },
-    {
-      "id": "sug-57652e23",
-      "title": "流量卡怎么买最划算",
-      "intent": "how",
-      "status": "proposed",
-      "parent": null,
-      "keywords": [
-        "流量",
-        "卡"
-      ],
-      "source": "suggest",
-      "origin_seed": "流量卡怎么选最划算",
-      "collected_at": "2026-11-24",
-      "idle_rounds": 0,
-      "written_count": 0,
-      "last_written_at": "",
-      "last_slug": "",
-      "last_title": ""
-    },
-    {
-      "id": "sug-86c7611a",
-      "title": "流量卡什么最划算",
-      "intent": "price",
-      "status": "proposed",
-      "parent": null,
-      "keywords": [
-        "流量",
-        "卡"
-      ],
-      "source": "suggest",
-      "origin_seed": "流量卡怎么选最划算",
-      "collected_at": "2026-11-24",
-      "idle_rounds": 0,
-      "written_count": 0,
-      "last_written_at": "",
-      "last_slug": "",
-      "last_title": ""
-    },
-    {
-      "id": "sug-d35a92f0",
-      "title": "流量卡怎么办才最划算",
-      "intent": "how",
-      "status": "proposed",
-      "parent": null,
-      "keywords": [
-        "流量",
-        "卡"
-      ],
-      "source": "suggest",
-      "origin_seed": "流量卡怎么选最划算",
-      "collected_at": "2026-11-24",
-      "idle_rounds": 0,
-      "written_count": 0,
-      "last_written_at": "",
-      "last_slug": "",
-      "last_title": ""
-    },
-    {
-      "id": "sug-74cc29cc",
-      "title": "流量卡怎么选最划算的",
-      "intent": "how",
-      "status": "proposed",
-      "parent": null,
-      "keywords": [
-        "流量",
-        "卡",
-        "流量卡怎么选最划算"
-      ],
-      "source": "suggest",
-      "origin_seed": "流量卡怎么选最划算",
       "collected_at": "2026-11-24",
       "idle_rounds": 0,
       "written_count": 0,
