@@ -80,6 +80,7 @@ jobs:
         run: python scripts/generate.py
 
       - name: 提交并推送
+        id: commit
         if: ${{ steps.gen.outcome == 'success' || github.event.inputs.mode == 'rebuild' }}
         run: |
           git config user.name  "daily-bot"
@@ -90,7 +91,10 @@ jobs:
             echo "没有新内容，跳过提交"
           else
             git commit -m "post: $(TZ=Asia/Shanghai date +%Y-%m-%d) 自动更新"
-            git push
+            # 网关回写结果可能与本次写作并发提交到 main，推送前先 rebase 再推。
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
           fi
 
       - name: 回写状态到主站
@@ -99,7 +103,7 @@ jobs:
           # 账号级 Classic PAT（repo 权限）统一跨仓使用；旧 MAIN_STATUS_TOKEN 保留兼容。
           MAIN_STATUS_TOKEN: ${{ secrets.ACCOUNT_TOKEN || secrets.MAIN_STATUS_TOKEN }}
           SITE_ID: kaka
-          RUN_RESULT: ${{ (steps.runtime.outcome == 'failure' || steps.gen.outcome == 'failure') && 'failed' || 'success' }}
+          RUN_RESULT: ${{ (steps.runtime.outcome == 'failure' || steps.gen.outcome == 'failure' || steps.commit.outcome == 'failure') && 'failed' || 'success' }}
           ERROR_MESSAGE: ${{ steps.gen.outputs.error || '' }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
@@ -116,7 +120,7 @@ jobs:
         if: ${{ always() && (github.event.inputs.mode == 'auto' || github.event.inputs.mode == '' || github.event_name == 'schedule') }}
         env:
           WECOM_WEBHOOK: ${{ secrets.WECOM_WEBHOOK }}
-          STATUS: ${{ steps.gen.outcome }}
+          STATUS: ${{ (steps.gen.outcome == 'failure' || steps.commit.outcome == 'failure') && 'failure' || 'success' }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           SITE_NAME: ${{ vars.SITE_NAME }}
           SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
