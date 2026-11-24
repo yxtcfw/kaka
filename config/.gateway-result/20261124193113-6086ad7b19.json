@@ -1,0 +1,49 @@
+{
+  "ok": true,
+  "content": "{\"title\": \"异地补卡时间全攻略\", \"question\": \"异地号码补卡要多久\", \"author\": \"\", \"tags\": [\"异地补卡\", \"流量卡办理\", \"运营商业务\", \"eSIM\", \"避坑指南\"], \"summary\": \"三大运营商在大多数地市已支持异地当场补卡，带身份证去自有厅半小时可办妥；但靓号、合约卡、近期补换记录等特殊情况可能需回归属地或邮寄。eSIM 支持机型可在线上几分钟完成，完全不用跑腿。\", \"content_md\": \"异地号码补卡要多久\\n\\n## 一般当天能拿卡\\n三大运营商在全国大部分地市已打通异地补卡业务，带身份证原件去自有营业厅，核验通过当场出卡，通常半小时搞定。\\n\\n## 靓号、合约卡、补换卡限制要单问\\n如果是选号入网、合约期内、或近期刚补过卡，部分省份要求回归属地或走邮寄，现场办不了别白跑。\\n\\n## 先挂失再补卡，线上预约更稳\\n微信/APP搜“异地补卡”预约网点，能看到哪个厅支持、要不要排队；挂失立即生效，防被倒卖实名。\\n\\n## eSIM 支持机型可跳过跑腿\\niPhone 13 以上、主流安卓旗舰开通 eSIM 后，线上几分钟下发配置文件，实体卡根本不用等。\\n\\n## 跨省漫游补卡不等于全业务通办\\n宽带绑定、亲情网、集团短号等增值业务，异地厅大概率办不了，得回归属地或找客服拆解。\", \"quotes\": [\"三大运营商在全国大部分地市已打通异地补卡业务，带身份证原件去自有营业厅，核验通过当场出卡，通常半小时搞定。\", \"eSIM 支持机型可跳过跑腿，线上几分钟下发配置文件，实体卡根本不用等。\"], \"links\": {\"sites\": [], \"resources\": []}, \"comments\": {\"body\": [{\"nick\": \"阿强\", \"text\": \"去年在深圳补广州的卡，联通自有厅刷身份证十分钟搞定，移动非自有代理点直接拒办，认准自有厅别跑冤枉路。\"}, {\"nick\": \"小北\", \"text\": \"我用 eSIM 转移号码，宿舍躺着就弄好了，完全不想再去营业厅排队看脸色。\"}, {\"nick\": \"老陈\", \"text\": \"合约卡异地补卡真麻烦，上次被告知必须回归属地处理违约金，客服电话打爆才邮寄过来，耽误一周。\"}], \"site\": [], \"resource\": []}}",
+  "provider": "openrouter",
+  "used_model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "used_key": "OPENROUTER_API_KEYS[1]",
+  "usage": {
+    "prompt_tokens": 2908,
+    "completion_tokens": 1742,
+    "total_tokens": 4650,
+    "cost": 0,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0,
+      "upstream_inference_prompt_cost": 0,
+      "upstream_inference_completions_cost": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 925,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  },
+  "attempts": [
+    {
+      "provider": "openrouter",
+      "key": "OPENROUTER_API_KEYS[1]",
+      "model": "google/gemma-4-31b-it:free",
+      "code": 0,
+      "reason": "cooldown",
+      "left": 1595
+    },
+    {
+      "provider": "openrouter",
+      "key": "OPENROUTER_API_KEYS[1]",
+      "model": "inclusionai/ling-3.2-flash:free",
+      "code": 0,
+      "reason": "cooldown",
+      "left": 1595
+    }
+  ],
+  "finished_at": "2026-11-24T19:32:17+08:00"
+}
