@@ -24,11 +24,23 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS_DEFAULT = os.path.join(ROOT, "docs")
 POSTS_DIRNAME = "posts"
 
-# 模块元信息：标签、锚点、兄弟页目录、摘要卡图标色
+# 模块元信息：标签、锚点、兄弟页目录、H1/名片文案（渲染器固定生成，不占 AI 字段）
 MODULE_META = {
-    "blog": {"label": "正文", "anchor": "body", "dir": "posts", "n": "01"},
-    "nav": {"label": "站点导航", "anchor": "nav", "dir": "nav", "n": "02"},
-    "resource": {"label": "资源下载", "anchor": "resource", "dir": "resource", "n": "03"},
+    "blog": {
+        "label": "正文", "anchor": "body", "dir": "posts", "n": "01",
+        "h1": "正文内容", "hero": "这篇文章讲了什么",
+        "intro": "本篇简述、金句与全文，围绕关键词展开。",
+    },
+    "nav": {
+        "label": "站点导航", "anchor": "nav", "dir": "nav", "n": "02",
+        "h1": "站点导航", "hero": "这篇涉及的站点",
+        "intro": "均来自本篇信源素材，链接直达官方页面（新窗口打开）。",
+    },
+    "resource": {
+        "label": "资源下载", "anchor": "resource", "dir": "resource", "n": "03",
+        "h1": "资源下载", "hero": "这篇收录的资源",
+        "intro": "含适用场景与已知限制，链接直达原页面（新窗口打开）。",
+    },
 }
 
 # 合集页里模块的展示顺序（固定：正文→站点→资源），order 只影响"哪个为主"
@@ -97,28 +109,35 @@ def body_block(d, summary_on=False):
 
 
 def links_block(items, with_external):
-    """站点/资源主模块：完整点评 + 专属评论。外链仅当 with_external=True 时出现。"""
+    """站点/资源主模块：序号卡 + 完整点评 + 专属评论。外链仅当 with_external=True 时出现。"""
     items = [x for x in (items or []) if isinstance(x, dict) and x.get("name")]
     if not items:
         return '<p class="page-meta">这一篇没有收录相关条目。</p>'
     parts = ['<div class="mod-list">']
-    for it in items:
+    for i, it in enumerate(items, 1):
         name = B.esc(it.get("name", ""))
         desc = B.esc(it.get("desc", ""))
         detail = B.esc(it.get("detail", ""))
         url = (it.get("url") or "").strip() if with_external else ""
         parts.append('<article class="mod-item">')
+        parts.append('<div class="mod-item-top"><span class="mod-index">%02d</span>' % i)
         if url:
-            parts.append('<h3><a href="%s" target="_blank" rel="nofollow noopener noreferrer">%s ↗</a></h3>'
+            parts.append('<h3 class="mod-item-name"><a href="%s" target="_blank" '
+                         'rel="nofollow noopener noreferrer">%s<span class="mod-out" aria-hidden="true">↗</span></a></h3>'
                          % (B.esc(url), name))
         else:
-            parts.append("<h3>%s</h3>" % name)
+            parts.append('<h3 class="mod-item-name">%s<span class="mod-only">仅名称</span></h3>' % name)
+        parts.append('</div>')
         if desc:
             parts.append('<p class="mod-desc">%s</p>' % desc)
         if detail and detail != desc:
-            parts.append('<p class="mod-detail">%s</p>' % detail)
-        if not url:
-            parts.append('<p class="mod-nourl">（素材未提供可用链接）</p>')
+            # 无链接条目里 AI 常写一句"未提供链接，仅作名称展示"的元信息话术，
+            # 已有"仅名称"徽章表达，去掉这类空话，保留真正的点评内容。
+            filler = ("素材未提供可用链接，仅作名称展示", "未提供可用链接", "仅作名称展示")
+            if not url and any(f in detail for f in filler):
+                detail = ""
+            if detail:
+                parts.append('<p class="mod-detail">%s</p>' % detail)
         parts.append("</article>")
     parts.append("</div>")
     return "".join(parts)
@@ -170,15 +189,45 @@ def module_switch(mod, d, all_mods, enabled_mods):
     return "".join(parts)
 
 
+def tags_block(tags):
+    """文章级标签 chip：三页共用同一组，属元信息不算正文重复。"""
+    tags = [str(t).strip() for t in (tags or []) if str(t).strip()]
+    if not tags:
+        return ""
+    parts = ['<div class="mod-tags">']
+    for t in tags[:8]:
+        parts.append('<span class="mod-tag">%s</span>' % B.esc(t))
+    parts.append("</div>")
+    return "".join(parts)
+
+
+def module_hero(mod, d):
+    """模块名片：模块专属标题（含条目数）+ 渲染器固定简介。"""
+    meta = MODULE_META[mod]
+    links = d.get("links") or {}
+    count = 0
+    if mod == "nav":
+        count = len(links.get("sites") or [])
+    elif mod == "resource":
+        count = len(links.get("resources") or [])
+    hero = meta["hero"]
+    if mod in ("nav", "resource"):
+        hero = "%s %d 个" % (hero, count) if count else hero
+    return ('<div class="mod-hero"><h2 class="mod-hero-title">%s</h2>'
+            '<p class="mod-hero-intro">%s</p></div>') % (B.esc(hero), B.esc(meta["intro"]))
+
+
 def collection_body(mod, d, enabled_mods):
-    """一个合集页的完整 body：标题 + 模块切换 + 主模块展开 + 辅模块折叠卡。"""
+    """一个合集页的完整 body：模块 H1 + 文章副题/标签 + 模块切换 + 模块名片 + 主模块 + 辅模块折叠卡。"""
     meta = MODULE_META[mod]
     parts = []
-    parts.append('<h1 class="page-title">%s</h1>' % B.esc(d.get("title", "")))
-    if d.get("summary"):
-        parts.append('<p class="page-meta mod-lead">%s</p>' % B.esc(d["summary"]))
+    parts.append('<h1 class="page-title">%s</h1>' % B.esc(meta["h1"]))
+    if d.get("title"):
+        parts.append('<p class="page-article">本文：《%s》</p>' % B.esc(d["title"]))
+    parts.append(tags_block(d.get("tags")))
     parts.append(module_switch(mod, d, enabled_mods, enabled_mods))
     parts.append('<section id="%s" class="mod-main mod-main-%s">' % (meta["anchor"], mod))
+    parts.append(module_hero(mod, d))
     if mod == "blog":
         parts.append(body_block(d, summary_on=True))
     elif mod == "nav":
@@ -226,10 +275,11 @@ def build_collection_pages(site, docs_dir, pages, enabled_mods, runtime):
                 # 没有站点条目时仍出页（显示空态），保证兄弟页链接不 404
                 pass
             body = collection_body(mod, d, enabled_mods)
+            meta = MODULE_META[mod]
             html = B.page_shell(
                 site, rel_prefix(mod),
-                "%s · %s · %s" % (d.get("title", ""), MODULE_META[mod]["label"], site.get("name", "")),
-                (d.get("summary") or d.get("title") or "")[:120],
+                "%s · %s · %s" % (meta["h1"], d.get("title", ""), site.get("name", "")),
+                ("%s：%s" % (meta["h1"], d.get("summary") or d.get("title") or ""))[:120],
                 body, author=d.get("author", ""))
             B.write(out_path(docs_dir, mod, slug), html)
 
