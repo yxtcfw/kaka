@@ -9,12 +9,18 @@
       "intent": "how",
       "status": "planned",
       "parent": null,
-      "keywords": ["流量卡", "套餐", "卡", "怎么选"],
+      "keywords": [
+        "流量卡",
+        "套餐",
+        "卡",
+        "怎么选"
+      ],
       "idle_rounds": 0,
       "written_count": 0,
       "last_written_at": "",
       "last_slug": "",
-      "last_title": ""
+      "last_title": "",
+      "source": "manual"
     },
     {
       "id": "n2",
@@ -22,12 +28,17 @@
       "intent": "problem",
       "status": "planned",
       "parent": "n1",
-      "keywords": ["限速", "流量", "卡"],
+      "keywords": [
+        "限速",
+        "流量",
+        "卡"
+      ],
       "idle_rounds": 0,
       "written_count": 0,
       "last_written_at": "",
       "last_slug": "",
-      "last_title": ""
+      "last_title": "",
+      "source": "manual"
     },
     {
       "id": "n3",
@@ -35,12 +46,17 @@
       "intent": "how",
       "status": "planned",
       "parent": "n1",
-      "keywords": ["补卡", "异地", "卡"],
+      "keywords": [
+        "补卡",
+        "异地",
+        "卡"
+      ],
       "idle_rounds": 0,
       "written_count": 0,
       "last_written_at": "",
       "last_slug": "",
-      "last_title": ""
+      "last_title": "",
+      "source": "manual"
     },
     {
       "id": "n4",
@@ -48,7 +64,164 @@
       "intent": "how",
       "status": "planned",
       "parent": "n1",
-      "keywords": ["流量卡", "办理", "卡"],
+      "keywords": [
+        "流量卡",
+        "办理",
+        "卡"
+      ],
+      "idle_rounds": 0,
+      "written_count": 0,
+      "last_written_at": "",
+      "last_slug": "",
+      "last_title": "",
+      "source": "manual"
+    },
+    {
+      "id": "sug-3c8bdd2a",
+      "title": "流量卡怎么办理在哪里办",
+      "intent": "how",
+      "status": "proposed",
+      "parent": null,
+      "keywords": [
+        "流量",
+        "卡"
+      ],
+      "source": "suggest",
+      "origin_seed": "流量卡怎么办理才划算",
+      "collected_at": "2026-11-24",
+      "idle_rounds": 0,
+      "written_count": 0,
+      "last_written_at": "",
+      "last_slug": "",
+      "last_title": ""
+    },
+    {
+      "id": "sug-04c71efb",
+      "title": "流量卡什么时候办理最划算",
+      "intent": "how",
+      "status": "proposed",
+      "parent": null,
+      "keywords": [
+        "流量",
+        "卡"
+      ],
+      "source": "suggest",
+      "origin_seed": "流量卡怎么办理才划算",
+      "collected_at": "2026-11-24",
+      "idle_rounds": 0,
+      "written_count": 0,
+      "last_written_at": "",
+      "last_slug": "",
+      "last_title": ""
+    },
+    {
+      "id": "sug-2857c193",
+      "title": "流量卡去哪里办理",
+      "intent": "how",
+      "status": "proposed",
+      "parent": null,
+      "keywords": [
+        "流量",
+        "卡"
+      ],
+      "source": "suggest",
+      "origin_seed": "流量卡怎么办理才划算",
+      "collected_at": "2026-11-24",
+      "idle_rounds": 0,
+      "written_count": 0,
+      "last_written_at": "",
+      "last_slug": "",
+      "last_title": ""
+    },
+    {
+      "id": "sug-fc5cc58c",
+      "title": "流量卡怎么办理",
+      "intent": "how",
+      "status": "proposed",
+      "parent": null,
+      "keywords": [
+        "流量",
+        "卡"
+      ],
+      "source": "suggest",
+      "origin_seed": "流量卡怎么办理才划算",
+      "collected_at": "2026-11-24",
+      "idle_rounds": 0,
+      "written_count": 0,
+      "last_written_at": "",
+      "last_slug": "",
+      "last_title": ""
+    },
+    {
+      "id": "sug-f4aa96ba",
+      "title": "异地号码补卡要多久时间",
+      "intent": "how",
+      "status": "proposed",
+      "parent": null,
+      "keywords": [
+        "卡",
+        "异地号码补卡要多久"
+      ],
+      "source": "suggest",
+      "origin_seed": "异地号码补卡要多久",
+      "collected_at": "2026-11-24",
+      "idle_rounds": 0,
+      "written_count": 0,
+      "last_written_at": "",
+      "last_slug": "",
+      "last_title": ""
+    },
+    {
+      "id": "sug-2f4e8689",
+      "title": "异地号码补卡要多久能拿到",
+      "intent": "how",
+      "status": "proposed",
+      "parent": null,
+      "keywords": [
+        "卡",
+        "异地号码补卡要多久"
+      ],
+      "source": "suggest",
+      "origin_seed": "异地号码补卡要多久",
+      "collected_at": "2026-11-24",
+      "idle_rounds": 0,
+      "written_count": 0,
+      "last_written_at": "",
+      "last_slug": "",
+      "last_title": ""
+    },
+    {
+      "id": "sug-4a1b2946",
+      "title": "异地号码补卡要多久才能拿到",
+      "intent": "how",
+      "status": "proposed",
+      "parent": null,
+      "keywords": [
+        "卡",
+        "异地号码补卡要多久"
+      ],
+      "source": "suggest",
+      "origin_seed": "异地号码补卡要多久",
+      "collected_at": "2026-11-24",
+      "idle_rounds": 0,
+      "written_count": 0,
+      "last_written_at": "",
+      "last_slug": "",
+      "last_title": ""
+    },
+    {
+      "id": "sug-89972a1c",
+      "title": "异地号码怎么补卡",
+      "intent": "how",
+      "status": "proposed",
+      "parent": null,
+      "keywords": [
+        "卡",
+        "异地号码"
+      ],
+      "source": "suggest",
+      "origin_seed": "异地号码补卡要多久",
+      "collected_at": "2026-11-24",
       "idle_rounds": 0,
       "written_count": 0,
       "last_written_at": "",

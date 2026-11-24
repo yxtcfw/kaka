@@ -145,6 +145,8 @@ def validate_tree(tree):
             die("tree.json 节点 %s 不能是自己的 parent" % nid)
         if parent is not None and parent not in all_ids:
             die("tree.json 节点 %s 的 parent 不存在：%s" % (nid, parent))
+        if n.get("source", "manual") not in ("manual", "suggest"):
+            die("tree.json 节点 %s source 只能是 manual 或 suggest" % nid)
         kws = n.get("keywords") or []
         if not isinstance(kws, list) or any(not isinstance(w, str) for w in kws):
             die("tree.json 节点 %s 的 keywords 必须是字符串数组" % nid)
