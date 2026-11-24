@@ -10,7 +10,7 @@
   config/names.json         虚拟人名单
   config/ads.json           广告
   config/modules/*.json     模块契约
-  config/tree.json          内容树（阶段3起参与选题，这里只校验存在）
+  config/tree.json          内容树节点 / gate 准入 / prune 剪枝
 
 输出：
   config/generated.json     运行时配置（generate.py / compositor.py 读取）
@@ -113,8 +113,62 @@ def validate(site, keywords, sources, names, ads, modules, comp):
     missing = [m for m in mod_ids if not (modules.get(m) or {}).get("system_role")]
     if missing:
         die("模块契约缺少 system_role：%s" % ", ".join(missing))
-    if not os.path.exists(os.path.join(CONFIG, "tree.json")):
-        die("缺少 config/tree.json")
+    validate_tree(load_json("tree.json", {}))
+
+
+def validate_tree(tree):
+    """内容树必须结构完整，否则 generate.py 的 gate 判定会静默失效。"""
+    if not isinstance(tree, dict):
+        die("config/tree.json 必须是 JSON 对象")
+    nodes = tree.get("nodes")
+    if not isinstance(nodes, list) or not nodes:
+        die("tree.json nodes 必须是非空数组")
+
+    ids = []
+    all_ids = [str(n.get("id") or "").strip() for n in nodes if isinstance(n, dict)]
+    valid_status = {"proposed", "planned", "done", "archived"}
+    for n in nodes:
+        if not isinstance(n, dict):
+            die("tree.json 存在非对象节点")
+        nid = str(n.get("id") or "").strip()
+        if not nid:
+            die("tree.json 节点缺少 id")
+        if nid in ids:
+            die("tree.json 节点 id 重复：%s" % nid)
+        ids.append(nid)
+        if not str(n.get("title") or "").strip():
+            die("tree.json 节点 %s 缺少 title" % nid)
+        if n.get("status", "proposed") not in valid_status:
+            die("tree.json 节点 %s status 非法：%s" % (nid, n.get("status")))
+        parent = n.get("parent")
+        if parent == nid:
+            die("tree.json 节点 %s 不能是自己的 parent" % nid)
+        if parent is not None and parent not in all_ids:
+            die("tree.json 节点 %s 的 parent 不存在：%s" % (nid, parent))
+        kws = n.get("keywords") or []
+        if not isinstance(kws, list) or any(not isinstance(w, str) for w in kws):
+            die("tree.json 节点 %s 的 keywords 必须是字符串数组" % nid)
+
+    gate = tree.get("gate") or {}
+    if not isinstance(gate, dict):
+        die("tree.json gate 必须是对象")
+    for key in ("min_keywords", "min_sources", "min_hits"):
+        val = gate.get(key, 0)
+        if not isinstance(val, int) or isinstance(val, bool) or val < 0:
+            die("tree.json gate.%s 必须是非负整数" % key)
+    if not isinstance(gate.get("enabled", True), bool):
+        die("tree.json gate.enabled 必须是布尔值")
+
+    prune = tree.get("prune") or {}
+    if not isinstance(prune, dict):
+        die("tree.json prune 必须是对象")
+    idle = prune.get("idle_rounds", 3)
+    if not isinstance(idle, int) or isinstance(idle, bool) or idle <= 0:
+        die("tree.json prune.idle_rounds 必须是正整数")
+    if prune.get("to", "archived") not in valid_status:
+        die("tree.json prune.to 必须是合法状态")
+    if (prune.get("scope") or "proposed") not in ("proposed", "all"):
+        die("tree.json prune.scope 只能是 proposed 或 all")
 
 
 def merge_modules(comp, modules):

@@ -34,6 +34,7 @@ import urllib.request
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sources as src        # noqa: E402
 import mine                  # noqa: E402
+import tree as treeutil      # noqa: E402  内容树：gate 准入 / 状态流转 / prune
 import blogsite as sitebuilder  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -1444,34 +1445,7 @@ def main():
         sitebuilder.build_dispatch(site, DOCS, site["base_url"], runtime_cfg)
         return
 
-    # ---- 1. 挖题：只从历史评论里选，不再读结尾续问
-    # 话题来源统一是署名评论段落（## @昵称）：无主笔时是讨论楼层，有主笔时是短评。
-    # 两者都靠 role_model/lead_mode 决定语义，脚本不写死主题名。
-    seed = None
-    if forced:
-        seed = {"kind": "topic", "text": forced, "from": "手动指定"}
-        log("手动指定主题：" + forced)
-    else:
-        comment_kind = comment_kind_of(runtime_cfg, writing)
-        compact = comment_kind == "短评"   # 文末短评偏短，放宽长度门槛
-        recent_slugs = [it.get("slug") for it in history["items"][-6:]]
-        topics = mine.scan_comment_topics(POSTS, exclude_slugs=recent_slugs, compact=compact)
-        if not topics and recent_slugs:
-            # 历史不足 6 页时排除会清空候选池；回退到全量历史，保证站群冷启动能选题
-            topics = mine.scan_comment_topics(POSTS, compact=compact)
-            log("排除最近页后无候选，回退到全量历史评论（%d 条）" % len(topics))
-        pick = mine.pick_topic(topics, seed=date_str)
-        if pick:
-            seed = {"kind": "comment", "text": pick["text"], "from": pick["slug"],
-                    "from_title": pick["page_title"], "speaker": pick["speaker"],
-                    "comment_kind": comment_kind}
-            log("从历史%s里挖到 %d 条话题（排除最近 %d 页），选中 @%s：%s"
-                % (comment_kind, len(topics), len(recent_slugs),
-                   pick["speaker"], pick["text"][:60]))
-        else:
-            log("历史评论里没挖到话题（%d 条），走热点选题" % len(topics))
-
-    # ---- 2. 取材
+    # ---- 1. 取材（提前：内容树 gate 需要基于真实素材池判定节点是否够格）
     items = src.collect(sources_cfg.get("sources", []),
                         window_hours=sources_cfg.get("window_hours", 48))
     cands = rank_candidates(items, keywords, now)
@@ -1479,13 +1453,66 @@ def main():
     set_budget(int(os.environ.get("MODEL_BUDGET_SECONDS", "600")))
     log("模型总时长预算：%d 秒" % int(os.environ.get("MODEL_BUDGET_SECONDS", "600")))
 
-    if not seed:
-        if not cands:
-            sys.exit("没挖到疑问，也没抓到任何素材，本轮跳过")
-        seed = {"kind": "topic", "text": cands[0]["title"], "from": cands[0]["source"]}
-        log("用热点当主题：" + seed["text"])
+    # ---- 2. 选题：手动 > 内容树 > 历史署名评论 > 信源热点
+    seed = None
+    # 手动指定时不加载树，避免测试/补写污染节点状态
+    tree_data = None if forced else treeutil.load_tree(CONFIG)
+    tree_node = None
+    if forced:
+        seed = {"kind": "topic", "text": forced, "from": "手动指定"}
+        log("手动指定主题：" + forced)
+    else:
+        # 2a. 内容树：节点通过 gate 才接管选题
+        if tree_data:
+            term_fn = None
+            if terms_mode != "model":
+                term_fn = lambda text, kws, anchors_only=True: script_terms(
+                    text, kws, anchors_only=anchors_only)
+            tree_node, tree_stat, tree_info = treeutil.pick_topic(
+                tree_data, cands, keywords, seed_key=date_str, term_fn=term_fn,
+                max_sources=treeutil.enabled_source_count(sources_cfg))
+            if tree_node:
+                seed = {"kind": "tree", "text": tree_node["title"],
+                        "from": "tree:" + str(tree_node.get("id")),
+                        "node_id": tree_node.get("id"),
+                        "intent": tree_node.get("intent", "")}
+                log("内容树选中节点 %s《%s》：词=%d/源=%d/命中=%d（门槛 %s）"
+                    % (tree_node.get("id"), tree_node["title"],
+                       tree_stat["keywords"], tree_stat["sources"], tree_stat["hits"],
+                       json.dumps(tree_stat["need"], ensure_ascii=False)))
+            elif tree_info.get("enabled"):
+                log("内容树无节点通过 gate（检查 %d 个），回退原选题链路"
+                    % len(tree_info.get("checked") or []))
 
-    # ---- 2b. 按选题检索：脚本抽词，不发模型请求
+        # 2b. 历史署名评论（话题只来自真实评论，不再读结尾续问）
+        if not seed:
+            comment_kind = comment_kind_of(runtime_cfg, writing)
+            compact = comment_kind == "短评"   # 文末短评偏短，放宽长度门槛
+            recent_slugs = [it.get("slug") for it in history["items"][-6:]]
+            topics = mine.scan_comment_topics(POSTS, exclude_slugs=recent_slugs, compact=compact)
+            if not topics and recent_slugs:
+                # 历史不足 6 页时排除会清空候选池；回退到全量历史，保证站群冷启动能选题
+                topics = mine.scan_comment_topics(POSTS, compact=compact)
+                log("排除最近页后无候选，回退到全量历史评论（%d 条）" % len(topics))
+            pick = mine.pick_topic(topics, seed=date_str)
+            if pick:
+                seed = {"kind": "comment", "text": pick["text"], "from": pick["slug"],
+                        "from_title": pick["page_title"], "speaker": pick["speaker"],
+                        "comment_kind": comment_kind}
+                log("从历史%s里挖到 %d 条话题（排除最近 %d 页），选中 @%s：%s"
+                    % (comment_kind, len(topics), len(recent_slugs),
+                       pick["speaker"], pick["text"][:60]))
+            else:
+                log("历史评论里没挖到话题（%d 条），走热点选题" % len(topics))
+
+        # 2c. 热点回退
+        if not seed:
+            if not cands:
+                sys.exit("没挖到疑问，也没抓到任何素材，本轮跳过")
+            seed = {"kind": "topic", "text": cands[0]["title"], "from": cands[0]["source"]}
+            log("用热点当主题：" + seed["text"])
+
+    # ---- 3. 按选题检索：脚本抽词，不发模型请求
     search_cfg = sources_cfg.get("search") or {}
     extra = search_web(seed["text"], search_cfg)   # 元搜索没配时返回空
     if extra:
@@ -1514,7 +1541,7 @@ def main():
         material_block = ("（信源里没有和这个问题直接相关的内容。"
                           "可以基于你已有的知识回答，但不要编造具体数字、价格、时间和人名。）")
 
-    # ---- 3. 写作：唯一一次 AI 请求，一次产出全部字段
+    # ---- 4. 写作：唯一一次 AI 请求，一次产出全部字段
     data, resp = step_write_page(site, persona, editorial, seed, material_block, history,
                                  models, writing, runtime_cfg, keywords=keywords)
 
@@ -1565,7 +1592,7 @@ def main():
     tags = structured["tags"]
     log("头部信息：作者=%s 标签=%s" % (author or "（无主笔）", "、".join(tags) or "（无）"))
 
-    # ---- 4. 落盘
+    # ---- 5. 落盘
     os.makedirs(POSTS, exist_ok=True)
     no = next_page_no(POSTS)
     slug = "%03d" % no
@@ -1630,7 +1657,17 @@ def main():
     except Exception:
         pass
 
-    # ---- 5. 建站（compositor 按模块组合渲染合集页与聚合页）
+    # ---- 5b. 内容树状态流转：回填选中节点，其余可选节点推进 prune 计数
+    if tree_data:
+        archived = treeutil.commit_topic(
+            tree_data, tree_node, {"slug": slug, "title": title}, date_str)
+        treeutil.save_tree(tree_data, CONFIG)
+        log("内容树：第 %d 轮，%s，剪枝 %s"
+            % (tree_data["round"],
+               ("节点 %s → done" % tree_node.get("id")) if tree_node else "本轮非树选题",
+               ",".join(archived) or "无"))
+
+    # ---- 6. 建站（compositor 按模块组合渲染合集页与聚合页）
     stat = sitebuilder.build_dispatch(site, DOCS, site["base_url"], runtime_cfg)
 
     u = resp.get("usage") or {}

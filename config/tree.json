@@ -1,11 +1,71 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
+  "round": 0,
+  "last_updated_at": "",
   "nodes": [
-    { "id": "n1", "title": "流量卡怎么选", "intent": "how", "status": "planned", "parent": null },
-    { "id": "n2", "title": "限速后能否解除", "intent": "problem", "status": "proposed", "parent": "n1" },
-    { "id": "n3", "title": "异地补卡流程", "intent": "how", "status": "planned", "parent": "n1" },
-    { "id": "n4", "title": "流量卡怎么办理才划算", "intent": "how", "status": "planned", "parent": "n1" }
+    {
+      "id": "n1",
+      "title": "流量卡怎么选",
+      "intent": "how",
+      "status": "planned",
+      "parent": null,
+      "keywords": ["流量卡", "套餐", "卡", "怎么选"],
+      "idle_rounds": 0,
+      "written_count": 0,
+      "last_written_at": "",
+      "last_slug": "",
+      "last_title": ""
+    },
+    {
+      "id": "n2",
+      "title": "限速后能否解除",
+      "intent": "problem",
+      "status": "planned",
+      "parent": "n1",
+      "keywords": ["限速", "流量", "卡"],
+      "idle_rounds": 0,
+      "written_count": 0,
+      "last_written_at": "",
+      "last_slug": "",
+      "last_title": ""
+    },
+    {
+      "id": "n3",
+      "title": "异地补卡流程",
+      "intent": "how",
+      "status": "planned",
+      "parent": "n1",
+      "keywords": ["补卡", "异地", "卡"],
+      "idle_rounds": 0,
+      "written_count": 0,
+      "last_written_at": "",
+      "last_slug": "",
+      "last_title": ""
+    },
+    {
+      "id": "n4",
+      "title": "流量卡怎么办理才划算",
+      "intent": "how",
+      "status": "planned",
+      "parent": "n1",
+      "keywords": ["流量卡", "办理", "卡"],
+      "idle_rounds": 0,
+      "written_count": 0,
+      "last_written_at": "",
+      "last_slug": "",
+      "last_title": ""
+    }
   ],
-  "gate": { "min_keywords": 2, "min_sources": 2, "min_hits": 15 },
-  "prune": { "idle_rounds": 3 }
+  "gate": {
+    "enabled": true,
+    "min_keywords": 2,
+    "min_sources": 2,
+    "min_hits": 15
+  },
+  "prune": {
+    "enabled": true,
+    "idle_rounds": 3,
+    "to": "archived",
+    "scope": "proposed"
+  }
 }

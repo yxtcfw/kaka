@@ -85,8 +85,8 @@ jobs:
         run: |
           git config user.name  "daily-bot"
           git config user.email "daily-bot@users.noreply.github.com"
-          # 配置源与生成本地运行配置都需要提交，保证仓库自包含。
-          git add docs config/generated.json config/writing.json config/keywords.txt
+          # 配置源、生成本地运行配置、内容树状态流转都需要提交，保证仓库自包含。
+          git add docs config/generated.json config/writing.json config/keywords.txt config/tree.json
           if git diff --cached --quiet; then
             echo "没有新内容，跳过提交"
           else
