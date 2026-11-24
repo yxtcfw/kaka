@@ -1,0 +1,47 @@
+name: trigger-grow-test
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 触发 grow-tree 并收集结果
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run grow-tree.yml
+          sleep 45
+          {
+            echo "=== triggered at $(date -u +%FT%TZ) ==="
+            gh run list --workflow=grow-tree.yml --limit=3
+            echo "=== latest run view ==="
+            RUN_ID=$(gh run list --workflow=grow-tree.yml --limit=1 --json databaseId -q '.[0].databaseId')
+            echo "run_id=$RUN_ID"
+            gh run view "$RUN_ID" --log 2>&1 | grep -E 'grow_tree|新增|上限|ERROR|error|Traceback' | tail -30 || true
+            echo "=== tree nodes after run ==="
+            git pull --rebase origin main >/dev/null 2>&1 || true
+            python3 -c "import json;d=json.load(open('config/tree.json'));print('total',len(d['nodes']),'auto',sum(1 for n in d['nodes'] if n.get('source')=='suggest'))"
+          } > .github/grow-test-report.txt 2>&1
+
+      - name: 提交报告
+        run: |
+          git config user.name "test-bot"
+          git config user.email "test-bot@users.noreply.github.com"
+          git add .github/grow-test-report.txt
+          if git diff --cached --quiet; then
+            echo "no report changes"
+          else
+            git commit -m "test: grow-tree 线上验证报告 [skip ci]"
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
+          fi
