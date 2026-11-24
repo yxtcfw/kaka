@@ -4,7 +4,8 @@
 把本次分站运行状态提交回主站仓库 config/status/<id>.json。
 
 需要环境变量：
-  MAIN_STATUS_TOKEN  对主站仓库有 contents:write 的 token
+  ACCOUNT_TOKEN      账号级 Classic PAT（repo 权限），统一跨仓使用；优先于 MAIN_STATUS_TOKEN
+  MAIN_STATUS_TOKEN  旧版仓库级 token，保留兼容
   SITE_ID            站点 id，默认 kaka
   RUN_RESULT         success / failed，默认 success
   ERROR_MESSAGE      失败原因（可选）
@@ -25,7 +26,8 @@ import urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG = os.path.join(ROOT, "config")
 SITE_ID = os.environ.get("SITE_ID", "kaka").strip() or "kaka"
-TOKEN = os.environ.get("MAIN_STATUS_TOKEN", "").strip()
+TOKEN = (os.environ.get("ACCOUNT_TOKEN", "").strip()
+         or os.environ.get("MAIN_STATUS_TOKEN", "").strip())
 MAIN_REPO = os.environ.get("MAIN_REPO", "yxtcfw/yxtcfw.github.io").strip()
 BRANCH = os.environ.get("MAIN_BRANCH", "master").strip()
 API = "https://api.github.com/repos/%s/contents/config/status/%s.json" % (MAIN_REPO, SITE_ID)
@@ -80,7 +82,7 @@ def build_status():
 
 def main():
     if not TOKEN:
-        log("MAIN_STATUS_TOKEN 未设置，跳过状态回写")
+        log("ACCOUNT_TOKEN / MAIN_STATUS_TOKEN 未设置，跳过状态回写")
         return
 
     status = build_status()

@@ -75,8 +75,9 @@ jobs:
         continue-on-error: true
         env:
           # 集中式写作网关：Key 只在主站，本站只持有 dispatch/读回写的 token
+          # 账号级 Classic PAT（repo 权限）统一跨仓使用；旧 GATEWAY_TOKEN 保留兼容。
           GATEWAY_MODE: central
-          GATEWAY_TOKEN: ${{ secrets.GATEWAY_TOKEN }}
+          GATEWAY_TOKEN: ${{ secrets.ACCOUNT_TOKEN || secrets.GATEWAY_TOKEN }}
           # 读回写文件用本站 GITHUB_TOKEN（自带 contents:read），无需 GATEWAY_TOKEN 具备读权限
           GITHUB_TOKEN: ${{ github.token }}
           GATEWAY_REPO: yxtcfw/yxtcfw.github.io
@@ -113,7 +114,8 @@ jobs:
       - name: 回写状态到主站
         if: ${{ always() && steps.dispatch_check.outputs.matched != 'false' && github.event_name != 'pull_request' }}
         env:
-          MAIN_STATUS_TOKEN: ${{ secrets.MAIN_STATUS_TOKEN }}
+          # 账号级 Classic PAT（repo 权限）统一跨仓使用；旧 MAIN_STATUS_TOKEN 保留兼容。
+          MAIN_STATUS_TOKEN: ${{ secrets.ACCOUNT_TOKEN || secrets.MAIN_STATUS_TOKEN }}
           SITE_ID: kaka
           RUN_RESULT: ${{ (steps.fetch.outcome == 'failure' || steps.gen.outcome == 'failure') && 'failed' || 'success' }}
           ERROR_MESSAGE: ${{ steps.gen.outputs.error || '' }}

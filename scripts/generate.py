@@ -719,10 +719,11 @@ def extract_text(resp):
 
 
 def gateway_enabled():
-    """是否走集中式写作网关。需要 GATEWAY_TOKEN（dispatch 主站的 token）。"""
+    """是否走集中式写作网关。需要账号级 ACCOUNT_TOKEN 或旧 GATEWAY_TOKEN。"""
     return os.environ.get("GATEWAY_MODE", "central").strip().lower() not in (
         "local", "off", "0", "false", "no") and bool(
-        os.environ.get("GATEWAY_TOKEN", "").strip())
+        os.environ.get("ACCOUNT_TOKEN", "").strip()
+        or os.environ.get("GATEWAY_TOKEN", "").strip())
 
 
 def _new_request_id():
@@ -735,7 +736,8 @@ def _new_request_id():
 
 def _gateway_dispatch(request_id, messages, base_url=""):
     """dispatch 主站 gateway.yml，只传 prompt 与回写坐标，不传业务数据。"""
-    token = os.environ.get("GATEWAY_TOKEN", "").strip()
+    token = (os.environ.get("ACCOUNT_TOKEN", "").strip()
+             or os.environ.get("GATEWAY_TOKEN", "").strip())
     repo = os.environ.get("GATEWAY_REPO", "yxtcfw/yxtcfw.github.io").strip()
     event = os.environ.get("GATEWAY_EVENT", "writing_request").strip()
     if "/" not in repo:
@@ -774,13 +776,14 @@ def _gateway_wait(request_id, timeout=None):
     interval = 15
     deadline = time.time() + timeout
     repo = os.environ.get("SITE_REPO", "yxtcfw/kaka").strip()
-    token = (os.environ.get("GATEWAY_TOKEN", "").strip()
+    token = (os.environ.get("ACCOUNT_TOKEN", "").strip()
+             or os.environ.get("GATEWAY_TOKEN", "").strip()
              or os.environ.get("GITHUB_TOKEN", "").strip())
     branch = os.environ.get("SITE_BRANCH", "main").strip()
     api = ("https://api.github.com/repos/%s/contents/config/.gateway-result/%s.json"
            "?ref=%s" % (repo, request_id, branch))
     if not token:
-        sys.exit("缺少 GATEWAY_TOKEN / GITHUB_TOKEN，无法读取网关回写")
+        sys.exit("缺少 ACCOUNT_TOKEN / GATEWAY_TOKEN / GITHUB_TOKEN，无法读取网关回写")
     log("等待网关回写：%s（最多 %ds）" % (request_id, timeout))
     while time.time() < deadline:
         try:
