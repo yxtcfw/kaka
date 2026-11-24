@@ -23,6 +23,7 @@
 import hashlib
 import json
 import os
+import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -150,6 +151,13 @@ def validate_tree(tree):
         kws = n.get("keywords") or []
         if not isinstance(kws, list) or any(not isinstance(w, str) for w in kws):
             die("tree.json 节点 %s 的 keywords 必须是字符串数组" % nid)
+        path = str(n.get("path") or "")
+        if path and not re.fullmatch(r"[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+){0,3}", path):
+            die("tree.json 节点 %s 的 path 只能由字母数字_-和/组成（最多4段）：%s" % (nid, path))
+        paths = [str(x.get("path") or "").strip() for x in nodes
+                 if isinstance(x, dict) and x is not n and x.get("path")]
+        if path and path in paths:
+            die("tree.json 节点 path 重复：%s" % path)
 
     gate = tree.get("gate") or {}
     if not isinstance(gate, dict):

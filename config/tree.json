@@ -20,7 +20,8 @@
       "last_written_at": "",
       "last_slug": "",
       "last_title": "",
-      "source": "manual"
+      "source": "manual",
+      "path": "how-to-choose"
     },
     {
       "id": "n2",
@@ -38,7 +39,8 @@
       "last_written_at": "",
       "last_slug": "",
       "last_title": "",
-      "source": "manual"
+      "source": "manual",
+      "path": "speed-limit"
     },
     {
       "id": "n3",
@@ -56,7 +58,8 @@
       "last_written_at": "",
       "last_slug": "",
       "last_title": "",
-      "source": "manual"
+      "source": "manual",
+      "path": "sim-replace"
     },
     {
       "id": "n4",
@@ -74,7 +77,8 @@
       "last_written_at": "",
       "last_slug": "",
       "last_title": "",
-      "source": "manual"
+      "source": "manual",
+      "path": "apply-flow"
     },
     {
       "id": "sug-2857c193",
@@ -93,7 +97,8 @@
       "written_count": 0,
       "last_written_at": "",
       "last_slug": "",
-      "last_title": ""
+      "last_title": "",
+      "path": ""
     },
     {
       "id": "sug-f4aa96ba",
@@ -112,7 +117,8 @@
       "written_count": 0,
       "last_written_at": "",
       "last_slug": "",
-      "last_title": ""
+      "last_title": "",
+      "path": ""
     },
     {
       "id": "sug-2f4e8689",
@@ -131,7 +137,8 @@
       "written_count": 0,
       "last_written_at": "",
       "last_slug": "",
-      "last_title": ""
+      "last_title": "",
+      "path": ""
     },
     {
       "id": "sug-89972a1c",
@@ -150,7 +157,8 @@
       "written_count": 0,
       "last_written_at": "",
       "last_slug": "",
-      "last_title": ""
+      "last_title": "",
+      "path": ""
     },
     {
       "id": "sug-4ac62f0d",
@@ -170,7 +178,8 @@
       "written_count": 0,
       "last_written_at": "",
       "last_slug": "",
-      "last_title": ""
+      "last_title": "",
+      "path": ""
     },
     {
       "id": "sug-e5a9cfd6",
@@ -190,7 +199,8 @@
       "written_count": 0,
       "last_written_at": "",
       "last_slug": "",
-      "last_title": ""
+      "last_title": "",
+      "path": ""
     },
     {
       "id": "sug-0a64524c",
@@ -209,7 +219,8 @@
       "written_count": 0,
       "last_written_at": "",
       "last_slug": "",
-      "last_title": ""
+      "last_title": "",
+      "path": ""
     }
   ],
   "gate": {

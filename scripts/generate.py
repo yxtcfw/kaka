@@ -100,25 +100,58 @@ def load_site():
     return site
 
 
+def _tokens_css(tokens):
+    """把 manifest.tokens 渲染成 CSS 变量覆盖层；tokens.css 在 style.css 之后加载。"""
+    if not isinstance(tokens, dict):
+        return ""
+    lines = ["/* 由 templates/<id>/manifest.json tokens 生成，勿手改 */"]
+    groups = [(":root", tokens.get("light") or {})]
+    dark = tokens.get("dark") or {}
+    if dark:
+        groups.append(('html[data-theme="dark"]', dark))
+        groups.append(('@media (prefers-color-scheme: dark) {\n  html:not([data-theme])', dark))
+    blocks = []
+    for selector, values in groups:
+        body = "\n".join("  --%s: %s;" % (k, v) for k, v in values.items()
+                         if isinstance(v, str) and re.fullmatch(r"#[0-9a-fA-F]{3,8}|[a-zA-Z]+|\d+px", v))
+        if not body:
+            continue
+        if selector.startswith("@media"):
+            blocks.append("%s {\n%s\n  }\n}" % (selector, body))
+        else:
+            blocks.append("%s {\n%s\n}" % (selector, body))
+    return "\n\n".join(blocks) + "\n" if blocks else ""
+
+
 def apply_template(site):
-    """按 site.json.template 把 templates/<id>/style.css 物化为 docs/style.css。"""
+    """按 site.json.template 物化 style.css、tokens.css 到 docs/。
+
+    style.css 提供结构与兜底变量，tokens.css 只覆盖颜色，两者解耦：
+    换配色只需改 manifest.tokens，不必改整份 CSS。
+    """
     tid = re.sub(r"[^A-Za-z0-9_-]", "", str(site.get("template") or "default"))
-    src = os.path.join(ROOT, "templates", tid or "default", "style.css")
+    tid = tid or "default"
+    tdir = os.path.join(ROOT, "templates", tid)
+    src = os.path.join(tdir, "style.css")
     if not os.path.exists(src):
-        log("模板 %s 不存在，沿用现有 docs/style.css" % (tid or "default"))
+        log("模板 %s 不存在，沿用现有 docs/style.css" % tid)
         return
-    dst = os.path.join(DOCS, "style.css")
     try:
+        def write_if_changed(path, content, label):
+            old = ""
+            if os.path.exists(path):
+                with open(path, "r", encoding="utf-8") as f:
+                    old = f.read()
+            if content != old:
+                with open(path, "w", encoding="utf-8") as f:
+                    f.write(content)
+                log("已应用模板 %s：%s" % (tid, label))
+
         with open(src, "r", encoding="utf-8") as f:
-            css = f.read()
-        old = ""
-        if os.path.exists(dst):
-            with open(dst, "r", encoding="utf-8") as f:
-                old = f.read()
-        if css != old:
-            with open(dst, "w", encoding="utf-8") as f:
-                f.write(css)
-            log("已应用模板：%s → docs/style.css" % (tid or "default"))
+            write_if_changed(os.path.join(DOCS, "style.css"), f.read(), "→ docs/style.css")
+        manifest = load_json(os.path.join(tdir, "manifest.json"), {}) or {}
+        css = _tokens_css(manifest.get("tokens") or {})
+        write_if_changed(os.path.join(DOCS, "tokens.css"), css, "→ docs/tokens.css")
     except Exception as e:
         log("应用模板失败（沿用现有样式）：%r" % e)
 
@@ -1616,6 +1649,7 @@ def main():
         f.write("\n".join(front) + md_body + "\n")
 
     # sidecar 结构化产物：compositor 读它渲染合集页/聚合页，md 仅作正文源与挖题源
+    # node_id/path 来自内容树：路由层据此把新文章放进语义目录；老文章无此字段保持 flat。
     sidecar = {
         "slug": slug,
         "page": no,
@@ -1624,6 +1658,8 @@ def main():
         "question": question,
         "author": author,
         "tags": tags,
+        "node_id": str((tree_node or {}).get("id") or ""),
+        "path": re.sub(r"[^A-Za-z0-9_-]", "", str((tree_node or {}).get("path") or "")),
         "summary": structured["summary"],
         "content_md": content_md,
         "quotes": structured["quotes"],

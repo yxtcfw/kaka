@@ -19,8 +19,10 @@ import os
 import re
 
 import blogsite as B
+import routing as R
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_DIR = os.path.join(ROOT, "config")
 DOCS_DEFAULT = os.path.join(ROOT, "docs")
 POSTS_DIRNAME = "posts"
 
@@ -143,7 +145,7 @@ def links_block(items, with_external):
     return "".join(parts)
 
 
-def folded_card(mod, d):
+def folded_card(mod, d, routes, current_mod):
     """辅模块的折叠摘要卡：标题 + 一句话 + 跳兄弟页锚点。"""
     meta = MODULE_META[mod]
     if mod == "blog":
@@ -162,8 +164,8 @@ def folded_card(mod, d):
         brief = "、".join(x.get("name", "") for x in res[:3] if isinstance(x, dict))
         sub = "%d 个资源" % len(res)
     brief = brief or "点击查看该模块的完整内容"
-    # 兄弟页：合集页在 /<dir>/<slug>/ 下，回根需 ../../
-    href = "../../%s/%s/index.html#%s" % (meta["dir"], d.get("slug", ""), meta["anchor"])
+    # 兄弟页链接由路由层统一计算（flat / topic / hybrid 自动适配）
+    href = routes.sibling(d, current_mod, mod, meta["anchor"])
     return ('<a class="fold-card fold-%s" href="%s">'
             '<span class="fold-tag">%s · %s</span>'
             '<span class="fold-title">%s</span>'
@@ -173,7 +175,7 @@ def folded_card(mod, d):
         B.esc(title[:40]), B.esc(brief[:80]), B.esc(sub))
 
 
-def module_switch(mod, d, all_mods, enabled_mods):
+def module_switch(mod, d, all_mods, enabled_mods, routes):
     """当前页顶部模块切换条：高亮主模块，其余可点到兄弟页。"""
     parts = ['<nav class="mod-switch">']
     for m in CANON_ORDER:
@@ -183,7 +185,7 @@ def module_switch(mod, d, all_mods, enabled_mods):
         if m == mod:
             parts.append('<span class="ms-cur">%s %s</span>' % (meta["n"], meta["label"]))
         else:
-            href = "../../%s/%s/index.html#%s" % (meta["dir"], d.get("slug", ""), meta["anchor"])
+            href = routes.sibling(d, mod, m, meta["anchor"])
             parts.append('<a href="%s">%s %s</a>' % (B.esc(href), meta["n"], meta["label"]))
     parts.append("</nav>")
     return "".join(parts)
@@ -217,7 +219,7 @@ def module_hero(mod, d):
             '<p class="mod-hero-intro">%s</p></div>') % (B.esc(hero), B.esc(meta["intro"]))
 
 
-def collection_body(mod, d, enabled_mods):
+def collection_body(mod, d, enabled_mods, routes):
     """一个合集页的完整 body：模块 H1 + 文章副题/标签 + 模块切换 + 模块名片 + 主模块 + 辅模块折叠卡。"""
     meta = MODULE_META[mod]
     parts = []
@@ -225,7 +227,7 @@ def collection_body(mod, d, enabled_mods):
     if d.get("title"):
         parts.append('<p class="page-article">本文：《%s》</p>' % B.esc(d["title"]))
     parts.append(tags_block(d.get("tags")))
-    parts.append(module_switch(mod, d, enabled_mods, enabled_mods))
+    parts.append(module_switch(mod, d, enabled_mods, enabled_mods, routes))
     parts.append('<section id="%s" class="mod-main mod-main-%s">' % (meta["anchor"], mod))
     parts.append(module_hero(mod, d))
     if mod == "blog":
@@ -242,28 +244,16 @@ def collection_body(mod, d, enabled_mods):
     if others:
         parts.append('<section class="fold-grid"><h2>同一篇的其他内容</h2><div class="fold-row">')
         for m in others:
-            parts.append(folded_card(m, d))
+            parts.append(folded_card(m, d, routes, mod))
         parts.append("</div></section>")
 
-    parts.append(B.card_modal("../../"))
+    parts.append(B.card_modal(routes.rel_root(d, mod)))
     return "".join(parts)
 
 
 # ---------------------------------------------------------------- 页面写入
 
-def out_path(docs_dir, mod, slug):
-    """合集页落点：文章页 posts/<slug>/index.html，导航/资源页 nav/<slug>/index.html ..."""
-    meta = MODULE_META[mod]
-    return os.path.join(docs_dir, meta["dir"], slug, "index.html")
-
-
-def rel_prefix(mod):
-    """合集页在 <dir>/<slug>/ 下，回到站点根的相对路径。"""
-    return "../../"
-
-
-def build_collection_pages(site, docs_dir, pages, enabled_mods, runtime):
-    base_url = site.get("base_url", "")
+def build_collection_pages(site, docs_dir, pages, enabled_mods, runtime, routes):
     for d in pages:
         slug = d.get("slug", "")
         if not slug:
@@ -274,17 +264,17 @@ def build_collection_pages(site, docs_dir, pages, enabled_mods, runtime):
             if mod == "nav" and not (d.get("links") or {}).get("sites"):
                 # 没有站点条目时仍出页（显示空态），保证兄弟页链接不 404
                 pass
-            body = collection_body(mod, d, enabled_mods)
+            body = collection_body(mod, d, enabled_mods, routes)
             meta = MODULE_META[mod]
             html = B.page_shell(
-                site, rel_prefix(mod),
+                site, routes.rel_root(d, mod),
                 "%s · %s · %s" % (meta["h1"], d.get("title", ""), site.get("name", "")),
                 ("%s：%s" % (meta["h1"], d.get("summary") or d.get("title") or ""))[:120],
                 body, author=d.get("author", ""))
-            B.write(out_path(docs_dir, mod, slug), html)
+            B.write(routes.out(docs_dir, d, mod), html)
 
 
-def aggregate_body(kind, pages, site_name):
+def aggregate_body(kind, pages, site_name, routes):
     """聚合页：跨文章汇总，条目指回对应合集页。"""
     mod = {"nav": "nav", "resource": "resource", "blog": "blog"}[kind]
     meta = MODULE_META[mod]
@@ -292,12 +282,7 @@ def aggregate_body(kind, pages, site_name):
         "blog": "全部文章", "nav": "站点导航索引", "resource": "资源下载索引"}[kind]]
     parts.append('<p class="page-meta">按篇汇总，点条目进入合集页查看完整内容。</p>')
     for d in pages:
-        slug = d.get("slug", "")
-        # 聚合页位于 /<kind>/index.html；blog 聚合指向 /posts/，需跨目录
-        if kind == "blog":
-            href = "../%s/%s/index.html" % (meta["dir"], slug)
-        else:
-            href = "%s/index.html" % slug
+        href = routes.from_aggregate(d, kind, mod)
         if kind == "blog":
             lines = d.get("quotes") or []
             brief = lines[0] if lines else (d.get("summary") or "")[:80]
@@ -316,11 +301,11 @@ def aggregate_body(kind, pages, site_name):
     return "".join(parts)
 
 
-def build_aggregates(site, docs_dir, pages, enabled_mods):
+def build_aggregates(site, docs_dir, pages, enabled_mods, routes):
     for kind in ("blog", "nav", "resource"):
         if kind not in enabled_mods:
             continue
-        body = aggregate_body(kind, pages, site.get("name", ""))
+        body = aggregate_body(kind, pages, site.get("name", ""), routes)
         # 聚合页在 /<kind>/ 下，静态资源与 feed/search 在根，rel 用 ../
         html = B.page_shell(site, "../", "%s · %s" % (
             {"blog": "全部文章", "nav": "站点导航", "resource": "资源下载"}[kind], site.get("name", "")),
@@ -328,7 +313,7 @@ def build_aggregates(site, docs_dir, pages, enabled_mods):
         B.write(os.path.join(docs_dir, kind, "index.html"), html)
 
 
-def build_home(site, docs_dir, pages, enabled_mods):
+def build_home(site, docs_dir, pages, enabled_mods, routes):
     """首页：入口目录，指向各聚合页与最新合集页。"""
     parts = ['<h1 class="page-title">%s</h1>' % B.esc(site.get("name", ""))]
     if site.get("tagline"):
@@ -344,9 +329,9 @@ def build_home(site, docs_dir, pages, enabled_mods):
     if latest:
         parts.append('<section class="home-latest"><h2>最近更新</h2>')
         for d in latest:
-            parts.append('<article class="agg-item"><h3><a href="posts/%s/index.html">%s</a></h3>'
+            parts.append('<article class="agg-item"><h3><a href="%s">%s</a></h3>'
                          '<p class="page-meta">%s</p></article>' % (
-                             B.esc(d.get("slug", "")), B.esc(d.get("title", "")),
+                             B.esc(routes.from_home(d, "blog")), B.esc(d.get("title", "")),
                              B.esc((d.get("summary") or "")[:100])))
         parts.append("</section>")
     B.write(os.path.join(docs_dir, "index.html"),
@@ -358,7 +343,7 @@ def _abs(base, path):
     return (base.rstrip("/") + "/" + path.lstrip("/")) if base else path
 
 
-def build_feed(site, docs_dir, pages, base_url, enabled):
+def build_feed(site, docs_dir, pages, base_url, enabled, routes):
     """RSS 指向每篇的文章合集页（正文主）。"""
     import datetime
     import email.utils
@@ -373,7 +358,7 @@ def build_feed(site, docs_dir, pages, base_url, enabled):
 
     items = []
     for d in reversed(pages[-20:]):
-        link = _abs(base_url, "posts/%s/index.html" % d.get("slug", ""))
+        link = routes.abs_url(d, "blog")
         desc = (d.get("summary") or d.get("title") or "")[:300]
         items.append(
             "<item><title>%s</title><link>%s</link><guid>%s</guid>%s<description>%s</description></item>"
@@ -393,7 +378,7 @@ def build_feed(site, docs_dir, pages, base_url, enabled):
     B.write(os.path.join(docs_dir, "feed.xml"), xml)
 
 
-def build_sitemap(site, docs_dir, pages, base_url, enabled):
+def build_sitemap(site, docs_dir, pages, base_url, enabled, routes):
     """sitemap 收录：首页/聚合页 + 每篇的 3 个合集页。"""
     import datetime
     today = datetime.date.today().isoformat()
@@ -401,9 +386,8 @@ def build_sitemap(site, docs_dir, pages, base_url, enabled):
     for kind in enabled:
         locs.append("%s/index.html" % kind)
     for d in pages:
-        slug = d.get("slug", "")
         for mod in enabled:
-            locs.append("%s/%s/index.html" % (MODULE_META[mod]["dir"], slug))
+            locs.append(routes.web(d, mod))
     rows = ["<url><loc>%s</loc><lastmod>%s</lastmod></url>" % (
         B.esc(_abs(base_url, u)), today) for u in locs]
     xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -419,6 +403,7 @@ def build(site, docs_dir, base_url="", runtime=None):
         enabled.insert(0, "blog")
 
     pages = load_data_pages(docs_dir)
+    routes = R.Routes(site, CONFIG_DIR, style=runtime.get("url_style"))
 
     # 清理旧论坛结构留下的 html（md 保留作挖题源，data.json 是产物源）
     for fn in os.listdir(docs_dir):
@@ -429,30 +414,21 @@ def build(site, docs_dir, base_url="", runtime=None):
         for fn in os.listdir(pdir):
             if fn.endswith(".html"):
                 os.remove(os.path.join(pdir, fn))
-    # 清理已删除文章残留的合集页目录（/<dir>/<slug>/index.html）
+    # 清理已删除文章残留的合集页目录（兼容 flat 与 topic 两种落点）
     valid_slugs = {d.get("slug") for d in pages}
-    for mod in MODULE_META.values():
-        mdir = os.path.join(docs_dir, mod["dir"])
-        if not os.path.isdir(mdir):
-            continue
-        for name in os.listdir(mdir):
-            full = os.path.join(mdir, name)
-            if os.path.isdir(full) and name not in valid_slugs:
-                for f in os.listdir(full):
-                    os.remove(os.path.join(full, f))
-                os.rmdir(full)
+    routes.cleanup(docs_dir, valid_slugs)
 
-    build_collection_pages(site, docs_dir, pages, enabled, runtime)
-    build_aggregates(site, docs_dir, pages, enabled)
-    build_home(site, docs_dir, pages, enabled)
+    build_collection_pages(site, docs_dir, pages, enabled, runtime, routes)
+    build_aggregates(site, docs_dir, pages, enabled, routes)
+    build_home(site, docs_dir, pages, enabled, routes)
 
     # 搜索页走通用构建（读 md）；feed/sitemap 用合集页的真实 URL 结构
     md_pages = B.load_pages(docs_dir)
     slugs = [p["slug"] for p in md_pages]
     B.build_search(site, md_pages, docs_dir, slugs)
     base = base_url or site.get("base_url", "")
-    build_feed(site, docs_dir, pages, base, enabled)
-    build_sitemap(site, docs_dir, pages, base, enabled)
+    build_feed(site, docs_dir, pages, base, enabled, routes)
+    build_sitemap(site, docs_dir, pages, base, enabled, routes)
 
     # 看图功能：复制 CARD_JS（合集页的 card_modal 用到）
     B.write(os.path.join(docs_dir, "assets", "cards.js"), B.CARD_JS)

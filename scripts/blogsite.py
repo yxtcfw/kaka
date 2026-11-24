@@ -579,10 +579,43 @@ PAGE_TMPL = """<!doctype html>
 """
 
 
-def page_shell(site, rel, title, desc, body, author=""):
+_PAGE_TMPL_CACHE = {}
+
+
+def load_page_template(site):
+    """按 site.json.template 读取 templates/<id>/page.html；缺失回退内置骨架。
+
+    模板骨架是框架契约的一部分：模板作者可以增删插槽、调整结构，
+    但插槽名由 page_shell 固定提供。读一次缓存，避免每页重复 IO。
+    """
+    tid = re.sub(r"[^A-Za-z0-9_-]", "", str((site or {}).get("template") or "default"))
+    tid = tid or "default"
+    if tid in _PAGE_TMPL_CACHE:
+        return _PAGE_TMPL_CACHE[tid]
+    path = os.path.join(ROOT, "templates", tid, "page.html")
+    tmpl = PAGE_TMPL
+    try:
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                candidate = f.read()
+            if candidate.strip():
+                tmpl = candidate
+    except Exception:
+        pass
+    _PAGE_TMPL_CACHE[tid] = tmpl
+    return tmpl
+
+
+class _SlotDict(dict):
+    """未知插槽返回空串，保证新增插槽不会让旧模板崩溃。"""
+    def __missing__(self, key):
+        return ""
+
+
+def page_shell(site, rel, title, desc, body, author="", **slots):
     notice = esc(site.get("notice") or "")
     notice_bar = ('<aside class="site-notice">%s</aside>' % notice) if notice else ""
-    return PAGE_TMPL.format(
+    values = _SlotDict(
         lang=esc(site.get("lang") or "zh-CN"),
         title=esc(title),
         desc=esc(desc),
@@ -597,6 +630,14 @@ def page_shell(site, rel, title, desc, body, author=""):
         footer=esc(site.get("footer") or "自动生成"),
         copy=('<p class="small">© %s</p>' % esc(site["author"])) if site.get("author") else "",
     )
+    # tokens.css 由模板 manifest 生成，存在时自动链接；缺失时插槽留空（旧模板兼容）
+    if "tokens_link" not in values:
+        tok = os.path.join(ROOT, "docs", "tokens.css")
+        values["tokens_link"] = ('<link rel="stylesheet" href="%stokens.css">' % rel) \
+            if os.path.exists(tok) else ""
+    for k, v in (slots or {}).items():
+        values[k] = v
+    return load_page_template(site).format_map(values)
 
 
 def header_html(p, runtime=None):

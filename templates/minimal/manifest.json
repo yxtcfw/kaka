@@ -1,12 +1,22 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "2.0.0",
   "id": "minimal",
   "name": "极简",
   "description": "无阴影、直角、紧凑留白，适合信息密度优先。",
+  "entries": ["style.css", "page.html"],
+  "slots": ["seo_meta", "canonical", "tokens_link", "breadcrumb"],
+  "url_styles": ["flat", "topic", "hybrid"],
   "tokens": {
     "accent": "#2f5d50",
     "surface": "#ffffff",
-    "text": "#1f1d1a"
-  },
-  "entries": ["style.css", "page.html"]
+    "text": "#1f1d1a",
+    "light": {
+      "bg": "#ffffff", "fg": "#1f1d1a", "muted": "#6f6f6f",
+      "line": "#e4e4e4", "accent": "#2f5d50", "card": "#ffffff"
+    },
+    "dark": {
+      "bg": "#141414", "fg": "#eaeaea", "muted": "#929292",
+      "line": "#2e2e2e", "accent": "#7fc2ae", "card": "#1c1c1c"
+    }
+  }
 }

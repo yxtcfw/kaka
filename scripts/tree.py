@@ -34,6 +34,7 @@ DEFAULT_PRUNE = {"enabled": True, "idle_rounds": 3, "to": "archived", "scope": "
 # 节点运行态字段：旧版本 tree.json 缺这些字段时由 load_tree 补齐
 NODE_EXTRA = {
     "source": "manual",
+    "path": "",
     "idle_rounds": 0,
     "written_count": 0,
     "last_written_at": "",

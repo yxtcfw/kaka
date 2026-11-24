@@ -84,5 +84,6 @@
     "repo": "yxtcfw/yxtcfw.github.io",
     "dispatch_event": "writing_request",
     "poll_timeout_seconds": 600
-  }
+  },
+  "url_style": "hybrid"
 }

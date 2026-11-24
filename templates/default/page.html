@@ -1,12 +1,36 @@
 <!doctype html>
-<html lang="{{lang}}">
+<html lang="{lang}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{title}}</title>
-<link rel="stylesheet" href="{{rel}}style.css">
+<title>{title}</title>
+<meta name="description" content="{desc}">
+{author_meta}
+<link rel="stylesheet" href="{rel}style.css">
+{tokens_link}
+{theme_script}
+<link rel="alternate" type="application/rss+xml" title="{site}" href="{rel}feed.xml">
 </head>
 <body>
-{{body}}
+<header class="topbar">
+  <a class="brand" href="{rel}index.html">{site}</a>
+  <span class="board">{tagline}</span>
+  <div class="topbar-tools">
+    <a class="home-ico" href="{main_url}" title="返回主站" aria-label="返回主站">主站 ↗</a>
+    <button class="theme-ico" id="btn-theme" type="button" aria-label="切换主题" title="切换主题">◐</button>
+    <a class="search-ico" href="{rel}search.html" aria-label="搜索">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 L21 21"/></svg>
+    </a>
+  </div>
+</header>
+{notice_bar}
+<main class="wrap">
+{body}
+</main>
+<footer class="foot">
+  <p>{site}<span class="dot">·</span>{tagline}</p>
+  <p class="small"><a href="{rel}feed.xml">RSS</a> · <a href="{rel}search.html">搜索</a> · {footer}</p>
+  {copy}
+</footer>
 </body>
 </html>

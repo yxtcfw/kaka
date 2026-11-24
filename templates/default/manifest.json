@@ -1,12 +1,22 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "2.0.0",
   "id": "default",
   "name": "默认",
   "description": "站点原始版式，浅色纸感 + 暗色主题。",
+  "entries": ["style.css", "page.html"],
+  "slots": ["seo_meta", "canonical", "tokens_link", "breadcrumb"],
+  "url_styles": ["flat", "topic", "hybrid"],
   "tokens": {
     "accent": "#c0392b",
     "surface": "#ffffff",
-    "text": "#1f1d1a"
-  },
-  "entries": ["style.css", "page.html"]
+    "text": "#1f1d1a",
+    "light": {
+      "bg": "#fbfaf7", "fg": "#1f1d1a", "muted": "#8c857b",
+      "line": "#e7e2d9", "accent": "#c0392b", "card": "#ffffff"
+    },
+    "dark": {
+      "bg": "#16151a", "fg": "#e8e4dd", "muted": "#8f8a82",
+      "line": "#2b2830", "accent": "#e0746a", "card": "#1d1c22"
+    }
+  }
 }

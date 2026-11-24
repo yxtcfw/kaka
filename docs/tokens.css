@@ -1,0 +1,28 @@
+:root {
+  --bg: #fbfaf7;
+  --fg: #1f1d1a;
+  --muted: #8c857b;
+  --line: #e7e2d9;
+  --accent: #c0392b;
+  --card: #ffffff;
+}
+
+html[data-theme="dark"] {
+  --bg: #16151a;
+  --fg: #e8e4dd;
+  --muted: #8f8a82;
+  --line: #2b2830;
+  --accent: #e0746a;
+  --card: #1d1c22;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+  --bg: #16151a;
+  --fg: #e8e4dd;
+  --muted: #8f8a82;
+  --line: #2b2830;
+  --accent: #e0746a;
+  --card: #1d1c22;
+  }
+}
