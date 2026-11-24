@@ -1,3 +1,6 @@
 # Python 缓存
 __pycache__/
 *.pyc
+
+# 写作网关临时回写结果（主站经 Contents API 写入，读后即弃，不进版本库）
+config/.gateway-result/

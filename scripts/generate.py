@@ -718,12 +718,122 @@ def extract_text(resp):
     return content or ""
 
 
+def gateway_enabled():
+    """是否走集中式写作网关。需要 GATEWAY_TOKEN（dispatch 主站的 token）。"""
+    return os.environ.get("GATEWAY_MODE", "central").strip().lower() not in (
+        "local", "off", "0", "false", "no") and bool(
+        os.environ.get("GATEWAY_TOKEN", "").strip())
+
+
+def _new_request_id():
+    """唯一请求 id：时间戳 + 站点 + 随机串，避免并发串号。"""
+    raw = "%s|%s|%s|%s" % (time.time(), os.getpid(), random.random(),
+                           os.environ.get("SITE_ID", "kaka"))
+    return datetime.datetime.now(BJT).strftime("%Y%m%d%H%M%S") + "-" + hashlib.sha1(
+        raw.encode("utf-8")).hexdigest()[:10]
+
+
+def _gateway_dispatch(request_id, messages, base_url=""):
+    """dispatch 主站 gateway.yml，只传 prompt 与回写坐标，不传业务数据。"""
+    token = os.environ.get("GATEWAY_TOKEN", "").strip()
+    repo = os.environ.get("GATEWAY_REPO", "yxtcfw/yxtcfw.github.io").strip()
+    event = os.environ.get("GATEWAY_EVENT", "writing_request").strip()
+    if "/" not in repo:
+        sys.exit("GATEWAY_REPO 格式错误：%s" % repo)
+    payload = {
+        "event_type": event,
+        "client_payload": {
+            "request_id": request_id,
+            "site_id": os.environ.get("SITE_ID", "kaka").strip(),
+            "site_repo": os.environ.get("SITE_REPO", "yxtcfw/kaka").strip(),
+            "site_branch": os.environ.get("SITE_BRANCH", "main").strip(),
+            "base_url": base_url or os.environ.get("SITE_BASE_URL", ""),
+            "messages": messages,
+        },
+    }
+    api = "https://api.github.com/repos/%s/dispatches" % repo
+    req = urllib.request.Request(
+        api, data=json.dumps(payload, ensure_ascii=False).encode("utf-8"), method="POST")
+    req.add_header("Accept", "application/vnd.github+json")
+    req.add_header("Authorization", "Bearer " + token)
+    req.add_header("X-GitHub-Api-Version", "2022-11-28")
+    req.add_header("User-Agent", "site-model-gateway-client/1.0")
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            if r.status not in (200, 201, 204):
+                raise RuntimeError("dispatch 返回 HTTP %s" % r.status)
+        log("已 dispatch 写作请求：%s → %s" % (request_id, repo))
+    except Exception as e:
+        sys.exit("dispatch 主站网关失败：%r" % e)
+
+
+def _gateway_wait(request_id, timeout=None):
+    """轮询主站跨仓回写的结果文件（GitHub Contents API 直读，不依赖本地工作区）。"""
+    import base64
+    timeout = int(timeout or os.environ.get("GATEWAY_POLL_TIMEOUT", "600"))
+    interval = 15
+    deadline = time.time() + timeout
+    repo = os.environ.get("SITE_REPO", "yxtcfw/kaka").strip()
+    token = (os.environ.get("GATEWAY_TOKEN", "").strip()
+             or os.environ.get("GITHUB_TOKEN", "").strip())
+    branch = os.environ.get("SITE_BRANCH", "main").strip()
+    api = ("https://api.github.com/repos/%s/contents/config/.gateway-result/%s.json"
+           "?ref=%s" % (repo, request_id, branch))
+    if not token:
+        sys.exit("缺少 GATEWAY_TOKEN / GITHUB_TOKEN，无法读取网关回写")
+    log("等待网关回写：%s（最多 %ds）" % (request_id, timeout))
+    while time.time() < deadline:
+        try:
+            req = urllib.request.Request(api)
+            req.add_header("Accept", "application/vnd.github+json")
+            req.add_header("Authorization", "Bearer " + token)
+            req.add_header("User-Agent", "site-model-gateway-client/1.0")
+            with urllib.request.urlopen(req, timeout=20) as r:
+                data = json.loads(r.read().decode("utf-8"))
+            content = base64.b64decode(data.get("content") or "").decode("utf-8")
+            result = json.loads(content)
+            log("收到网关回写：ok=%s provider=%s model=%s" % (
+                result.get("ok"), result.get("provider"), result.get("used_model")))
+            return result
+        except urllib.error.HTTPError as e:
+            if e.code != 404:
+                log("读取回写文件 HTTP %s，稍后重试" % e.code)
+        except Exception as e:
+            log("读取回写文件失败：%r，稍后重试" % e)
+        time.sleep(interval)
+    sys.exit("等待网关回写超时（%ds，request_id=%s）" % (timeout, request_id))
+
+
+def call_gateway(messages, models=None, temperature=0.85, timeout=None):
+    """集中式网关调用：dispatch → 等待回写 → 返回与 call_openrouter 同结构的 resp。"""
+    request_id = _new_request_id()
+    _gateway_dispatch(request_id, messages)
+    result = _gateway_wait(request_id, timeout=timeout)
+    if not result.get("ok"):
+        attempts = result.get("attempts") or []
+        detail = "; ".join("%s/%s:%s" % (a.get("provider"), a.get("model"), a.get("reason"))
+                           for a in attempts[:6])
+        sys.exit("网关调用失败：%s；尝试明细：%s" % (result.get("error", "?"), detail or "无"))
+    # 构造与现有 extract_text() 兼容的响应结构，下游解析零改动
+    content = result.get("content") or ""
+    resp = {
+        "choices": [{"message": {"content": content}}],
+        "usage": result.get("usage") or {},
+        "_used_model": result.get("used_model") or (models or ["gateway"])[0],
+        "_gateway_provider": result.get("provider", ""),
+        "_gateway_request_id": request_id,
+    }
+    return resp
+
+
 def call_openrouter(messages, models, temperature=0.8, retries=None, timeout=None):
     global _PREFERRED, AI_CALLS
     AI_CALLS += 1
+    if gateway_enabled():
+        return call_gateway(messages, models, temperature=temperature, timeout=timeout)
     key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     if not key:
-        sys.exit("缺少环境变量 OPENROUTER_API_KEY")
+        sys.exit("缺少环境变量 OPENROUTER_API_KEY（本地直连模式）")
     if isinstance(models, str):
         models = [models]
     if retries is None:
