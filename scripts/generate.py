@@ -99,6 +99,29 @@ def load_site():
     return site
 
 
+def apply_template(site):
+    """按 site.json.template 把 templates/<id>/style.css 物化为 docs/style.css。"""
+    tid = re.sub(r"[^A-Za-z0-9_-]", "", str(site.get("template") or "default"))
+    src = os.path.join(ROOT, "templates", tid or "default", "style.css")
+    if not os.path.exists(src):
+        log("模板 %s 不存在，沿用现有 docs/style.css" % (tid or "default"))
+        return
+    dst = os.path.join(DOCS, "style.css")
+    try:
+        with open(src, "r", encoding="utf-8") as f:
+            css = f.read()
+        old = ""
+        if os.path.exists(dst):
+            with open(dst, "r", encoding="utf-8") as f:
+                old = f.read()
+        if css != old:
+            with open(dst, "w", encoding="utf-8") as f:
+                f.write(css)
+            log("已应用模板：%s → docs/style.css" % (tid or "default"))
+    except Exception as e:
+        log("应用模板失败（沿用现有样式）：%r" % e)
+
+
 def load_keywords():
     """优先读站点本地 keywords.json；keywords.txt 仅作旧格式兜底。"""
     data = load_json(os.path.join(CONFIG, "keywords.json"), {})
@@ -1052,8 +1075,13 @@ def rank_by_terms(items, terms):
 def render_material(cands, limit=8):
     lines = []
     for i, it in enumerate(cands[:limit]):
-        lines.append("[%d] %s · %s\n    标题：%s\n    摘要：%s" % (
-            i, it["source"], it["age"], it["title"], (it.get("summary") or "（无摘要）")[:260]))
+        tier = it.get("tier") or "L3"
+        caps = "、".join(it.get("capabilities") or []) or "未声明"
+        not_for = "、".join(it.get("not_for") or []) or "无"
+        lines.append(
+            "[%d] %s（%s）· %s\n    可证明：%s\n    不可用于：%s\n    标题：%s\n    摘要：%s" % (
+                i, it["source"], tier, it["age"], caps, not_for,
+                it["title"], (it.get("summary") or "（无摘要）")[:260]))
     return "\n".join(lines) or "（这次没抓到外部素材）"
 
 
@@ -1291,7 +1319,8 @@ def step_write_page(site, persona, editorial, seed, material_block, history, mod
     system = ("【通用写作约束（框架强制，不可覆盖）】\n"
               "1. 只能围绕本篇问题和冻结关键词展开，不得跑题或另起话题。\n"
               "2. 所有事实性内容只能来自提供的信源素材；素材没有的不要编造、不要补充记忆里的细节。\n"
-              "3. 不确定就说不确定，宁可少写也不要虚构数据、功能或来源。\n\n")
+              "3. 不确定就说不确定，宁可少写也不要虚构数据、功能或来源。\n"
+              "4. 素材标注的 tier 决定证据强度：L1 可陈述为事实；L2 只能作为线索/趋势；L3 只能作为问题线索，不能写成结论。\n\n")
     # v0.10：写作风格默认收进主题契约 persona_default；站点 persona.md 非空时优先覆盖。
     style = (persona or "").strip() or (contract.get("persona_default") or "").strip()
     if style:
@@ -1371,6 +1400,7 @@ def main():
 
     site = load_site()
     runtime_cfg = load_runtime_config()
+    apply_template(site)
 
     if args.rebuild:
         stat = sitebuilder.build_dispatch(site, DOCS, site["base_url"], runtime_cfg)

@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "id": "magazine",
+  "name": "杂志",
+  "description": "衬线正文、大标题、暖色渐变，适合阅读感优先。",
+  "tokens": {
+    "accent": "#8c2f39",
+    "surface": "#f6eee6",
+    "text": "#2b2320"
+  },
+  "entries": ["style.css", "page.html"]
+}

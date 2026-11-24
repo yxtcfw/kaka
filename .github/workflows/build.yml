@@ -6,6 +6,7 @@ on:
     branches: [main, master]
     paths:
       - 'config/**'
+      - 'templates/**'
       - 'docs/posts/**'
       - 'docs/**/*.md'
       - 'docs/style.css'

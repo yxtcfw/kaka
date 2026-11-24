@@ -148,6 +148,9 @@ def parse_feed(data, source):
             "url": url,
             "summary": summary,
             "source": source,
+            "tier": cfg.get("tier", "L3"),
+            "capabilities": list(cfg.get("capabilities") or []),
+            "not_for": list(cfg.get("not_for") or []),
             "ts": ts,
         })
     return items
@@ -199,6 +202,9 @@ def parse_json_api(text, cfg):
             "url": url or cfg.get("url", ""),
             "summary": clean(_dig(row, fields.get("summary", "summary")) or "", 400),
             "source": cfg.get("name", "json"),
+            "tier": cfg.get("tier", "L3"),
+            "capabilities": list(cfg.get("capabilities") or []),
+            "not_for": list(cfg.get("not_for") or []),
             "ts": parse_time(_dig(row, fields.get("date", "date"))),
         })
     return out
@@ -233,6 +239,9 @@ def parse_html_list(text, cfg):
             "url": url,
             "summary": "",
             "source": cfg.get("name", "html"),
+            "tier": cfg.get("tier", "L3"),
+            "capabilities": list(cfg.get("capabilities") or []),
+            "not_for": list(cfg.get("not_for") or []),
             "ts": None,
         })
         if len(out) >= int(cfg.get("limit", 30)):

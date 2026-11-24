@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "id": "minimal",
+  "name": "极简",
+  "description": "无阴影、直角、紧凑留白，适合信息密度优先。",
+  "tokens": {
+    "accent": "#2f5d50",
+    "surface": "#ffffff",
+    "text": "#1f1d1a"
+  },
+  "entries": ["style.css", "page.html"]
+}

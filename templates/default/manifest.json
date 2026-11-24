@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "id": "default",
+  "name": "默认",
+  "description": "站点原始版式，浅色纸感 + 暗色主题。",
+  "tokens": {
+    "accent": "#c0392b",
+    "surface": "#ffffff",
+    "text": "#1f1d1a"
+  },
+  "entries": ["style.css", "page.html"]
+}
