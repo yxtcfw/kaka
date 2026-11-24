@@ -1440,8 +1440,9 @@ def main():
 
     now = datetime.datetime.now(BJT)
     date_str = now.strftime("%Y-%m-%d")
-    if any(it.get("date") == date_str for it in history["items"]) and not forced and not args.force:
-        log("今天已经更新过（%s），只重建站点。想再写一页用 --force。" % date_str)
+    force_run = args.force or str(os.environ.get("FORCE_RUN", "")).lower() in ("1", "true", "yes")
+    if any(it.get("date") == date_str for it in history["items"]) and not forced and not force_run:
+        log("今天已经更新过（%s），只重建站点。想再写一页用 --force 或 Actions 的 force 开关。" % date_str)
         sitebuilder.build_dispatch(site, DOCS, site["base_url"], runtime_cfg)
         return
 

@@ -16,6 +16,11 @@ on:
         description: '直接指定主题（留空则自动选题）'
         required: false
         type: string
+      force:
+        description: '强制再写一篇（当天已写过也触发，用于验证内容树选题）'
+        required: false
+        default: false
+        type: boolean
       model:
         description: '留空即用全部免费模型轮换'
         required: false
@@ -73,6 +78,7 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODEL: ${{ github.event.inputs.model || vars.OPENROUTER_MODEL || 'free' }}
           FORCE_KEYWORD: ${{ github.event.inputs.keyword }}
+          FORCE_RUN: ${{ github.event.inputs.force }}
           WORD_COUNT: ${{ vars.WORD_COUNT || '1600' }}
           FREE_ONLY: ${{ vars.FREE_ONLY || '1' }}
           MODEL_BUDGET_SECONDS: ${{ vars.MODEL_BUDGET_SECONDS || '600' }}
