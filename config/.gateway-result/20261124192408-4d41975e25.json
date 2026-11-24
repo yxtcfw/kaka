@@ -1,0 +1,27 @@
+{
+  "ok": false,
+  "error": "全部供应商失败",
+  "attempts": [
+    {
+      "provider": "openrouter",
+      "key": "OPENROUTER_API_KEYS[1]",
+      "model": "google/gemma-4-31b-it:free",
+      "code": 429,
+      "reason": "key_degraded",
+      "body": "{\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own provider key to use y"
+    },
+    {
+      "provider": "deepseek",
+      "model": "-",
+      "code": 0,
+      "reason": "no_key"
+    },
+    {
+      "provider": "dashscope",
+      "model": "-",
+      "code": 0,
+      "reason": "no_key"
+    }
+  ],
+  "finished_at": "2026-11-24T19:24:20+08:00"
+}
