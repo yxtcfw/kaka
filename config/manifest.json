@@ -22,7 +22,7 @@
   "providers": {
     "suggest": "mock",
     "search": "ddgs",
-    "llm": "mock",
+    "llm": "openrouter",
     "metrics": "site-estimate"
   },
   "_comment": "站点配置初稿。domain/vertical 由 bootstrap 从种子词推断；null 字段留给首次构建 fill-site 补齐。密钥永不写此文件。"
