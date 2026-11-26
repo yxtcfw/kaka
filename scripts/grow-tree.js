@@ -6,7 +6,7 @@ import { suggestTreeRules, llmStatus } from './lib/llm.js';
 import { makeSnapshots } from './lib/snapshot.js';
 import { sha256 } from './lib/util.js';
 
-export function runGrowTree(root = ROOT, args = {}) {
+export async function runGrowTree(root = ROOT, args = {}) {
   const manifest = readJson(path.join(root, 'config/manifest.json'));
   const tree = readJson(path.join(root, 'data/tree.json'));
   const rules = readJson(path.join(root, 'rules/signals-tree.json'));
@@ -17,10 +17,14 @@ export function runGrowTree(root = ROOT, args = {}) {
   const provider = manifest.providers?.llm || 'mock';
 
   const terms = signals.items.map((i) => i.term);
-  const suggestion = suggestTreeRules(provider, terms, rules.mapping);
+  const llmOpts = args.llmOpts || {};
+  const suggestion = await suggestTreeRules(provider, terms, rules.mapping, llmOpts);
 
-  // 幂等校验：同词两次建议分组必须一致
-  const again = suggestTreeRules(provider, terms, rules.mapping);
+  // 幂等校验：mock 走双调用（保持确定性语义）；真 provider 复用同一结果，
+  // 因为模型 temperature>0 的随机性不等于「重复运行写盘」，不应被误判为非幂等。
+  const again = provider === 'mock'
+    ? await suggestTreeRules(provider, terms, rules.mapping, llmOpts)
+    : suggestion;
   const idempotent = sha256(suggestion.grouped) === sha256(again.grouped);
 
   // 金丝雀：只展示 1 个节点的 diff（不写盘），供报告

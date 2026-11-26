@@ -40,11 +40,11 @@ test('harvest dry-run 零写盘', () => {
   } finally { cleanup(root); }
 });
 
-test('grow-tree: 幂等且按映射扩展关键词，不改节点数', () => {
+test('grow-tree: 幂等且按映射扩展关键词，不改节点数', async () => {
   const root = makeRoot();
   try {
     runHarvest(root, {}); runHarvest(root, {});
-    const r = runGrowTree(root, {});
+    const r = await runGrowTree(root, {});
     assert.equal(r.idempotent, true);
     assert.ok(r.keywordsAdded > 0);
     const beforeCount = readJson(root, 'data/tree.json').nodes.length;
@@ -76,10 +76,10 @@ test('fetch-body: 判据②达标（L1 或 2 独立域 L2）', async () => {
   } finally { cleanup(root); }
 });
 
-test('write-content: 判据②未达标时跳过', () => {
+test('write-content: 判据②未达标时跳过', async () => {
   const root = makeRoot();
   try {
-    const r = runWriteContent(root, {});
+    const r = await runWriteContent(root, {});
     assert.equal(r.skipped, true);
   } finally { cleanup(root); }
 });
@@ -89,7 +89,7 @@ test('write-content: 达标后生成并至少被门禁拦下一次（判据③�
   try {
     await runDiscover(root, { limit: 10 });
     await runFetchBody(root, {});
-    const r = runWriteContent(root, {});
+    const r = await runWriteContent(root, {});
     assert.ok(r.generated >= 1);
     assert.ok(r.gateBlockedCount >= 1, '门禁至少拦下一次');
     assert.equal(r.contentPassed, true);
@@ -129,7 +129,7 @@ test('fill-site: 首次填空、保留人工值、二次冻结、清空不重填
   } finally { cleanup(root); }
 });
 
-test('build-nav-pages: 有关联源生成详情，数字无 citation 降级直跳', () => {
+test('build-nav-pages: 有关联源生成详情，数字无 citation 降级直跳', async () => {
   const root = makeRoot();
   try {
     const nav = readJson(root, 'data/navlinks.json');
@@ -140,7 +140,7 @@ test('build-nav-pages: 有关联源生成详情，数字无 citation 降级直�
     });
     writeJson(root, 'data/navlinks.json', nav);
 
-    const r = runBuildNavPages(root, {});
+    const r = await runBuildNavPages(root, {});
     assert.equal(r.built, 2, '两条正常 nav 生成详情');
     assert.equal(r.downgraded, 1);
     assert.ok(r.blockedCount >= 1);
@@ -153,24 +153,24 @@ test('build-nav-pages: 有关联源生成详情，数字无 citation 降级直�
   } finally { cleanup(root); }
 });
 
-test('build-nav-pages: 无正文的 nav 不生成空壳页', () => {
+test('build-nav-pages: 无正文的 nav 不生成空壳页', async () => {
   const root = makeRoot();
   try {
     const nav = readJson(root, 'data/navlinks.json');
     for (const it of nav.items) it.sourceIds = [];
     writeJson(root, 'data/navlinks.json', nav);
-    const r = runBuildNavPages(root, {});
+    const r = await runBuildNavPages(root, {});
     assert.equal(r.built, 0);
     assert.equal(r.downgraded, 2);
     assert.ok(r.downgradedDetail.every((d) => d.reason === 'no-body'));
   } finally { cleanup(root); }
 });
 
-test('build: 产物齐全 + sitemap 显式枚举，无空壳页', () => {
+test('build: 产物齐全 + sitemap 显式枚举，无空壳页', async () => {
   const root = makeRoot();
   try {
     runFillSite(root, {});
-    runBuildNavPages(root, {});
+    await runBuildNavPages(root, {});
     const r = runBuild(root, {});
     assert.ok(r.pages >= 1);
     for (const f of ['_site/index.html', '_site/assets/site.css', '_site/sitemap.xml', '_site/robots.txt']) {

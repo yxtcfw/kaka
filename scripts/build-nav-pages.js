@@ -18,7 +18,7 @@ function hasBody(sourceIds, sources) {
     .some((s) => s.status === 'approved' && s.bodyKind !== 'none' && (s.bodyExcerpt || '').length >= 20);
 }
 
-export function runBuildNavPages(root = ROOT, args = {}) {
+export async function runBuildNavPages(root = ROOT, args = {}) {
   const manifest = readJson(path.join(root, 'config/manifest.json'));
   const navDoc = readJson(path.join(root, 'data/navlinks.json'));
   const sourcesDoc = readJson(path.join(root, 'data/sources.json'));
@@ -53,7 +53,7 @@ export function runBuildNavPages(root = ROOT, args = {}) {
       return s && s.status === 'approved';
     });
 
-    const bundle = composeBundle(provider, {
+    const bundle = await composeBundle(provider, {
       id: `nav-${nav.navId}`,
       kind: 'nav-detail',
       title: nav.title,
@@ -62,8 +62,10 @@ export function runBuildNavPages(root = ROOT, args = {}) {
       toc: ['简介', '核对过的入口', '说明'],
       links,
       byline: ''
-    });
-    bundle.body = (citeIds.map((id) => byId.get(id)?.bodyExcerpt).filter(Boolean).join('\n\n') || bundle.body);
+    }, args.llmOpts || {});
+    // 正文事实锚定真实信源：模型只写组织语，信源摘录始终作为正文主体。
+    const sourceBody = citeIds.map((id) => byId.get(id)?.bodyExcerpt).filter(Boolean).join('\n\n');
+    bundle.body = sourceBody ? `${bundle.body}\n\n${sourceBody}` : bundle.body;
 
     // 数字归属：从真实信源正文抽数字，逐条绑定 citationId（事实闸要求每个数字指回 citation）。
     // 若 nav 显式带 detailClaims（人工/上游预制主张），以其为准并保留其 citationIds——

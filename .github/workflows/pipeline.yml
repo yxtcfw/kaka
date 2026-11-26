@@ -18,14 +18,23 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      # 无 key 搜索（ddgs）与 site: 收录估算走 Python 适配器，云端需装依赖。
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 安装 Python 适配器依赖
+        run: pip install -r requirements.txt
 
       - name: 注入密钥（只走 env，永不落文件）
         run: |
           echo "已注入的密钥指纹（不打印明文）："
-          node -e "for (const k of ['OPENROUTER_API_KEYS','TAVILY_API_KEY','GSC_SERVICE_ACCOUNT','BING_API_KEY']) { const v=process.env[k]||''; console.log(k, v ? 'set('+v.length+')' : 'unset') }"
+          node -e "for (const k of ['OPENROUTER_API_KEYS','TAVILY_API_KEY','EXA_API_KEY','DEEPSEEK_API_KEY','DASHSCOPE_API_KEY','GSC_SERVICE_ACCOUNT','BING_API_KEY']) { const v=process.env[k]||''; console.log(k, v ? 'set('+v.length+')' : 'unset') }"
         env:
           OPENROUTER_API_KEYS: ${{ secrets.OPENROUTER_API_KEYS }}
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
           GSC_SERVICE_ACCOUNT: ${{ secrets.GSC_SERVICE_ACCOUNT }}
           BING_API_KEY: ${{ secrets.BING_API_KEY }}
 
@@ -37,6 +46,9 @@ jobs:
         env:
           OPENROUTER_API_KEYS: ${{ secrets.OPENROUTER_API_KEYS }}
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
           GSC_SERVICE_ACCOUNT: ${{ secrets.GSC_SERVICE_ACCOUNT }}
           BING_API_KEY: ${{ secrets.BING_API_KEY }}
 

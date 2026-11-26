@@ -8,7 +8,7 @@ import { loadState, saveState, recordRun, sourcesPassed, contentPassed } from '.
 import { makeSnapshots } from './lib/snapshot.js';
 import { atomicWriteJson } from './lib/util.js';
 
-export function runWriteContent(root = ROOT, args = {}) {
+export async function runWriteContent(root = ROOT, args = {}) {
   const manifest = readJson(path.join(root, 'config/manifest.json'));
   const tree = readJson(path.join(root, 'data/tree.json'));
   const sourcesDoc = readJson(path.join(root, 'data/sources.json'));
@@ -34,7 +34,7 @@ export function runWriteContent(root = ROOT, args = {}) {
     // 每个节点选一篇可用信源做引用
     const cite = approved.find((s) => !generated.some((g) => g.sourceId === s.sourceId)) || approved[0];
     if (!cite) break;
-    const bundle = composeBundle(provider, {
+    const bundle = await composeBundle(provider, {
       id: `article-${node.id}`,
       kind: 'article',
       title: node.topic || node.label,
@@ -42,7 +42,7 @@ export function runWriteContent(root = ROOT, args = {}) {
       cardDesc: `${node.label}相关资料整理与选购参考。`,
       links: [{ href: cite.url, rel: 'sponsored nofollow noopener', kind: 'outbound' }],
       byline: ''
-    });
+    }, args.llmOpts || {});
     bundle.body = `${bundle.body}\n\n参考信源：${cite.title}（${cite.domain}）。具体数值以官方实时页面为准。`;
     const gate = runGates(bundle, { root, sources, corpus });
     if (gate.ok) {

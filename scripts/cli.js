@@ -46,13 +46,13 @@ async function main() {
     }
     case 'bootstrap': print('bootstrap', runBootstrap(root, args)); break;
     case 'harvest': print('harvest', runHarvest(root, args)); break;
-    case 'grow-tree': print('grow-tree', runGrowTree(root, args)); break;
+    case 'grow-tree': print('grow-tree', await runGrowTree(root, args)); break;
     case 'discover': print('discover', await runDiscover(root, args)); break;
     case 'fetch-body': print('fetch-body', await runFetchBody(root, args)); break;
     case 'collect-sources': print('collect-sources', await runCollectSources(root, args)); break;
-    case 'write': print('write', runWriteContent(root, args)); break;
+    case 'write': print('write', await runWriteContent(root, args)); break;
     case 'fill-site': print('fill-site', runFillSite(root, args)); break;
-    case 'nav-pages': print('nav-pages', runBuildNavPages(root, args)); break;
+    case 'nav-pages': print('nav-pages', await runBuildNavPages(root, args)); break;
     case 'build': print('build', runBuild(root, args)); break;
     case 'metrics': print('metrics', await runFetchMetrics(root, args)); break;
     case 'prune': print('prune', runPrune(root, args)); break;
@@ -72,12 +72,12 @@ async function main() {
       const bootstrap = runBootstrap(root, o);
       const h1 = runHarvest(root, o);
       const h2 = runHarvest(root, o); // 第二轮收敛，判据①达标
-      const grow = runGrowTree(root, o);
+      const grow = await runGrowTree(root, o);
       const discover = await runDiscover(root, { ...o, limit: Number(args.limit || 10) });
       const body = await runFetchBody(root, o);
-      const write = runWriteContent(root, o);
+      const write = await runWriteContent(root, o);
       const fill = runFillSite(root, o);
-      const nav = runBuildNavPages(root, o);
+      const nav = await runBuildNavPages(root, o);
       const build = runBuild(root, o);
       const drift = runDriftCheck(root, o);
       print('pipeline', { bootstrap, harvest: [h1.passed, h2.passed], grow: grow.idempotent, discover: discover.candidates, body: body.sourcesPassed, write: write.contentPassed, fill: { filled: fill.filled, skipped: fill.skipped }, nav: { built: nav.built, downgraded: nav.downgraded }, build: build.pages, drift: { alertCount: drift.alertCount, critical: drift.critical.length } });

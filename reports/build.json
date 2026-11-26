@@ -1,11 +1,12 @@
 {
   "stage": "build",
-  "pages": 8,
+  "pages": 9,
   "urls": [
     "https://example.com/",
     "https://example.com/nav/nav-001.html",
     "https://example.com/nav/nav-002.html",
     "https://example.com/blog/",
+    "https://example.com/blog/article-n1.html",
     "https://example.com/blog/article-n1.html",
     "https://example.com/blog/article-n1.html",
     "https://example.com/blog/article-n1.html",
