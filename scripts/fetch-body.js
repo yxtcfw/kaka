@@ -2,7 +2,7 @@
 // 抓不到正文或过短 → status=candidate/bodyKind=none，不进创作；status=rejected 永不被引用。
 import path from 'node:path';
 import { readJson, writeJson, ROOT } from './lib/validate.js';
-import { fetchBody, gradeCandidate, dedupeCandidates, nextSourceId } from './lib/sources.js';
+import { fetchBody, gradeCandidate, dedupeCandidates, nextSourceId, createProviderGuard } from './lib/sources.js';
 import { loadState, saveState, recordRun, sourcesPassed } from './lib/state.js';
 
 export async function runFetchBody(root = ROOT, args = {}) {
@@ -18,10 +18,20 @@ export async function runFetchBody(root = ROOT, args = {}) {
   let sources = sourcesDoc.sources;
   const candidates = dedupeCandidates(discovered.candidates, sources);
 
+  // 真 provider 走 fetch-guard；discover 已降级时整链用 mock，不再发真实请求。
+  const bodyProvider = discovered.degraded ? 'mock' : provider;
+  let guard = null;
+  if (bodyProvider !== 'mock') {
+    guard = createProviderGuard(root, {
+      ...args,
+      fetchFn: args.fetchFn || (typeof globalThis.fetch === 'function' ? globalThis.fetch.bind(globalThis) : null)
+    });
+  }
+
   const results = [];
   for (const c of candidates) {
     let body = '';
-    try { body = (await fetchBody(c, discovered.degraded ? 'mock' : provider)).body; }
+    try { body = (await fetchBody(c, bodyProvider, { root, guard })).body; }
     catch { body = ''; }
     const graded = gradeCandidate(c, body, gradeRules);
     const id = nextSourceId(sources);
@@ -51,10 +61,11 @@ export async function runFetchBody(root = ROOT, args = {}) {
     independentL2: l2Domains.size,
     passed: sourcesPassed({ ...state, sources: { l1, independentL2: l2Domains.size } }, manifest)
   };
+  const guardStats = guard ? { enabled: true, ...guard.getStats() } : { enabled: false, reason: discovered.degraded ? 'degraded-to-mock' : 'mock-provider' };
   const report = {
     stage: 'fetch-body', provider, fetched: results.length,
     approved: results.filter((r) => r.status === 'approved').length,
-    l1, independentL2: l2Domains.size, sourcesPassed: state.sources.passed
+    l1, independentL2: l2Domains.size, sourcesPassed: state.sources.passed, guard: guardStats
   };
 
   if (!args.dryRun) {

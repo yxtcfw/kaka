@@ -1,0 +1,23 @@
+{
+  "schema": "metaschema/v1",
+  "type": "object",
+  "required": ["schema", "enabled", "userAgent", "userAgentToken", "timeoutMs", "rpm", "minIntervalMs", "jitterMs", "maxRetries", "backoffBaseMs", "backoffMaxMs", "concurrency", "respectRobots", "crawlDelayFallbackMs", "retryStatuses"],
+  "properties": {
+    "schema": { "type": "string", "const": "rules/collect-policy/v1" },
+    "enabled": { "type": "boolean" },
+    "userAgent": { "type": "string", "minLength": 1 },
+    "userAgentToken": { "type": "string", "minLength": 1 },
+    "timeoutMs": { "type": "number", "minimum": 1, "maximum": 120000 },
+    "rpm": { "type": "number", "minimum": 1, "maximum": 600 },
+    "minIntervalMs": { "type": "number", "minimum": 0, "maximum": 600000 },
+    "jitterMs": { "type": "number", "minimum": 0, "maximum": 60000 },
+    "maxRetries": { "type": "number", "minimum": 0, "maximum": 5 },
+    "backoffBaseMs": { "type": "number", "minimum": 0, "maximum": 600000 },
+    "backoffMaxMs": { "type": "number", "minimum": 0, "maximum": 600000 },
+    "concurrency": { "type": "number", "minimum": 1, "maximum": 16 },
+    "respectRobots": { "type": "boolean" },
+    "crawlDelayFallbackMs": { "type": "number", "minimum": 0, "maximum": 600000 },
+    "retryStatuses": { "type": "array", "items": { "type": "number", "minimum": 100, "maximum": 599 } },
+    "_comment": { "type": "string" }
+  }
+}

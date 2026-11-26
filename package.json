@@ -13,19 +13,20 @@
     "bootstrap": "node scripts/cli.js bootstrap",
     "harvest": "node scripts/cli.js harvest",
     "grow-tree": "node scripts/cli.js grow-tree",
-    "discover": "node scripts/cli.js discover-sources",
+    "discover": "node scripts/cli.js discover",
     "fetch-body": "node scripts/cli.js fetch-body",
     "collect": "node scripts/cli.js collect-sources",
-    "write": "node scripts/cli.js write-content",
-    "nav-pages": "node scripts/cli.js build-nav-pages",
+    "write": "node scripts/cli.js write",
+    "nav-pages": "node scripts/cli.js nav-pages",
     "fill-site": "node scripts/cli.js fill-site",
     "build": "node scripts/cli.js build",
     "pipeline": "node scripts/cli.js pipeline",
     "prune": "node scripts/cli.js prune",
     "drift-check": "node scripts/cli.js drift-check",
+    "guard-check": "node scripts/cli.js guard-check",
     "metrics": "node scripts/cli.js fetch-metrics",
     "report": "node scripts/cli.js report",
     "rollback": "node scripts/cli.js rollback",
-    "reset": "node scripts/cli.js reset-site"
+    "reset": "node scripts/cli.js reset"
   }
 }

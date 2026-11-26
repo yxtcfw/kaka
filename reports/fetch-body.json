@@ -5,5 +5,9 @@
   "approved": 0,
   "l1": 1,
   "independentL2": 1,
-  "sourcesPassed": true
+  "sourcesPassed": true,
+  "guard": {
+    "enabled": false,
+    "reason": "mock-provider"
+  }
 }

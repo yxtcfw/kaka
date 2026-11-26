@@ -89,7 +89,8 @@ const SCHEMA_FILES = {
   'site/v1': 'site.schema.json',
   'signals/v1': 'signals.schema.json',
   'bundle/v1': 'bundle.schema.json',
-  'alerts/v1': 'alert.schema.json'
+  'alerts/v1': 'alert.schema.json',
+  'rules/collect-policy/v1': 'collect-policy.schema.json'
 };
 
 export function validateDoc(value, schemaDir = path.join(ROOT, 'schema')) {
@@ -108,6 +109,7 @@ export function validateRepo(root = ROOT) {
     'seeds.json',
     'state.json',
     'config/manifest.json',
+    'rules/collect-policy.json',
     'data/tree.json',
     'data/navlinks.json',
     'data/sources.json',

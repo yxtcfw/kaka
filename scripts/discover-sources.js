@@ -2,7 +2,7 @@
 // 红线（附录 A）：搜索只发现候选 URL，候选一律 L3，不自爬 SERP。
 import path from 'node:path';
 import { readJson, writeJson, ROOT } from './lib/validate.js';
-import { searchCandidates } from './lib/sources.js';
+import { searchCandidates, createProviderGuard } from './lib/sources.js';
 import { urlKey } from './lib/util.js';
 import { recordRun, loadState, saveState } from './lib/state.js';
 
@@ -22,13 +22,23 @@ export async function runDiscover(root = ROOT, args = {}) {
 
   let candidates = [];
   let degraded = false;
+  let guard = null;
   try {
-    candidates = await searchCandidates(picked, provider, picked.length);
+    // 真 provider 必须经 fetch-guard 发请求；mock 链路不创建 guard（零网络、零等待）。
+    if (provider !== 'mock') {
+      guard = createProviderGuard(root, {
+        ...args,
+        fetchFn: args.fetchFn || (typeof globalThis.fetch === 'function' ? globalThis.fetch.bind(globalThis) : null)
+      });
+    }
+    candidates = await searchCandidates(picked, provider, picked.length, { root, guard });
   } catch (e) {
-    // 真 provider 无 key → 降级 mock，报告里显式标注（不静默伪造）
+    // 真 provider 无 key / guard 拒绝 → 降级 mock，报告里显式标注（不静默伪造）
     degraded = true;
+    guard = null;
     candidates = await searchCandidates(picked, 'mock', picked.length);
   }
+  const guardStats = guard ? { enabled: true, ...guard.getStats() } : { enabled: false, reason: degraded ? 'degraded-to-mock' : 'mock-provider' };
 
   // 已有源 URL 判重（归因参数归一）
   const sources = readJson(path.join(root, 'data/sources.json')).sources;
@@ -42,7 +52,7 @@ export async function runDiscover(root = ROOT, args = {}) {
   }
 
   const doc = { schema: 'discovered/v1', provider, degraded, queryTerms: picked, candidates: fresh, discoveredAt: new Date().toISOString() };
-  const report = { stage: 'discover', provider, degraded, queries: picked.length, candidates: fresh.length };
+  const report = { stage: 'discover', provider, degraded, queries: picked.length, candidates: fresh.length, guard: guardStats };
 
   if (!args.dryRun) {
     writeJson(path.join(root, 'data/discovered.json'), doc);

@@ -11,7 +11,8 @@ node scripts/cli.js validate                        # 校验数据契约
 node scripts/cli.js bootstrap --domain your.com --apply   # 三样输入 → 站点初稿
 node scripts/cli.js pipeline                        # 全链：采词→建树→信源→创作→构建
 node scripts/cli.js build                           # 只构建（CI 用，clone 即可 build）
-npm test                                            # 39 单测
+node scripts/cli.js guard-check                     # 防风控自检（假请求，零真实网络）
+npm test                                            # 62 单测
 ```
 
 云端部署、Secrets、复制建新站见 [`docs/setup-cloudflare.md`](docs/setup-cloudflare.md)。
@@ -22,8 +23,8 @@ npm test                                            # 39 单测
 seeds.json (人工种子词)
   → harvest.js          采联想词（判据①：≥300 词 / ≥2 源 / 新增率<10%）
   → grow-tree.js        AI 建规则 + 长树（免审批，快照 + 金丝雀 + 幂等）
-  → discover-sources.js 搜索发现候选 URL（默认 L3，只用授权 API）
-  → fetch-body.js       抓正文 + 判据 → 信源池（判据②：1×L1 或 2×独立 L2）
+  → discover-sources.js 搜索发现候选 URL（默认 L3，真 provider 经 fetch-guard）
+  → fetch-body.js       抓正文 + 判据 → 信源池（判据②：1×L1 或 2×独立 L2；真抓取经 fetch-guard）
   → write-content.js    创作 blog + 六道门禁（判据③：数字指回 citation，门禁至少拦一次）
   → build-nav-pages.js  预设 nav 有正文才补详情，过同一套六闸；不过闸降级列表直跳
   → fill-site.js        仅首次构建补空站点信息，之后冻结（人工值不覆盖、清空不重填）
@@ -40,6 +41,22 @@ seeds.json (人工种子词)
 5. **门禁不豁免**：blog 文章与 nav 详情页共用六道门禁（事实/重复/违禁/结构/可引用/合规出站）。
 6. **首次填空一次定稿**：`siteFilled=true` 后永久跳过，人工改值不被改回。
 7. **免审批的五道安全阀**：快照（`snapshots/`）+ 金丝雀（`grow-tree` canary diff）+ 漂移告警（`drift-check` → `alerts/latest.json`，树/信源/规则一致性）+ 周报回滚命令（`reports/weekly.md`）+ 幂等键；全部已实现，只告警不阻断，供事后审计。
+8. **采集防风控**：所有真实 provider 必须经 `scripts/lib/fetch-guard.js` 发请求（mock 链路零网络）。策略在 `rules/collect-policy.json`：UA、robots.txt/crawl-delay、rpm 令牌窗口、请求间隔+抖动、超时、429/5xx 指数退避（尊重 Retry-After）、并发上限、`enabled` 硬开关。`guard-check` 可一键自检；`discover`/`fetch-body` 报告带 `guard` 统计。
+
+## 采集防风控（接真实 provider 前必读）
+
+默认 `providers.search=mock`，不发任何真实请求。切到 `tavily` / `exa` 后，请求统一走 `fetch-guard`，key 只从环境变量读（`TAVILY_API_KEY` / `EXA_API_KEY`），永不落文件。可用参数：
+
+| 字段 | 默认 | 含义 |
+|---|---|---|
+| `enabled` | true | false 硬拒绝所有真实请求 |
+| `respectRobots` / `crawlDelayFallbackMs` | true / 1000 | 解析 robots.txt、遵守 crawl-delay |
+| `rpm` / `minIntervalMs` / `jitterMs` | 12 / 1000 / 500 | 滑动窗口限速、最小间隔、随机抖动 |
+| `maxRetries` / `backoffBaseMs` / `backoffMaxMs` / `retryStatuses` | 2 / 1000 / 10000 / 429,5xx | 指数退避 + Retry-After 优先 |
+| `timeoutMs` / `concurrency` | 10000 / 2 | 单请求超时、并发上限 |
+| `userAgent` / `userAgentToken` | 模板 UA | 每次请求注入 UA，用于 robots 匹配 |
+
+不使用代理池/IP 轮换（除非有明确合规授权）；不爬搜索引擎结果页，只用授权 API 发现候选 URL。
 
 ## 目录结构
 
@@ -48,7 +65,7 @@ seeds.json            人工种子词（唯一新增的人工业务输入）
 state.json            三道判据进度 + siteFilled 标记
 config/manifest.json  站点配置初稿（domain/vertical/threshold/provider）
 data/                 内容树、nav、信源、站点信息、产物（均进 git）
-rules/                四类可改规则（signals-tree/nav-classify/source-grade/autopilot）
+rules/                可改规则（signals-tree/nav-classify/source-grade/autopilot/collect-policy）
 schema/               轻量 JSON Schema（零依赖校验器消费）
 scripts/              全部脚本（lib 为核心库）
 templates/assets/     站点 CSS（token 由 build 注入）
@@ -56,11 +73,11 @@ snapshots/            AI 写盘前的历史版本（可回滚）
 reports/              流程报告 + 周报（含回滚命令）
 alerts/               漂移告警
 docs/                 上手与部署说明
-tests/                39 单测（隔离临时 root，不碰真实仓库）
+tests/                62 单测（隔离临时 root，不碰真实仓库）
 ```
 
 ## 命令一览
 
-`validate` `bootstrap` `harvest` `grow-tree` `discover` `fetch-body` `collect-sources` `write` `fill-site` `nav-pages` `build` `metrics` `prune` `drift-check` `report` `rollback` `reset` `pipeline`
+`validate` `bootstrap` `harvest` `grow-tree` `discover` `fetch-body` `collect-sources` `write` `fill-site` `nav-pages` `build` `metrics` `prune` `drift-check` `guard-check` `report` `rollback` `reset` `pipeline`
 
 统一入口：`node scripts/cli.js <command> [--root DIR] [--dry-run] [options]`。全部脚本默认可从任意 `--root` 派生路径，便于 Termux/测试隔离。

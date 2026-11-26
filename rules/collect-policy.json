@@ -1,0 +1,18 @@
+{
+  "schema": "rules/collect-policy/v1",
+  "enabled": true,
+  "userAgent": "vertical-site-template/1.0 (+bot; contact: webmaster@example.com)",
+  "userAgentToken": "vertical-site-template",
+  "timeoutMs": 10000,
+  "rpm": 12,
+  "minIntervalMs": 1000,
+  "jitterMs": 500,
+  "maxRetries": 2,
+  "backoffBaseMs": 1000,
+  "backoffMaxMs": 10000,
+  "concurrency": 2,
+  "respectRobots": true,
+  "crawlDelayFallbackMs": 1000,
+  "retryStatuses": [429, 500, 502, 503, 504],
+  "_comment": "采集防风控策略（进 git 可审计）。rpm/并发/间隔/退避/超时/robots 全部在此调；enabled=false 会硬拒绝所有真实请求。默认 mock 链路不读网络，不受影响。"
+}
