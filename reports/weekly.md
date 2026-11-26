@@ -1,11 +1,11 @@
 # 站点周报
 
-生成时间：2026-11-26T13:39:38.773Z
+生成时间：2026-11-26T15:15:31.094Z
 
 ## 达标进度
 - 判据① 联想词：{"count":326,"sources":2,"newRate":0,"passed":true}
 - 判据② 信源：{"l1":1,"independentL2":1,"passed":true}
-- 判据③ 内容：{"generated":1,"gateBlocked":1,"passed":true}
+- 判据③ 内容：{"generated":6,"gateBlocked":6,"passed":true}
 - 首次填空：siteFilled=true
 
 ## 本周流程报告
@@ -22,17 +22,17 @@
 - 无漂移，三者一致
 
 ## 规则/数据变更与回滚
-快照数：36
-- 快照：snapshots/before-navpages-1795699206282/source-grade.json.2026-11-26T13-20-06-282Z
-- 快照：snapshots/before-navpages-1795699206282/tree.json.2026-11-26T13-20-06-282Z
-- 快照：snapshots/before-writecontent-1795699206151/autopilot.json.2026-11-26T13-20-06-151Z
-- 快照：snapshots/before-writecontent-1795699206151/manifest.json.2026-11-26T13-20-06-151Z
-- 快照：snapshots/before-writecontent-1795699206151/nav-classify.json.2026-11-26T13-20-06-151Z
-- 快照：snapshots/before-writecontent-1795699206151/signals-tree.json.2026-11-26T13-20-06-151Z
-- 快照：snapshots/before-writecontent-1795699206151/site.json.2026-11-26T13-20-06-151Z
-- 快照：snapshots/before-writecontent-1795699206151/source-grade.json.2026-11-26T13-20-06-151Z
-- 快照：snapshots/before-writecontent-1795699206151/tree.json.2026-11-26T13-20-06-151Z
-- 快照：snapshots/signals/signals.json.2026-11-26T13-20-06-059Z
+快照数：186
+- 快照：snapshots/signals/signals.json.2026-11-26T13-39-43-906Z
+- 快照：snapshots/signals/signals.json.2026-11-26T13-39-43-945Z
+- 快照：snapshots/signals/signals.json.2026-11-26T13-55-23-807Z
+- 快照：snapshots/signals/signals.json.2026-11-26T13-55-23-838Z
+- 快照：snapshots/signals/signals.json.2026-11-26T14-55-38-445Z
+- 快照：snapshots/signals/signals.json.2026-11-26T14-55-38-480Z
+- 快照：snapshots/signals/signals.json.2026-11-26T15-09-52-911Z
+- 快照：snapshots/signals/signals.json.2026-11-26T15-09-52-935Z
+- 快照：snapshots/signals/signals.json.2026-11-26T15-15-28-955Z
+- 快照：snapshots/signals/signals.json.2026-11-26T15-15-28-957Z
 
 回滚命令示例（人工决定后执行）：
 ```bash
