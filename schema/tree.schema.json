@@ -1,0 +1,34 @@
+{
+  "schema": "metaschema/v1",
+  "type": "object",
+  "required": ["schema", "version", "root", "nodes"],
+  "properties": {
+    "schema": { "type": "string", "const": "tree/v1" },
+    "version": { "type": "number", "minimum": 0 },
+    "root": {
+      "type": "object",
+      "required": ["id", "label", "topic", "children"],
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "topic": { "type": "string" },
+        "children": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "topic", "parent", "children"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "topic": { "type": "string" },
+          "keywords": { "type": "array", "items": { "type": "string" } },
+          "parent": { "type": "string" },
+          "children": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

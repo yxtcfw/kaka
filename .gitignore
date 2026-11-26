@@ -1,0 +1,25 @@
+# 构建产物
+_site/
+dist/
+public/
+
+# 本地私有配置与运营数据（永不进 git）
+.local/
+*.key
+*.pem
+.env
+.env.*
+
+# 缓存
+node_modules/
+.cache/
+*.log
+
+# 编辑器 / 系统
+.DS_Store
+Thumbs.db
+
+# 说明：
+# v7 采用「全数据进仓库」策略（与旧项目 .local 隔离不同），
+# 唯一例外是密钥：只走 GitHub Secrets / 环境变量，永不落文件。
+# 因此 data/、state.json、rules/、snapshots/、reports/ 均进 git。

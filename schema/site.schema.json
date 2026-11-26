@@ -1,0 +1,17 @@
+{
+  "schema": "metaschema/v1",
+  "type": "object",
+  "required": ["schema"],
+  "properties": {
+    "schema": { "type": "string", "const": "site/v1" },
+    "siteName": { "type": "any" },
+    "tagline": { "type": "any" },
+    "vertical": { "type": "any" },
+    "topics": { "type": "any" },
+    "navCategories": { "type": "any" },
+    "intro": { "type": "any" },
+    "styleTokens": { "type": "any" },
+    "license": { "type": "any" },
+    "byline": { "type": "any" }
+  }
+}

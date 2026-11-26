@@ -1,0 +1,58 @@
+name: pipeline
+
+# 采集→建树→信源→创作→构建 全链（达标驱动）。
+# 运行节奏：定时（cron）+ 手动。仓库公开 60 天无提交会停 cron，周报提交保持活动。
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: 注入密钥（只走 env，永不落文件）
+        run: |
+          echo "已注入的密钥指纹（不打印明文）："
+          node -e "for (const k of ['OPENROUTER_API_KEYS','TAVILY_API_KEY','GSC_SERVICE_ACCOUNT','BING_API_KEY']) { const v=process.env[k]||''; console.log(k, v ? 'set('+v.length+')' : 'unset') }"
+        env:
+          OPENROUTER_API_KEYS: ${{ secrets.OPENROUTER_API_KEYS }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          GSC_SERVICE_ACCOUNT: ${{ secrets.GSC_SERVICE_ACCOUNT }}
+          BING_API_KEY: ${{ secrets.BING_API_KEY }}
+
+      - name: 校验数据契约
+        run: node scripts/cli.js validate
+
+      - name: 运行全链
+        run: node scripts/cli.js pipeline
+        env:
+          OPENROUTER_API_KEYS: ${{ secrets.OPENROUTER_API_KEYS }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          GSC_SERVICE_ACCOUNT: ${{ secrets.GSC_SERVICE_ACCOUNT }}
+          BING_API_KEY: ${{ secrets.BING_API_KEY }}
+
+      - name: 生成周报
+        run: node scripts/cli.js report
+
+      # 注意：GITHUB_TOKEN 提交默认不触发其他 workflow。
+      # 这里显式提交数据回仓；部署靠 workflow_run 链式（见 deploy.yml），不能指望 push 事件。
+      - name: 提交数据回仓
+        run: |
+          git config user.name "bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "no data changes"
+          else
+            git commit -m "chore: pipeline data update [skip ci]"
+            git push
+          fi

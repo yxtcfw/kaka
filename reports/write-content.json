@@ -1,0 +1,19 @@
+{
+  "stage": "write-content",
+  "provider": "mock",
+  "generated": 1,
+  "blocked": 1,
+  "gateBlockedCount": 1,
+  "contentPassed": true,
+  "blockedDetail": [
+    {
+      "nodeId": "n2",
+      "blockers": [
+        {
+          "gate": "dedup",
+          "detail": "max cosine=0.856 (limit 0.7) with article-n1"
+        }
+      ]
+    }
+  ]
+}

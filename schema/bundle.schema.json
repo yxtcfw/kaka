@@ -1,0 +1,47 @@
+{
+  "schema": "metaschema/v1",
+  "type": "object",
+  "required": ["schema", "id", "kind", "title", "claims", "citations", "links"],
+  "properties": {
+    "schema": { "type": "string", "const": "bundle/v1" },
+    "id": { "type": "string" },
+    "kind": { "type": "string", "enum": ["article", "nav-detail"] },
+    "title": { "type": "string", "minLength": 1 },
+    "body": { "type": "string" },
+    "cardDesc": { "type": "string", "maxLength": 60 },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["text", "citationIds"],
+        "properties": {
+          "text": { "type": "string" },
+          "citationIds": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "citations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["sourceId"],
+        "properties": {
+          "sourceId": { "type": "string" }
+        }
+      }
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["href"],
+        "properties": {
+          "href": { "type": "string" },
+          "rel": { "type": "string" },
+          "kind": { "type": "string", "enum": ["outbound", "promo", "internal"] }
+        }
+      }
+    },
+    "byline": { "type": "string" }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "metaschema/v1",
+  "type": "object",
+  "required": ["schema", "type"],
+  "properties": {
+    "schema": { "type": "string" },
+    "type": { "type": "string", "enum": ["object", "array", "string", "number", "boolean", "any"] },
+    "required": { "type": "array", "items": { "type": "string" } },
+    "properties": { "type": "object" },
+    "items": { "type": "object" },
+    "enum": { "type": "array" },
+    "const": { "type": "any" },
+    "minLength": { "type": "number" },
+    "maxLength": { "type": "number" },
+    "minimum": { "type": "number" },
+    "maximum": { "type": "number" },
+    "minItems": { "type": "number" },
+    "additionalProperties": { "type": "boolean" }
+  },
+  "_comment": "本仓使用自研轻量 JSON Schema 子集（零依赖）。支持 type/required/properties/items/enum/const/minLength/maxLength/minimum/maximum/minItems/additionalProperties。"
+}

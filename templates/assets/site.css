@@ -1,0 +1,46 @@
+/* 零运行时依赖静态站样式。CSS 变量由 build.js 从 site.styleTokens 注入到 :root。 */
+:root {
+  --primary: #2563eb;
+  --accent: #f59e0b;
+  --radius: 12px;
+  --font: system-ui, sans-serif;
+  --bg: #f7f8fa;
+  --fg: #1f2430;
+  --muted: #667085;
+  --card: #ffffff;
+  --border: #e5e7eb;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--fg); line-height: 1.65; }
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+header.site { background: var(--card); border-bottom: 1px solid var(--border); }
+header.site .wrap { display: flex; justify-content: space-between; align-items: center; padding-top: 18px; padding-bottom: 18px; }
+.brand { font-size: 1.35rem; font-weight: 700; }
+.tagline { color: var(--muted); font-size: 0.92rem; }
+nav.cats { display: flex; gap: 10px; flex-wrap: wrap; margin: 18px 0; }
+nav.cats a { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 14px; }
+.intro { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+.card h3 { margin: 0; font-size: 1.05rem; }
+.card p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+.card .out { margin-top: auto; font-size: 0.85rem; }
+.badge { font-size: 0.72rem; color: var(--accent); }
+article.post { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+article.post h1 { margin-top: 0; }
+article.post .meta { color: var(--muted); font-size: 0.85rem; }
+.toc { background: var(--bg); border-radius: var(--radius); padding: 12px 18px; margin: 16px 0; }
+.toc a { margin-right: 14px; }
+.outbound { display: inline-block; margin-top: 18px; background: var(--primary); color: #fff; padding: 10px 18px; border-radius: var(--radius); }
+.outbound:hover { text-decoration: none; opacity: 0.92; }
+.citations { font-size: 0.82rem; color: var(--muted); margin-top: 20px; }
+section { margin: 36px 0; }
+section h2 { border-bottom: 2px solid var(--primary); padding-bottom: 8px; }
+footer.site { text-align: center; color: var(--muted); font-size: 0.82rem; padding: 30px 20px; border-top: 1px solid var(--border); margin-top: 40px; }
+.empty { color: var(--muted); font-style: italic; }
+@media (max-width: 600px) {
+  header.site .wrap { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .grid { grid-template-columns: 1fr; }
+}

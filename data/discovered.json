@@ -1,0 +1,110 @@
+{
+  "schema": "discovered/v1",
+  "provider": "mock",
+  "degraded": false,
+  "queryTerms": [
+    "大流量大流量卡需要多少钱",
+    "不限量大流量卡需要多少钱",
+    "大流量流量卡需要多少钱",
+    "不限量流量卡需要多少钱",
+    "移动大流量卡需要多少钱",
+    "联通大流量卡需要多少钱",
+    "电信大流量卡需要多少钱",
+    "低价大流量卡需要多少钱",
+    "大流量大流量卡注意事项",
+    "大流量大流量卡2026"
+  ],
+  "candidates": [
+    {
+      "url": "https://example.net/a/%E5%A4%A7%E6%B5%81%E9%87%8F%E5%A4%A7%E6%B5%81%E9%87%8F%E5%8D%A1%E9%9C%80%E8%A6%81%E5%A4%9A%E5%B0%91%E9%92%B1",
+      "title": "大流量大流量卡需要多少钱 - 资料页",
+      "snippet": "大流量大流量卡需要多少钱 的相关介绍与要点整理（模拟搜索结果，仅用于发现候选 URL）。",
+      "provider": "mock",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-26"
+    },
+    {
+      "url": "https://example.org/a/%E4%B8%8D%E9%99%90%E9%87%8F%E5%A4%A7%E6%B5%81%E9%87%8F%E5%8D%A1%E9%9C%80%E8%A6%81%E5%A4%9A%E5%B0%91%E9%92%B1",
+      "title": "不限量大流量卡需要多少钱 - 资料页",
+      "snippet": "不限量大流量卡需要多少钱 的相关介绍与要点整理（模拟搜索结果，仅用于发现候选 URL）。",
+      "provider": "mock",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-26"
+    },
+    {
+      "url": "https://example.org/a/%E5%A4%A7%E6%B5%81%E9%87%8F%E6%B5%81%E9%87%8F%E5%8D%A1%E9%9C%80%E8%A6%81%E5%A4%9A%E5%B0%91%E9%92%B1",
+      "title": "大流量流量卡需要多少钱 - 资料页",
+      "snippet": "大流量流量卡需要多少钱 的相关介绍与要点整理（模拟搜索结果，仅用于发现候选 URL）。",
+      "provider": "mock",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-26"
+    },
+    {
+      "url": "https://example.org/a/%E4%B8%8D%E9%99%90%E9%87%8F%E6%B5%81%E9%87%8F%E5%8D%A1%E9%9C%80%E8%A6%81%E5%A4%9A%E5%B0%91%E9%92%B1",
+      "title": "不限量流量卡需要多少钱 - 资料页",
+      "snippet": "不限量流量卡需要多少钱 的相关介绍与要点整理（模拟搜索结果，仅用于发现候选 URL）。",
+      "provider": "mock",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-26"
+    },
+    {
+      "url": "https://example.org/a/%E7%A7%BB%E5%8A%A8%E5%A4%A7%E6%B5%81%E9%87%8F%E5%8D%A1%E9%9C%80%E8%A6%81%E5%A4%9A%E5%B0%91%E9%92%B1",
+      "title": "移动大流量卡需要多少钱 - 资料页",
+      "snippet": "移动大流量卡需要多少钱 的相关介绍与要点整理（模拟搜索结果，仅用于发现候选 URL）。",
+      "provider": "mock",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-26"
+    },
+    {
+      "url": "https://example.org/a/%E8%81%94%E9%80%9A%E5%A4%A7%E6%B5%81%E9%87%8F%E5%8D%A1%E9%9C%80%E8%A6%81%E5%A4%9A%E5%B0%91%E9%92%B1",
+      "title": "联通大流量卡需要多少钱 - 资料页",
+      "snippet": "联通大流量卡需要多少钱 的相关介绍与要点整理（模拟搜索结果，仅用于发现候选 URL）。",
+      "provider": "mock",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-26"
+    },
+    {
+      "url": "https://example.org/a/%E7%94%B5%E4%BF%A1%E5%A4%A7%E6%B5%81%E9%87%8F%E5%8D%A1%E9%9C%80%E8%A6%81%E5%A4%9A%E5%B0%91%E9%92%B1",
+      "title": "电信大流量卡需要多少钱 - 资料页",
+      "snippet": "电信大流量卡需要多少钱 的相关介绍与要点整理（模拟搜索结果，仅用于发现候选 URL）。",
+      "provider": "mock",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-26"
+    },
+    {
+      "url": "https://example.net/a/%E4%BD%8E%E4%BB%B7%E5%A4%A7%E6%B5%81%E9%87%8F%E5%8D%A1%E9%9C%80%E8%A6%81%E5%A4%9A%E5%B0%91%E9%92%B1",
+      "title": "低价大流量卡需要多少钱 - 资料页",
+      "snippet": "低价大流量卡需要多少钱 的相关介绍与要点整理（模拟搜索结果，仅用于发现候选 URL）。",
+      "provider": "mock",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-26"
+    },
+    {
+      "url": "https://example.org/a/%E5%A4%A7%E6%B5%81%E9%87%8F%E5%A4%A7%E6%B5%81%E9%87%8F%E5%8D%A1%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9",
+      "title": "大流量大流量卡注意事项 - 资料页",
+      "snippet": "大流量大流量卡注意事项 的相关介绍与要点整理（模拟搜索结果，仅用于发现候选 URL）。",
+      "provider": "mock",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-26"
+    },
+    {
+      "url": "https://example.org/a/%E5%A4%A7%E6%B5%81%E9%87%8F%E5%A4%A7%E6%B5%81%E9%87%8F%E5%8D%A12026",
+      "title": "大流量大流量卡2026 - 资料页",
+      "snippet": "大流量大流量卡2026 的相关介绍与要点整理（模拟搜索结果，仅用于发现候选 URL）。",
+      "provider": "mock",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-26"
+    }
+  ],
+  "discoveredAt": "2026-11-26T13:20:06.126Z"
+}

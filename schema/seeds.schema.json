@@ -1,0 +1,9 @@
+{
+  "schema": "metaschema/v1",
+  "type": "object",
+  "required": ["schema", "seeds"],
+  "properties": {
+    "schema": { "type": "string", "const": "seeds/v1" },
+    "seeds": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 }
+  }
+}

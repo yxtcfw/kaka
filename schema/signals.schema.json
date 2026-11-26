@@ -1,0 +1,20 @@
+{
+  "schema": "metaschema/v1",
+  "type": "object",
+  "required": ["schema", "items"],
+  "properties": {
+    "schema": { "type": "string", "const": "signals/v1" },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["term", "source", "collectedAt"],
+        "properties": {
+          "term": { "type": "string", "minLength": 1 },
+          "source": { "type": "string" },
+          "collectedAt": { "type": "string" }
+        }
+      }
+    }
+  }
+}

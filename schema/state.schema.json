@@ -1,0 +1,54 @@
+{
+  "schema": "metaschema/v1",
+  "type": "object",
+  "required": ["schema", "siteFilled", "signals", "tree", "sources", "content", "navPages"],
+  "properties": {
+    "schema": { "type": "string", "const": "state/v1" },
+    "siteFilled": { "type": "boolean" },
+    "signals": {
+      "type": "object",
+      "required": ["count", "sources", "newRate", "passed"],
+      "properties": {
+        "count": { "type": "number", "minimum": 0 },
+        "sources": { "type": "number", "minimum": 0 },
+        "newRate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "passed": { "type": "boolean" }
+      }
+    },
+    "tree": {
+      "type": "object",
+      "required": ["built", "version"],
+      "properties": {
+        "built": { "type": "boolean" },
+        "version": { "type": "number", "minimum": 0 }
+      }
+    },
+    "sources": {
+      "type": "object",
+      "required": ["l1", "independentL2", "passed"],
+      "properties": {
+        "l1": { "type": "number", "minimum": 0 },
+        "independentL2": { "type": "number", "minimum": 0 },
+        "passed": { "type": "boolean" }
+      }
+    },
+    "content": {
+      "type": "object",
+      "required": ["generated", "gateBlocked", "passed"],
+      "properties": {
+        "generated": { "type": "number", "minimum": 0 },
+        "gateBlocked": { "type": "number", "minimum": 0 },
+        "passed": { "type": "boolean" }
+      }
+    },
+    "navPages": {
+      "type": "object",
+      "required": ["built", "downgraded"],
+      "properties": {
+        "built": { "type": "number", "minimum": 0 },
+        "downgraded": { "type": "number", "minimum": 0 }
+      }
+    },
+    "runs": { "type": "array", "items": { "type": "object" } }
+  }
+}

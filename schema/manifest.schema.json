@@ -1,0 +1,44 @@
+{
+  "schema": "metaschema/v1",
+  "type": "object",
+  "required": ["schema", "domain", "vertical", "hosting", "theme", "thresholds", "providers"],
+  "properties": {
+    "schema": { "type": "string", "const": "manifest/v1" },
+    "domain": { "type": "string", "minLength": 1 },
+    "vertical": { "type": "string", "minLength": 1 },
+    "siteName": { "type": "any" },
+    "tagline": { "type": "any" },
+    "hosting": { "type": "string" },
+    "theme": {
+      "type": "object",
+      "required": ["primary", "accent", "radius", "font"],
+      "properties": {
+        "primary": { "type": "string" },
+        "accent": { "type": "string" },
+        "radius": { "type": "string" },
+        "font": { "type": "string" }
+      }
+    },
+    "thresholds": {
+      "type": "object",
+      "required": ["signalsMin", "signalsSourcesMin", "signalsNewRateMax", "sourceL1Min", "sourceL2IndependentMin", "gateBlocksMin"],
+      "properties": {
+        "signalsMin": { "type": "number", "minimum": 1 },
+        "signalsSourcesMin": { "type": "number", "minimum": 1 },
+        "signalsNewRateMax": { "type": "number", "minimum": 0, "maximum": 1 },
+        "sourceL1Min": { "type": "number", "minimum": 0 },
+        "sourceL2IndependentMin": { "type": "number", "minimum": 0 },
+        "gateBlocksMin": { "type": "number", "minimum": 0 }
+      }
+    },
+    "providers": {
+      "type": "object",
+      "required": ["suggest", "search", "llm"],
+      "properties": {
+        "suggest": { "type": "string", "enum": ["mock", "suggest-api", "gsc"] },
+        "search": { "type": "string", "enum": ["mock", "tavily", "exa", "ddgs", "zhihu"] },
+        "llm": { "type": "string", "enum": ["mock", "openrouter", "deepseek", "dashscope"] }
+      }
+    }
+  }
+}

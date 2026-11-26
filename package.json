@@ -1,0 +1,30 @@
+{
+  "name": "vertical-site-template",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "v7 minimal-runnable automated vertical site template (zero runtime dependency)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "validate": "node scripts/cli.js validate",
+    "bootstrap": "node scripts/cli.js bootstrap",
+    "harvest": "node scripts/cli.js harvest",
+    "grow-tree": "node scripts/cli.js grow-tree",
+    "discover": "node scripts/cli.js discover-sources",
+    "fetch-body": "node scripts/cli.js fetch-body",
+    "collect": "node scripts/cli.js collect-sources",
+    "write": "node scripts/cli.js write-content",
+    "nav-pages": "node scripts/cli.js build-nav-pages",
+    "fill-site": "node scripts/cli.js fill-site",
+    "build": "node scripts/cli.js build",
+    "pipeline": "node scripts/cli.js pipeline",
+    "prune": "node scripts/cli.js prune",
+    "metrics": "node scripts/cli.js fetch-metrics",
+    "report": "node scripts/cli.js report",
+    "rollback": "node scripts/cli.js rollback",
+    "reset": "node scripts/cli.js reset-site"
+  }
+}

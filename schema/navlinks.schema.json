@@ -1,0 +1,26 @@
+{
+  "schema": "metaschema/v1",
+  "type": "object",
+  "required": ["schema", "items"],
+  "properties": {
+    "schema": { "type": "string", "const": "navlinks/v1" },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["navId", "title", "url", "category", "cardDesc", "hasContent", "sourceIds"],
+        "properties": {
+          "navId": { "type": "string" },
+          "title": { "type": "string" },
+          "url": { "type": "string" },
+          "promoUrl": { "type": "any" },
+          "category": { "type": "string" },
+          "description": { "type": "string" },
+          "cardDesc": { "type": "string", "maxLength": 60 },
+          "hasContent": { "type": "boolean" },
+          "sourceIds": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

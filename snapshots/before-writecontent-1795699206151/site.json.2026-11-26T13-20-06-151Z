@@ -1,0 +1,13 @@
+{
+  "schema": "site/v1",
+  "siteName": null,
+  "tagline": null,
+  "vertical": null,
+  "topics": [],
+  "navCategories": [],
+  "intro": null,
+  "styleTokens": null,
+  "license": null,
+  "byline": null,
+  "_comment": "站点信息。首构建时 fill-site.js 只补空值；人工值保留；siteFilled=true 后永久冻结，清空也不重填。"
+}

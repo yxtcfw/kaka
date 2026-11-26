@@ -1,0 +1,29 @@
+{
+  "stage": "grow-tree",
+  "provider": "mock",
+  "llm": {
+    "provider": "mock",
+    "available": true,
+    "keys": 1,
+    "fingerprint": "mock"
+  },
+  "idempotent": true,
+  "canary": [
+    {
+      "nodeId": "n1",
+      "sampleTerms": [
+        "流量卡办理",
+        "流量卡资费",
+        "流量卡攻略",
+        "流量卡对比",
+        "流量卡怎么选"
+      ],
+      "wouldAdd": 261
+    }
+  ],
+  "keywordsAdded": 37,
+  "nodes": 2,
+  "terms": 326,
+  "signalsPassed": true,
+  "approvalRequired": false
+}

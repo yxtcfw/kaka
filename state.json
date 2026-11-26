@@ -1,0 +1,87 @@
+{
+  "schema": "state/v1",
+  "siteFilled": true,
+  "signals": {
+    "count": 326,
+    "sources": 2,
+    "newRate": 0,
+    "passed": true
+  },
+  "tree": {
+    "built": true,
+    "version": 1
+  },
+  "sources": {
+    "l1": 1,
+    "independentL2": 1,
+    "passed": true
+  },
+  "content": {
+    "generated": 1,
+    "gateBlocked": 1,
+    "passed": true
+  },
+  "navPages": {
+    "built": 2,
+    "downgraded": 0
+  },
+  "runs": [
+    {
+      "at": "2026-11-26T13:20:06.043Z",
+      "stage": "harvest",
+      "provider": "mock",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 326 词，newRate=1"
+    },
+    {
+      "at": "2026-11-26T13:20:06.059Z",
+      "stage": "harvest",
+      "provider": "mock",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 326 词，newRate=0"
+    },
+    {
+      "at": "2026-11-26T13:20:06.117Z",
+      "stage": "grow-tree",
+      "provider": "mock",
+      "inputHash": "beecaf01c348881896a0e483dd1d9239f7631175ddbaa9d06a853389d2d3c649",
+      "summary": "关键词 +37, 节点 2, 幂等=true"
+    },
+    {
+      "at": "2026-11-26T13:20:06.130Z",
+      "stage": "discover",
+      "provider": "mock",
+      "inputHash": "ab92cdec14ac75722f1b37f3f63c79f8c7d6d02ee66b2e75b0bdd9bf76ccc016",
+      "summary": "10 候选"
+    },
+    {
+      "at": "2026-11-26T13:20:06.139Z",
+      "stage": "fetch-body",
+      "provider": "mock",
+      "inputHash": "dadcb3b4b85518115c65f2602df5b0adb9915fbdcf9a48494aaea385371c6fc4",
+      "summary": "+10 源, L1=1, L2独立域=1"
+    },
+    {
+      "at": "2026-11-26T13:20:06.201Z",
+      "stage": "write-content",
+      "provider": "mock",
+      "inputHash": "7922ce65b7977ce7f0bf7f99bc941b51acb595f193fdd9573dd62a400db05418",
+      "summary": "生成 1, 拦截 1"
+    },
+    {
+      "at": "2026-11-26T13:20:06.259Z",
+      "stage": "fill-site",
+      "provider": "deterministic",
+      "inputHash": "84b70913f0ffdc655e67c0cbd9b29a3ed9a30cd14c832d8b40e7adde04f93779",
+      "summary": "首次填空 9 字段并冻结"
+    },
+    {
+      "at": "2026-11-26T13:20:06.334Z",
+      "stage": "build-nav-pages",
+      "provider": "mock",
+      "inputHash": "b5f28420b76235f465757c730bb7906ea9ecd6a3440e42fc57ac82a70622d297",
+      "summary": "详情 2, 降级 0, 门禁拦截 0"
+    }
+  ],
+  "_comment": "三道达标判据进度 + 首次填空标记。脚本据此避免重复采集；siteFilled=true 后 fill-site 永久跳过。"
+}

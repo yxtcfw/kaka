@@ -1,0 +1,29 @@
+{
+  "schema": "tree/v1",
+  "version": 1,
+  "root": {
+    "id": "n0",
+    "label": "流量卡",
+    "topic": "流量卡选购",
+    "children": ["n1", "n2"]
+  },
+  "nodes": [
+    {
+      "id": "n1",
+      "label": "资费套餐",
+      "topic": "大流量卡资费对比",
+      "keywords": ["月租", "通用流量", "定向流量"],
+      "parent": "n0",
+      "children": []
+    },
+    {
+      "id": "n2",
+      "label": "办理攻略",
+      "topic": "流量卡办理避坑",
+      "keywords": ["开卡", "实名", "首充"],
+      "parent": "n0",
+      "children": []
+    }
+  ],
+  "_comment": "内容树。达标判据①通过后由 grow-tree.js 按 rules/signals-tree.json 扩展；每次写盘前先存快照。"
+}

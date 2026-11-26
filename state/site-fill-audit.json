@@ -1,0 +1,70 @@
+{
+  "at": "2026-11-26T13:20:06.266Z",
+  "audit": [
+    {
+      "field": "siteName",
+      "action": "filled",
+      "source": "tree.root.label + manifest.vertical",
+      "value": "流量卡精选指南"
+    },
+    {
+      "field": "tagline",
+      "action": "filled",
+      "source": "tree.root.topic",
+      "value": "流量卡选购 · 值得参考的整理"
+    },
+    {
+      "field": "vertical",
+      "action": "filled",
+      "source": "manifest.vertical",
+      "value": "流量卡"
+    },
+    {
+      "field": "topics",
+      "action": "filled",
+      "source": "tree.root.children[]",
+      "value": [
+        "资费套餐",
+        "办理攻略"
+      ]
+    },
+    {
+      "field": "navCategories",
+      "action": "filled",
+      "source": "tree.root.children[]",
+      "value": [
+        "资费套餐",
+        "办理攻略"
+      ]
+    },
+    {
+      "field": "intro",
+      "action": "filled",
+      "source": "sources[].bodyExcerpt（approved 首条）",
+      "value": "官方页面示例摘要：月租 29 元含 100GB 通用流量，无定向限制。具体资费以官方实时页面为准。"
+    },
+    {
+      "field": "styleTokens",
+      "action": "filled",
+      "source": "manifest.theme（主题包默认值）",
+      "value": {
+        "primary": "#2563eb",
+        "accent": "#f59e0b",
+        "radius": "12px",
+        "font": "system-ui, sans-serif"
+      }
+    },
+    {
+      "field": "license",
+      "action": "filled",
+      "source": "站点默认值（待人工确认）",
+      "value": "站点默认许可（待人工确认）"
+    },
+    {
+      "field": "byline",
+      "action": "filled",
+      "source": "tree.root.label",
+      "value": "流量卡编辑部"
+    }
+  ]
+}

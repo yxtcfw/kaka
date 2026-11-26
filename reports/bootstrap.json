@@ -1,0 +1,26 @@
+{
+  "stage": "bootstrap",
+  "domain": "example.com",
+  "vertical": "流量卡",
+  "seeds": [
+    "流量卡",
+    "大流量卡",
+    "副卡",
+    "校园流量卡"
+  ],
+  "llm": {
+    "requested": "mock",
+    "effective": "mock",
+    "available": true
+  },
+  "willWrite": {
+    "config/manifest.json": {
+      "domain": "example.com",
+      "vertical": "流量卡",
+      "llmProvider": "mock"
+    },
+    "data/site.json": "空字段保留给首次构建 fill-site（不在此覆盖）",
+    "data/tree.json": "初始节点保留，grow-tree 按判据①扩展"
+  },
+  "changed": false
+}
