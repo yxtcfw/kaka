@@ -87,6 +87,8 @@ test('write-content: 判据②未达标时跳过', async () => {
 test('write-content: 达标后生成并至少被门禁拦下一次（判据③）', async () => {
   const root = makeRoot();
   try {
+    // 本测试验证门禁拦截语义，显式清空排除规则（fixture 用 example.com 作占位域名）。
+    writeJson(root, 'config/article-rules.json', { schema: 'article-rules/v1', skipNodeIds: [], bannedDomains: [] });
     await runDiscover(root, { limit: 10 });
     await runFetchBody(root, {});
     const r = await runWriteContent(root, {});
@@ -100,6 +102,7 @@ test('write-content: 达标后生成并至少被门禁拦下一次（判据③�
 test('write-content: 重复运行按 id 去重，articles 不累积', async () => {
   const root = makeRoot();
   try {
+    writeJson(root, 'config/article-rules.json', { schema: 'article-rules/v1', skipNodeIds: [], bannedDomains: [] });
     await runDiscover(root, { limit: 10 });
     await runFetchBody(root, {});
     await runWriteContent(root, {});
@@ -108,6 +111,25 @@ test('write-content: 重复运行按 id 去重，articles 不累积', async () =
     const second = readJson(root, 'data/articles.json').articles.length;
     assert.equal(second, first, '重复运行不应增加文章数');
     assert.ok(r2.deduped >= 1, '报告应记录去重条数');
+  } finally { cleanup(root); }
+});
+
+test('write-content: skipNodeIds 排除的节点不产出文章，且示例域名信源不被引用', async () => {
+  const root = makeRoot();
+  try {
+    // 默认规则来自 config/article-rules.json：skipNodeIds=[n1]，bannedDomains 含 example.com/net。
+    await runDiscover(root, { limit: 10 });
+    await runFetchBody(root, {});
+    const r = await runWriteContent(root, {});
+    const articles = readJson(root, 'data/articles.json').articles;
+    assert.ok(r.skippedNodes.includes('n1'), '报告应记录被跳过的节点 n1');
+    assert.ok(!articles.some((a) => a.id === 'article-n1'), 'n1 不应产出 article-n1');
+    // 所有产出文章的引用信源域名不得是禁用域名。
+    const sources = readJson(root, 'data/sources.json').sources;
+    for (const a of articles) {
+      const cite = sources.find((s) => s.sourceId === a.sourceId);
+      if (cite) assert.ok(!['example.com', 'example.net', 'example.org'].some((b) => cite.domain === b || cite.domain.endsWith('.' + b)), `禁用域名被引用：${cite.domain}`);
+    }
   } finally { cleanup(root); }
 });
 

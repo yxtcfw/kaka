@@ -10,6 +10,11 @@ import { atomicWriteJson } from './lib/util.js';
 
 export async function runWriteContent(root = ROOT, args = {}) {
   const manifest = readJson(path.join(root, 'config/manifest.json'));
+  // 文章创作排除规则：文件缺失时退化为空规则（兼容旧仓库），不中断产线。
+  let articleRules = {};
+  try { articleRules = readJson(path.join(root, 'config/article-rules.json')); } catch { /* 旧仓库无此文件 */ }
+  const skipNodeIds = new Set(articleRules.skipNodeIds || []);
+  const bannedDomains = new Set((articleRules.bannedDomains || []).map((d) => String(d).toLowerCase()));
   const tree = readJson(path.join(root, 'data/tree.json'));
   const sourcesDoc = readJson(path.join(root, 'data/sources.json'));
   const sources = sourcesDoc.sources;
@@ -20,8 +25,14 @@ export async function runWriteContent(root = ROOT, args = {}) {
     return { stage: 'write-content', skipped: true, reason: '判据②未达标：信源不足（1×L1 或 2×独立 L2）' };
   }
 
-  const approved = sources.filter((s) => s.status === 'approved' && (s.bodyExcerpt || '').length >= 50);
-  const nodes = tree.nodes.filter((n) => n.children !== undefined);
+  const approved = sources.filter((s) => {
+    if (s.status !== 'approved' || (s.bodyExcerpt || '').length < 50) return false;
+    // 禁用示例/占位域名信源，避免示例内容反复产出。
+    const domain = String(s.domain || '').toLowerCase();
+    return !(bannedDomains.has(domain) || [...bannedDomains].some((b) => domain.endsWith('.' + b)));
+  });
+  // 跳过规则明确排除的节点（如初始示例节点 n1）。
+  const nodes = tree.nodes.filter((n) => n.children !== undefined && !skipNodeIds.has(n.id));
   let articles = [];
   try { articles = readJson(path.join(root, 'data/articles.json')).articles || []; } catch { /* ignore */ }
   const corpus = articles.map((a) => ({ id: a.id, title: a.title, body: a.body || '' }));
@@ -65,7 +76,8 @@ export async function runWriteContent(root = ROOT, args = {}) {
     passed: contentPassed({ ...state, content: { generated: totalArticles, gateBlocked: (state.content.gateBlocked || 0) + gateBlockedCount } }, manifest)
   };
 
-  const report = { stage: 'write-content', provider, generated: generated.length, blocked: blocked.length, gateBlockedCount, contentPassed: state.content.passed, deduped: articles.length + generated.length - mergedArticles.length, blockedDetail: blocked };
+  const skippedNodes = tree.nodes.filter((n) => skipNodeIds.has(n.id)).map((n) => n.id);
+  const report = { stage: 'write-content', provider, generated: generated.length, blocked: blocked.length, gateBlockedCount, contentPassed: state.content.passed, deduped: articles.length + generated.length - mergedArticles.length, skippedNodes, bannedDomains: [...bannedDomains], blockedDetail: blocked };
 
   if (!args.dryRun) {
     makeSnapshots(root, `before-writecontent-${Date.now()}`);

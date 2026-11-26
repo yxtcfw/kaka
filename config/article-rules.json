@@ -1,0 +1,6 @@
+{
+  "schema": "article-rules/v1",
+  "_comment": "文章创作排除规则。skipNodeIds 里的初始示例节点不产出文章；bannedDomains 里的示例/占位域名不得作为引用信源。规则进 git 可审计，改规则即可放行节点，无需改代码。",
+  "skipNodeIds": ["n1"],
+  "bannedDomains": ["example.com", "example.net", "example.org"]
+}
