@@ -12,6 +12,9 @@ on:
 
 permissions:
   contents: write
+  # workflow_run 触发的下游（deploy.yml）权限不能超过上游，故同步声明 Pages 权限。
+  pages: write
+  id-token: write
 
 jobs:
   run-pipeline:

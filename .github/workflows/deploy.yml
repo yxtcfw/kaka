@@ -1,8 +1,9 @@
 name: build-check
 
-# 云端构建验收（全部在 GitHub 内完成，不外发部署）。
+# 云端构建验收 + GitHub Pages 发布（全部在 GitHub 内完成，无外部部署服务）。
 # 用 workflow_run 链式，正面处理「GITHUB_TOKEN 提交不触发 workflow」的坑：
-# 在 pipeline 完成后触发，校验的是 pipeline 已提交回仓的最新数据能否独立 build。
+# 在 pipeline 完成后触发，校验的是 pipeline 已提交回仓的最新数据能否独立 build，
+# 构建产物 _site/ 直接发布到本仓库的 GitHub Pages。
 on:
   workflow_run:
     workflows: ["pipeline"]
@@ -11,9 +12,16 @@ on:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
+
+# 同一时刻只允许一次 Pages 部署排队，避免并发覆盖；不取消进行中的部署。
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
-  # 独立构建自检：clone 即可 build 的硬验收，不进任何部署链。
+  # 独立构建自检：clone 即可 build 的硬验收，产物上传为 Pages artifact。
   build-check:
     runs-on: ubuntu-latest
     steps:
@@ -27,3 +35,22 @@ jobs:
           node scripts/cli.js build
       - name: 断言产物齐全
         run: test -f _site/index.html && test -f _site/sitemap.xml && echo "build artifacts OK"
+      - name: 配置 Pages
+        uses: actions/configure-pages@v5
+      - name: 上传静态站产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  # 把 build-check 上传的 _site/ 发布到 GitHub Pages。
+  deploy-pages:
+    needs: build-check
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 发布到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
