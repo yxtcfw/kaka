@@ -97,6 +97,20 @@ test('write-content: 达标后生成并至少被门禁拦下一次（判据③�
   } finally { cleanup(root); }
 });
 
+test('write-content: 重复运行按 id 去重，articles 不累积', async () => {
+  const root = makeRoot();
+  try {
+    await runDiscover(root, { limit: 10 });
+    await runFetchBody(root, {});
+    await runWriteContent(root, {});
+    const first = readJson(root, 'data/articles.json').articles.length;
+    const r2 = await runWriteContent(root, {});
+    const second = readJson(root, 'data/articles.json').articles.length;
+    assert.equal(second, first, '重复运行不应增加文章数');
+    assert.ok(r2.deduped >= 1, '报告应记录去重条数');
+  } finally { cleanup(root); }
+});
+
 test('fill-site: 首次填空、保留人工值、二次冻结、清空不重填', () => {
   const root = makeRoot();
   try {

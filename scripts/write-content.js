@@ -54,18 +54,22 @@ export async function runWriteContent(root = ROOT, args = {}) {
     }
   }
 
-  const totalArticles = articles.length + generated.length;
+  // 按 id 合并去重：同一节点重复运行只保留最新一篇，避免 articles 无限累积。
+  const byId = new Map(articles.map((a) => [a.id, a]));
+  for (const g of generated) byId.set(g.id, g);
+  const mergedArticles = [...byId.values()];
+  const totalArticles = mergedArticles.length;
   state.content = {
     generated: totalArticles,
     gateBlocked: (state.content.gateBlocked || 0) + gateBlockedCount,
     passed: contentPassed({ ...state, content: { generated: totalArticles, gateBlocked: (state.content.gateBlocked || 0) + gateBlockedCount } }, manifest)
   };
 
-  const report = { stage: 'write-content', provider, generated: generated.length, blocked: blocked.length, gateBlockedCount, contentPassed: state.content.passed, blockedDetail: blocked };
+  const report = { stage: 'write-content', provider, generated: generated.length, blocked: blocked.length, gateBlockedCount, contentPassed: state.content.passed, deduped: articles.length + generated.length - mergedArticles.length, blockedDetail: blocked };
 
   if (!args.dryRun) {
     makeSnapshots(root, `before-writecontent-${Date.now()}`);
-    atomicWriteJson(path.join(root, 'data/articles.json'), { schema: 'articles/v1', articles: [...articles, ...generated] });
+    atomicWriteJson(path.join(root, 'data/articles.json'), { schema: 'articles/v1', articles: mergedArticles });
     recordRun(state, { stage: 'write-content', provider, summary: `生成 ${generated.length}, 拦截 ${gateBlockedCount}`, inputs: nodes.map((n) => n.id).slice(0, 10) });
     saveState(state, root);
     writeJson(path.join(root, 'reports', 'write-content.json'), report);
