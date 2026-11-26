@@ -1,0 +1,28 @@
+{
+  "schema": "site/v1",
+  "siteName": "流量卡精选指南",
+  "tagline": "流量卡选购 · 值得参考的整理",
+  "vertical": "流量卡",
+  "topics": [
+    "资费套餐",
+    "办理攻略"
+  ],
+  "navCategories": [
+    "资费套餐",
+    "办理攻略",
+    "广电套餐",
+    "联通套餐",
+    "电信套餐",
+    "移动套餐"
+  ],
+  "intro": "官方页面示例摘要：月租 29 元含 100GB 通用流量，无定向限制。具体资费以官方实时页面为准。",
+  "styleTokens": {
+    "primary": "#2563eb",
+    "accent": "#f59e0b",
+    "radius": "12px",
+    "font": "system-ui, sans-serif"
+  },
+  "license": "站点默认许可（待人工确认）",
+  "byline": "流量卡编辑部",
+  "_comment": "站点信息。首构建时 fill-site.js 只补空值；人工值保留；siteFilled=true 后永久冻结，清空也不重填。"
+}

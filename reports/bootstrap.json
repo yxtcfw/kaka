@@ -1,6 +1,6 @@
 {
   "stage": "bootstrap",
-  "domain": "example.com",
+  "domain": "kaka.yxtcfw.cn",
   "vertical": "流量卡",
   "seeds": [
     "流量卡",
@@ -15,7 +15,7 @@
   },
   "willWrite": {
     "config/manifest.json": {
-      "domain": "example.com",
+      "domain": "kaka.yxtcfw.cn",
       "vertical": "流量卡",
       "llmProvider": "openrouter"
     },
