@@ -3,9 +3,10 @@
   "provider": "ddgs",
   "fetched": 0,
   "approved": 0,
-  "l1": 1,
-  "independentL2": 1,
-  "sourcesPassed": true,
+  "bannedFiltered": 0,
+  "l1": 0,
+  "independentL2": 0,
+  "sourcesPassed": false,
   "guard": {
     "enabled": false,
     "reason": "degraded-to-mock"

@@ -4,6 +4,7 @@
   "degraded": true,
   "queries": 10,
   "candidates": 0,
+  "bannedFiltered": 10,
   "guard": {
     "enabled": false,
     "reason": "degraded-to-mock"

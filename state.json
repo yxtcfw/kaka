@@ -9,7 +9,7 @@
   },
   "tree": {
     "built": true,
-    "version": 11
+    "version": 12
   },
   "sources": {
     "l1": 0,
@@ -592,6 +592,48 @@
       "provider": "openrouter",
       "inputHash": "af012639643fb03803e0bb85a8291fdc83547655635b6a12b1b5d1de4a68a1be",
       "summary": "生成 0, 拦截 0"
+    },
+    {
+      "at": "2026-11-26T18:15:30.534Z",
+      "stage": "harvest",
+      "provider": "mock",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 326 词，newRate=0"
+    },
+    {
+      "at": "2026-11-26T18:15:30.537Z",
+      "stage": "harvest",
+      "provider": "mock",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 326 词，newRate=0"
+    },
+    {
+      "at": "2026-11-26T18:15:30.703Z",
+      "stage": "grow-tree",
+      "provider": "openrouter",
+      "inputHash": "beecaf01c348881896a0e483dd1d9239f7631175ddbaa9d06a853389d2d3c649",
+      "summary": "关键词 +0, 节点 2, 幂等=true"
+    },
+    {
+      "at": "2026-11-26T18:15:39.235Z",
+      "stage": "discover",
+      "provider": "ddgs",
+      "inputHash": "ab92cdec14ac75722f1b37f3f63c79f8c7d6d02ee66b2e75b0bdd9bf76ccc016",
+      "summary": "0 候选(已降级mock), 过滤示例域 10"
+    },
+    {
+      "at": "2026-11-26T18:15:39.236Z",
+      "stage": "fetch-body",
+      "provider": "ddgs",
+      "inputHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "summary": "+0 源, L1=0, L2独立域=0"
+    },
+    {
+      "at": "2026-11-26T18:15:39.240Z",
+      "stage": "build-nav-pages",
+      "provider": "openrouter",
+      "inputHash": "496e99caac4be4b107a38f443bd17c934da865fb97ae39331ab2f4b9dfb46b9d",
+      "summary": "详情 0, 降级 60, 门禁拦截 0"
     }
   ],
   "_comment": "三道达标判据进度 + 首次填空标记。脚本据此避免重复采集；siteFilled=true 后 fill-site 永久跳过。"
