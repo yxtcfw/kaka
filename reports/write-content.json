@@ -5,7 +5,7 @@
   "blocked": 1,
   "gateBlockedCount": 1,
   "contentPassed": true,
-  "deduped": 0,
+  "deduped": 1,
   "blockedDetail": [
     {
       "nodeId": "n2",
