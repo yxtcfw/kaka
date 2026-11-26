@@ -1,12 +1,10 @@
 {
   "stage": "build",
-  "pages": 5,
+  "pages": 3,
   "urls": [
     "https://kaka.yxtcfw.cn/",
     "https://kaka.yxtcfw.cn/nav/nav-001.html",
-    "https://kaka.yxtcfw.cn/nav/nav-002.html",
-    "https://kaka.yxtcfw.cn/blog/",
-    "https://kaka.yxtcfw.cn/blog/article-n1.html"
+    "https://kaka.yxtcfw.cn/nav/nav-002.html"
   ],
   "outDir": "_site"
 }

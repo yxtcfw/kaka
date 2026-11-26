@@ -1,20 +1,18 @@
 {
   "stage": "write-content",
   "provider": "openrouter",
-  "generated": 1,
-  "blocked": 1,
-  "gateBlockedCount": 1,
-  "contentPassed": true,
-  "deduped": 1,
-  "blockedDetail": [
-    {
-      "nodeId": "n2",
-      "blockers": [
-        {
-          "gate": "dedup",
-          "detail": "max cosine=0.856 (limit 0.7) with article-n1"
-        }
-      ]
-    }
-  ]
+  "generated": 0,
+  "blocked": 0,
+  "gateBlockedCount": 0,
+  "contentPassed": false,
+  "deduped": 0,
+  "skippedNodes": [
+    "n1"
+  ],
+  "bannedDomains": [
+    "example.com",
+    "example.net",
+    "example.org"
+  ],
+  "blockedDetail": []
 }

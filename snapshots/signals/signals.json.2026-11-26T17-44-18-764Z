@@ -1,0 +1,1637 @@
+{
+  "schema": "signals/v1",
+  "items": [
+    {
+      "term": "流量卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "流量卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "流量卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "流量卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "流量卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "流量卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "流量卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "流量卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "流量卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "流量卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "流量卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "流量卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "流量卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "流量卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "流量卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "流量卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动流量卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动流量卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动流量卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动流量卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动流量卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动流量卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动流量卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动流量卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动流量卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动流量卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动流量卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动流量卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动流量卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动流量卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动流量卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动流量卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通流量卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通流量卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通流量卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通流量卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通流量卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通流量卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通流量卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通流量卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通流量卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通流量卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通流量卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通流量卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通流量卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通流量卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通流量卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通流量卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信流量卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信流量卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信流量卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信流量卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信流量卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信流量卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信流量卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信流量卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信流量卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信流量卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信流量卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信流量卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信流量卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信流量卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信流量卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信流量卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价流量卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价流量卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价流量卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价流量卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价流量卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价流量卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价流量卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价流量卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价流量卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价流量卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价流量卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价流量卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价流量卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价流量卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价流量卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价流量卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量流量卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量流量卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量流量卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量流量卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量流量卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量流量卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量流量卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量流量卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量流量卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量流量卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量流量卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量流量卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量流量卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量流量卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量流量卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量流量卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生流量卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生流量卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生流量卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生流量卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生流量卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生流量卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生流量卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生流量卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生流量卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生流量卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生流量卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生流量卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生流量卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生流量卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生流量卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生流量卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量流量卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量流量卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量流量卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量流量卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量流量卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量流量卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量流量卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量流量卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量流量卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量流量卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量流量卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量流量卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量流量卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量流量卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量流量卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量流量卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动大流量卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动大流量卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动大流量卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动大流量卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动大流量卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动大流量卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动大流量卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动大流量卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动大流量卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动大流量卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动大流量卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动大流量卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动大流量卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动大流量卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动大流量卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动大流量卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通大流量卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通大流量卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通大流量卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通大流量卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通大流量卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通大流量卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通大流量卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通大流量卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通大流量卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通大流量卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通大流量卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通大流量卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通大流量卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通大流量卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通大流量卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通大流量卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信大流量卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信大流量卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信大流量卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信大流量卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信大流量卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信大流量卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信大流量卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信大流量卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信大流量卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信大流量卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信大流量卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信大流量卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信大流量卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信大流量卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信大流量卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信大流量卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价大流量卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价大流量卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价大流量卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价大流量卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价大流量卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价大流量卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价大流量卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价大流量卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价大流量卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价大流量卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价大流量卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价大流量卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价大流量卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价大流量卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价大流量卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价大流量卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量大流量卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量大流量卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量大流量卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量大流量卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量大流量卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量大流量卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量大流量卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量大流量卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量大流量卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量大流量卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量大流量卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量大流量卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量大流量卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量大流量卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量大流量卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "大流量大流量卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生大流量卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生大流量卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生大流量卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生大流量卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生大流量卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生大流量卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生大流量卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生大流量卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生大流量卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生大流量卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生大流量卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生大流量卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生大流量卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生大流量卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生大流量卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "学生大流量卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量大流量卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量大流量卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量大流量卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量大流量卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量大流量卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量大流量卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量大流量卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量大流量卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量大流量卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量大流量卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量大流量卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量大流量卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量大流量卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量大流量卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量大流量卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "不限量大流量卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "副卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "副卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "副卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "副卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "副卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "副卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "副卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "副卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "副卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "副卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "副卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "副卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "副卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "副卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "副卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "副卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动副卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动副卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动副卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动副卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动副卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动副卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动副卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动副卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动副卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动副卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动副卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动副卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动副卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动副卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动副卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "移动副卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通副卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通副卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通副卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通副卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通副卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通副卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通副卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通副卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通副卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通副卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通副卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通副卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通副卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通副卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通副卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "联通副卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信副卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信副卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信副卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信副卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信副卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信副卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信副卡2026",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信副卡官方",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信副卡价格",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信副卡避坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信副卡哪个好用",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信副卡排行榜",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信副卡怎么办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信副卡需要多少钱",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信副卡在哪里办",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "电信副卡有什么坑",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价副卡办理",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价副卡资费",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价副卡攻略",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价副卡对比",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价副卡怎么选",
+      "source": "mock-suggest-a",
+      "collectedAt": "2026-11-26"
+    },
+    {
+      "term": "低价副卡注意事项",
+      "source": "mock-suggest-b",
+      "collectedAt": "2026-11-26"
+    }
+  ],
+  "collectedAt": "2026-11-26T17:35:03.568Z",
+  "provider": "mock"
+}
