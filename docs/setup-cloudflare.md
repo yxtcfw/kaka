@@ -6,18 +6,23 @@ v7 的最低可运行标准：人工只提供 **种子词 + 云端密钥 + 域�
 
 1. **种子词**：编辑 `seeds.json`（3-10 个即可）。
 2. **域名**：Cloudflare Pages 域名 + DNS 指向。
-3. **云端密钥**：GitHub 仓库 Settings → Secrets and variables → Actions 配置：
+3. **云端密钥**：默认**零密钥即可运行**（搜索 ddgs + site: 收录估算）。后期补 key 时在 GitHub 仓库 Settings → Secrets and variables → Actions 配置：
 
 | Secret | 用途 | 是否必需 |
 |---|---|---|
-| `OPENROUTER_API_KEYS` | 模型创作（逗号分隔多 key） | 创作需要；无则用 mock |
-| `TAVILY_API_KEY` | 搜索发现信源（免费 1000/月） | 信源发现需要；无则降级 mock |
-| `GSC_SERVICE_ACCOUNT` | 曝光回流 | 回流需要；无则跳过 |
-| `BING_API_KEY` | 曝光回流（须用 JSON 端点） | 回流需要 |
+| `TAVILY_API_KEY` | 搜索发现信源（免费 1000/月） | 切 `providers.search=tavily` 时需要 |
+| `EXA_API_KEY` | 搜索发现信源 | 切 `providers.search=exa` 时需要 |
+| `OPENROUTER_API_KEYS` | 模型创作（逗号分隔多 key） | 切 `providers.llm=openrouter` 时需要 |
+| `GSC_SERVICE_ACCOUNT` | 曝光回流 | 切 `providers.metrics=gsc` 时需要 |
+| `BING_API_KEY` | 曝光回流（须用 JSON 端点） | 切 `providers.metrics=bing` 时需要 |
 | `CLOUDFLARE_API_TOKEN` | Pages 部署 | 部署必需 |
 | `CLOUDFLARE_ACCOUNT_ID` | Pages 部署 | 部署必需 |
 
 > 变量（非 secret）：`PAGES_PROJECT`（Pages 项目名，默认 `vertical-site`）。
+
+**默认无 key 配置**：`config/manifest.json` 里 `providers.search="ddgs"`、`providers.metrics="site-estimate"`。搜索走 Termux/PC 的 `adapters/ddgs_search.py`（`pip install ddgs`，Node 侧仍零依赖，经 guard 限速）；回流用 `site:域名` 查收录数，产出**估算值**（`estimated=true`），不是 GSC 曝光/点击真值，不参与内容裁剪。未装 ddgs / 失败时显式降级 mock 或跳过，不静默伪造。
+
+**后期补 key**：只改 `config/manifest.json` 的 `providers` 目标值 + 配对应 Secret，脚本自动切换，无需改代码。注意 CI 的 `pipeline.yml` 目前 env 注入 `OPENROUTER_API_KEYS`/`TAVILY_API_KEY`/`GSC_SERVICE_ACCOUNT`/`BING_API_KEY`；切到 `exa`/`deepseek`/`dashscope` 时需在该 workflow 的 env 段补对应变量。
 
 **密钥永不写进任何文件**，只走环境变量 / GitHub Secrets；脚本日志只打印是否设置，不打印明文。
 
@@ -29,7 +34,13 @@ node scripts/cli.js bootstrap --domain your-domain.com --apply
 node scripts/cli.js pipeline          # 采词→建树→信源→创作→构建
 ```
 
-Termux（F-Droid `nodejs-lts`，Node 22+）同样命令可跑，零运行时依赖，无需 npm install。
+Termux（F-Droid `nodejs-lts`，Node 22+）同样命令可跑，Node 侧零运行时依赖，无需 npm install。要用默认无 key 搜索需额外装 Python 适配器：
+
+```bash
+pkg install python && pip install ddgs
+```
+
+不装也能跑：搜索降级 mock（写 `reports/discover-degraded.json`），回流 `degraded=true` 跳过，不静默伪造。
 
 ## 3. 云端自动
 

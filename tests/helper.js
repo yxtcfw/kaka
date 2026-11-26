@@ -24,7 +24,7 @@ const BASELINE = {
     hosting: 'cloudflare-pages',
     theme: { primary: '#2563eb', accent: '#f59e0b', radius: '12px', font: 'system-ui, sans-serif' },
     thresholds: { signalsMin: 300, signalsSourcesMin: 2, signalsNewRateMax: 0.1, sourceL1Min: 1, sourceL2IndependentMin: 2, gateBlocksMin: 1 },
-    providers: { suggest: 'mock', search: 'mock', llm: 'mock' }
+    providers: { suggest: 'mock', search: 'mock', llm: 'mock', metrics: 'mock' }
   },
   'data/tree.json': {
     schema: 'tree/v1', version: 1,

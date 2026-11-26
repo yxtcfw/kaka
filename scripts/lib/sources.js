@@ -5,6 +5,7 @@ import { readJson, ROOT } from './validate.js';
 import path from 'node:path';
 import { seededRandom, urlKey, domainOf } from './util.js';
 import { createFetchGuard, DEFAULT_POLICY } from './fetch-guard.js';
+import { ddgsSearch } from './ddgs.js';
 
 const MOCK_SUFFIX = ['办理', '资费', '攻略', '对比', '怎么选', '注意事项', '2026', '官方', '价格', '避坑'];
 
@@ -137,8 +138,11 @@ export async function searchCandidates(terms, provider = 'mock', limit = 40, opt
   const guard = guardFor(opts);
   if (provider === 'tavily') return tavilySearch(terms, guard, limit);
   if (provider === 'exa') return exaSearch(terms, guard, limit);
-  if (provider === 'ddgs' || provider === 'zhihu') {
-    throw new Error(`provider ${provider} 需注入 opts.adapterFn（内部须经 guard.request）；Node 零依赖不自爬 SERP`);
+  if (provider === 'ddgs') {
+    return ddgsSearch(terms, { ...opts, guard, limit: Math.min(limit, 5) });
+  }
+  if (provider === 'zhihu') {
+    throw new Error('provider zhihu 需注入 opts.adapterFn（内部须经 guard 限速）；本模板不内置该适配器');
   }
   throw new Error(`provider ${provider} 未启用（真实请求必须经 fetch-guard）`);
 }

@@ -1,6 +1,6 @@
 {
   "stage": "fetch-body",
-  "provider": "mock",
+  "provider": "ddgs",
   "fetched": 0,
   "approved": 0,
   "l1": 1,
@@ -8,6 +8,6 @@
   "sourcesPassed": true,
   "guard": {
     "enabled": false,
-    "reason": "mock-provider"
+    "reason": "degraded-to-mock"
   }
 }

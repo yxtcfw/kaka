@@ -54,7 +54,7 @@ async function main() {
     case 'fill-site': print('fill-site', runFillSite(root, args)); break;
     case 'nav-pages': print('nav-pages', runBuildNavPages(root, args)); break;
     case 'build': print('build', runBuild(root, args)); break;
-    case 'metrics': print('metrics', runFetchMetrics(root, args)); break;
+    case 'metrics': print('metrics', await runFetchMetrics(root, args)); break;
     case 'prune': print('prune', runPrune(root, args)); break;
     case 'drift-check': print('drift-check', runDriftCheck(root, args)); break;
     case 'guard-check': print('guard-check', await runGuardCheck(root, args)); break;

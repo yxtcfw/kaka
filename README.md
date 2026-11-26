@@ -12,7 +12,8 @@ node scripts/cli.js bootstrap --domain your.com --apply   # 三样输入 → 站
 node scripts/cli.js pipeline                        # 全链：采词→建树→信源→创作→构建
 node scripts/cli.js build                           # 只构建（CI 用，clone 即可 build）
 node scripts/cli.js guard-check                     # 防风控自检（假请求，零真实网络）
-npm test                                            # 62 单测
+node scripts/cli.js metrics                         # 回流（site: 无 key 估算）
+npm test                                            # 71 单测
 ```
 
 云端部署、Secrets、复制建新站见 [`docs/setup-cloudflare.md`](docs/setup-cloudflare.md)。
@@ -23,8 +24,9 @@ npm test                                            # 62 单测
 seeds.json (人工种子词)
   → harvest.js          采联想词（判据①：≥300 词 / ≥2 源 / 新增率<10%）
   → grow-tree.js        AI 建规则 + 长树（免审批，快照 + 金丝雀 + 幂等）
-  → discover-sources.js 搜索发现候选 URL（默认 L3，真 provider 经 fetch-guard）
+  → discover-sources.js 搜索发现候选 URL（默认 L3；ddgs 无 key / tavily|exa 用 key，均经 guard）
   → fetch-body.js       抓正文 + 判据 → 信源池（判据②：1×L1 或 2×独立 L2；真抓取经 fetch-guard）
+  → fetch-metrics.js    site: 收录数估算（无 key）/ GSC|Bing（后期补 key）
   → write-content.js    创作 blog + 六道门禁（判据③：数字指回 citation，门禁至少拦一次）
   → build-nav-pages.js  预设 nav 有正文才补详情，过同一套六闸；不过闸降级列表直跳
   → fill-site.js        仅首次构建补空站点信息，之后冻结（人工值不覆盖、清空不重填）
@@ -56,7 +58,24 @@ seeds.json (人工种子词)
 | `timeoutMs` / `concurrency` | 10000 / 2 | 单请求超时、并发上限 |
 | `userAgent` / `userAgentToken` | 模板 UA | 每次请求注入 UA，用于 robots 匹配 |
 
-不使用代理池/IP 轮换（除非有明确合规授权）；不爬搜索引擎结果页，只用授权 API 发现候选 URL。
+不使用代理池/IP 轮换（除非有明确合规授权）；不爬搜索引擎结果页。ddgs 为无 key 搜索适配器（外部 Python，Node 侧经 `guard.throttleOnly()` 限速），其余真 provider 走授权 API。
+
+## 无 key 方案（默认）与后期补 key
+
+当前 `config/manifest.json` 默认 `providers.search="ddgs"`、`providers.metrics="site-estimate"`，**零密钥即可跑真实采集**：
+
+```bash
+# Termux / PC：ddgs 适配器（仅搜索步骤需要，Node 侧仍零依赖）
+pkg install python          # Termux；PC 跳过
+pip install ddgs            # 旧包名 duckduckgo-search 也兼容
+
+node scripts/cli.js discover   # ddgs 发现候选（约 30 RPM，guard 默认 12 rpm 更保守）
+node scripts/cli.js metrics    # site:<域名> 收录数估算（estimated=true，非曝光/点击真值）
+```
+
+- 未装 ddgs / 网络失败时：搜索显式降级 mock 并写 `reports/discover-degraded.json`；回流 `degraded=true` 跳过，**不静默伪造**。
+- `site:` 估算只产出 `indexedEstimate`（实际返回条数下限），显式标 `estimated=true`，**不参与内容裁剪决策**。
+- 后期补 key：把 `providers.search` 改 `tavily`/`exa`、`providers.metrics` 改 `gsc`/`bing`，并在仓库 Secrets 配对应密钥；脚本自动切换，无需改代码。
 
 ## 目录结构
 
@@ -73,11 +92,14 @@ snapshots/            AI 写盘前的历史版本（可回滚）
 reports/              流程报告 + 周报（含回滚命令）
 alerts/               漂移告警
 docs/                 上手与部署说明
-tests/                62 单测（隔离临时 root，不碰真实仓库）
+tests/                71 单测（隔离临时 root，不碰真实仓库）
+adapters/             ddgs_search.py（无 key 搜索适配器，Termux pip install ddgs 后可用）
 ```
 
 ## 命令一览
 
 `validate` `bootstrap` `harvest` `grow-tree` `discover` `fetch-body` `collect-sources` `write` `fill-site` `nav-pages` `build` `metrics` `prune` `drift-check` `guard-check` `report` `rollback` `reset` `pipeline`
+
+`adapterFn` 是代码级注入点（供测试/外部系统集成）；CLI 走内置 Python 适配器 `adapters/ddgs_search.py`。
 
 统一入口：`node scripts/cli.js <command> [--root DIR] [--dry-run] [options]`。全部脚本默认可从任意 `--root` 派生路径，便于 Termux/测试隔离。

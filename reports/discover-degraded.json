@@ -1,0 +1,11 @@
+{
+  "stage": "discover",
+  "provider": "ddgs",
+  "degraded": true,
+  "queries": 10,
+  "candidates": 0,
+  "guard": {
+    "enabled": false,
+    "reason": "degraded-to-mock"
+  }
+}

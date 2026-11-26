@@ -1,7 +1,7 @@
 {
   "schema": "discovered/v1",
-  "provider": "mock",
-  "degraded": false,
+  "provider": "ddgs",
+  "degraded": true,
   "queryTerms": [
     "大流量大流量卡需要多少钱",
     "不限量大流量卡需要多少钱",
@@ -15,5 +15,5 @@
     "大流量大流量卡2026"
   ],
   "candidates": [],
-  "discoveredAt": "2026-11-26T13:55:23.909Z"
+  "discoveredAt": "2026-11-26T14:55:38.882Z"
 }

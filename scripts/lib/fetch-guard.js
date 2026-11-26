@@ -158,7 +158,7 @@ export function createFetchGuard(policy = DEFAULT_POLICY, deps = {}) {
 
   const stats = {
     requests: 0, retries: 0, waitsMs: 0, denied: 0, timeouts: 0,
-    robotsChecked: 0, concurrencyPeak: 0, errors: 0
+    robotsChecked: 0, concurrencyPeak: 0, errors: 0, externalCalls: 0
   };
   const windowTs = [];
   let lastRequestAt = null;
@@ -305,6 +305,12 @@ export function createFetchGuard(policy = DEFAULT_POLICY, deps = {}) {
     request(url, opts = {}) { return core(url, opts, false); },
     // 取 robots.txt 自身：遵守限速/超时但不查 robots，避免递归。
     rawRequest(url, opts = {}) { return core(url, opts, true); },
+    // 外部适配器（如 ddgs Python）限速入口：网络不在 Node 侧，但仍受同一 rpm/间隔/抖动约束。
+    async throttleOnly() {
+      if (!cfg.enabled) throw new GuardDenied('disabled', 'collect-policy.enabled=false');
+      await throttle(0);
+      stats.externalCalls += 1;
+    },
     getStats() { return { ...stats }; },
     resetStats() { for (const k of Object.keys(stats)) stats[k] = 0; }
   };

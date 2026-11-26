@@ -33,11 +33,12 @@
     },
     "providers": {
       "type": "object",
-      "required": ["suggest", "search", "llm"],
+      "required": ["suggest", "search", "llm", "metrics"],
       "properties": {
         "suggest": { "type": "string", "enum": ["mock", "suggest-api", "gsc"] },
         "search": { "type": "string", "enum": ["mock", "tavily", "exa", "ddgs", "zhihu"] },
-        "llm": { "type": "string", "enum": ["mock", "openrouter", "deepseek", "dashscope"] }
+        "llm": { "type": "string", "enum": ["mock", "openrouter", "deepseek", "dashscope"] },
+        "metrics": { "type": "string", "enum": ["mock", "gsc", "bing", "site-estimate"] }
       }
     }
   }

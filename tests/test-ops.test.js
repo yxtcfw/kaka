@@ -78,29 +78,29 @@ test('report: 生成周报，含达标进度与回滚命令，不泄漏 markdown
   } finally { cleanup(root); }
 });
 
-test('fetch-metrics: 默认 mock 产出回流数据，只写 data/metrics', () => {
+test('fetch-metrics: 默认 mock 产出回流数据，只写 data/metrics', async () => {
   const root = makeRoot();
   try {
-    const r = runFetchMetrics(root, {});
+    const r = await runFetchMetrics(root, {});
     assert.equal(r.provider, 'mock');
     assert.ok(r.rows > 0);
     assert.ok(readJson(root, 'data/metrics/latest.json').rows.length > 0);
   } finally { cleanup(root); }
 });
 
-test('fetch-metrics: 真 provider 无 key 降级跳过，不伪造数据', () => {
+test('fetch-metrics: 真 provider 无 key 降级跳过，不伪造数据', async () => {
   const root = makeRoot();
   try {
-    const r = runFetchMetrics(root, { provider: 'gsc' });
+    const r = await runFetchMetrics(root, { provider: 'gsc' });
     assert.equal(r.degraded, true);
     assert.equal(r.rows, 0);
   } finally { cleanup(root); }
 });
 
-test('prune: 四状态分类并产出 unmatched 报告，不删除正文', () => {
+test('prune: 四状态分类并产出 unmatched 报告，不删除正文', async () => {
   const root = makeRoot();
   try {
-    runFetchMetrics(root, {});
+    await runFetchMetrics(root, {});
     writeJson(root, 'data/articles.json', { schema: 'articles/v1', articles: [
       { id: 'a1', title: '测试文章', body: '正文' }
     ] });

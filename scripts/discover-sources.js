@@ -31,7 +31,7 @@ export async function runDiscover(root = ROOT, args = {}) {
         fetchFn: args.fetchFn || (typeof globalThis.fetch === 'function' ? globalThis.fetch.bind(globalThis) : null)
       });
     }
-    candidates = await searchCandidates(picked, provider, picked.length, { root, guard });
+    candidates = await searchCandidates(picked, provider, picked.length, { ...args, root, guard });
   } catch (e) {
     // 真 provider 无 key / guard 拒绝 → 降级 mock，报告里显式标注（不静默伪造）
     degraded = true;

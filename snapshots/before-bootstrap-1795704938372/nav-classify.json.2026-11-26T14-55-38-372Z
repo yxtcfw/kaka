@@ -1,0 +1,8 @@
+{
+  "schema": "rules/nav-classify/v1",
+  "categories": ["资费套餐", "办理攻略", "选购攻略", "工具资源"],
+  "cardDescMax": 60,
+  "defaultRel": "sponsored nofollow noopener",
+  "promoOverride": "manual-only",
+  "_comment": "nav 分类规则。promoOverride=manual-only：出站推广链接只认人工填写的 promoUrl，脚本永不覆盖；cardDesc 超 60 字会被门禁拦下。"
+}
