@@ -22,6 +22,7 @@
     "build": "node scripts/cli.js build",
     "pipeline": "node scripts/cli.js pipeline",
     "prune": "node scripts/cli.js prune",
+    "drift-check": "node scripts/cli.js drift-check",
     "metrics": "node scripts/cli.js fetch-metrics",
     "report": "node scripts/cli.js report",
     "rollback": "node scripts/cli.js rollback",

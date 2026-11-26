@@ -28,6 +28,7 @@ seeds.json (人工种子词)
   → build-nav-pages.js  预设 nav 有正文才补详情，过同一套六闸；不过闸降级列表直跳
   → fill-site.js        仅首次构建补空站点信息，之后冻结（人工值不覆盖、清空不重填）
   → build.js            纯 Node 静态站 + sitemap（显式枚举）+ JSON-LD + robots
+  → drift-check.js      树/信源/规则一致性校验 → alerts/latest.json（纳入周报，不阻断）
 ```
 
 ## 关键约定（务必遵守）
@@ -38,7 +39,7 @@ seeds.json (人工种子词)
 4. **搜索候选默认 L3**：搜索只发现 URL，不自动升 L1/L2；正文抓不到或过短即降级/reject，不进创作。
 5. **门禁不豁免**：blog 文章与 nav 详情页共用六道门禁（事实/重复/违禁/结构/可引用/合规出站）。
 6. **首次填空一次定稿**：`siteFilled=true` 后永久跳过，人工改值不被改回。
-7. **免审批的安全阀**：快照 + 金丝雀 + 漂移告警 + 周报回滚命令 + 幂等键；`reports/weekly.md` 供事后审计。
+7. **免审批的五道安全阀**：快照（`snapshots/`）+ 金丝雀（`grow-tree` canary diff）+ 漂移告警（`drift-check` → `alerts/latest.json`，树/信源/规则一致性）+ 周报回滚命令（`reports/weekly.md`）+ 幂等键；全部已实现，只告警不阻断，供事后审计。
 
 ## 目录结构
 
@@ -60,6 +61,6 @@ tests/                39 单测（隔离临时 root，不碰真实仓库）
 
 ## 命令一览
 
-`validate` `bootstrap` `harvest` `grow-tree` `discover` `fetch-body` `collect-sources` `write` `fill-site` `nav-pages` `build` `metrics` `prune` `report` `rollback` `reset` `pipeline`
+`validate` `bootstrap` `harvest` `grow-tree` `discover` `fetch-body` `collect-sources` `write` `fill-site` `nav-pages` `build` `metrics` `prune` `drift-check` `report` `rollback` `reset` `pipeline`
 
 统一入口：`node scripts/cli.js <command> [--root DIR] [--dry-run] [options]`。全部脚本默认可从任意 `--root` 派生路径，便于 Termux/测试隔离。

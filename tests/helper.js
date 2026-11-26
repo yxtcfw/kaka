@@ -45,7 +45,7 @@ const BASELINE = {
     schema: 'sources/v1',
     sources: [
       { sourceId: 'src-001', url: 'https://example.com/plan', domain: 'example.com', title: '官方资费说明（示例）', grade: 'L1', status: 'approved', bodyKind: 'fulltext', bodyExcerpt: '官方页面示例摘要：月租 29 元含 100GB 通用流量，无定向限制。具体资费以官方实时页面为准。', discoveredBy: 'seed', fetchedAt: '2026-11-26T00:00:00Z' },
-      { sourceId: 'src-002', url: 'https://news.example.org/guide', domain: 'news.example.org', title: '办卡避坑指南（示例）', grade: 'L2', status: 'approved', bodyKind: 'fulltext', bodyExcerpt: '第三方媒体示例摘要：办理前需确认实名规则与首充要求，避免停卡风险。', discoveredBy: 'search', fetchedAt: '2026-11-26T00:00:00Z' }
+      { sourceId: 'src-002', url: 'https://news.example.org/guide', domain: 'news.example.org', title: '办卡避坑指南（示例）', grade: 'L2', status: 'approved', bodyKind: 'fulltext', bodyExcerpt: '第三方媒体示例摘要：办理前需确认实名规则与首充要求，避免停卡风险。', discoveredBy: 'manual', fetchedAt: '2026-11-26T00:00:00Z' }
     ]
   },
   'data/site.json': {

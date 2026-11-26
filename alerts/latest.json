@@ -1,0 +1,8 @@
+{
+  "schema": "alerts/v1",
+  "generatedAt": "2026-11-26T13:39:44.304Z",
+  "checks": 7,
+  "alertCount": 0,
+  "alerts": [],
+  "_comment": "树/信源/规则一致性校验；只告警不阻断。critical 需人工关注，info 仅提示。"
+}

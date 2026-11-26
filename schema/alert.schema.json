@@ -1,0 +1,25 @@
+{
+  "schema": "metaschema/v1",
+  "type": "object",
+  "required": ["schema", "generatedAt", "checks", "alertCount", "alerts"],
+  "properties": {
+    "schema": { "type": "string", "const": "alerts/v1" },
+    "generatedAt": { "type": "string" },
+    "checks": { "type": "number", "minimum": 0 },
+    "alertCount": { "type": "number", "minimum": 0 },
+    "alerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "severity", "subject", "detail", "at"],
+        "properties": {
+          "kind": { "type": "string" },
+          "severity": { "type": "string", "enum": ["critical", "warn", "info"] },
+          "subject": { "type": "string" },
+          "detail": { "type": "string" },
+          "at": { "type": "string" }
+        }
+      }
+    }
+  }
+}

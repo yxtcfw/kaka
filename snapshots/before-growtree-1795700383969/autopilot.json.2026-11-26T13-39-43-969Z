@@ -1,0 +1,19 @@
+{
+  "schema": "rules/autopilot/v1",
+  "approvalRequired": false,
+  "safetyValves": {
+    "snapshot": true,
+    "canaryNodes": 1,
+    "driftCheck": true,
+    "weeklyReport": true,
+    "idempotency": true
+  },
+  "gate": {
+    "factCitationRequired": true,
+    "dedupCosineMax": 0.7,
+    "linkRel": "sponsored nofollow noopener",
+    "cardDescMax": 60,
+    "rejectRejectedSource": true
+  },
+  "_comment": "总控策略。approvalRequired=false 即 v7 免审批；靠五道安全阀补偿。gate 段供 gates.js 共用（blog + nav 详情页同一套门禁）。"
+}

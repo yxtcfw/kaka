@@ -26,6 +26,16 @@ export function runReport(root = ROOT, args = {}) {
   lines.push('## 本周流程报告');
   for (const r of reports) lines.push(`- ${r.name}: ${r.data ? '有' : '无'}`);
   lines.push('');
+  lines.push('## 漂移告警（树/信源/规则一致性）');
+  const alerts = readSafe(path.join(root, 'alerts', 'latest.json'), null);
+  if (alerts && Array.isArray(alerts.alerts)) {
+    lines.push(`告警数：${alerts.alertCount}（critical ${alerts.alerts.filter((a) => a.severity === 'critical').length} / warn ${alerts.alerts.filter((a) => a.severity === 'warn').length} / info ${alerts.alerts.filter((a) => a.severity === 'info').length}）`);
+    for (const a of alerts.alerts) lines.push(`- [${a.severity}] ${a.kind} · ${a.subject}：${a.detail}`);
+    if (alerts.alerts.length === 0) lines.push('- 无漂移，三者一致');
+  } else {
+    lines.push('- 未运行 drift-check（可 `node scripts/cli.js drift-check`）');
+  }
+  lines.push('');
   lines.push('## 规则/数据变更与回滚');
   lines.push(`快照数：${snaps.length}`);
   for (const s of snaps.slice(-10)) lines.push(`- 快照：${s}`);

@@ -15,6 +15,7 @@ import { runBuild } from './build.js';
 import { runFetchMetrics } from './fetch-metrics.js';
 import { runPrune } from './prune.js';
 import { runReport } from './report.js';
+import { runDriftCheck } from './drift-check.js';
 import { runRollback } from './rollback.js';
 import { runResetSite } from './reset-site.js';
 
@@ -54,6 +55,7 @@ async function main() {
     case 'build': print('build', runBuild(root, args)); break;
     case 'metrics': print('metrics', runFetchMetrics(root, args)); break;
     case 'prune': print('prune', runPrune(root, args)); break;
+    case 'drift-check': print('drift-check', runDriftCheck(root, args)); break;
     case 'report': {
       const r = runReport(root, args);
       delete r.markdown;
@@ -75,13 +77,14 @@ async function main() {
       const fill = runFillSite(root, o);
       const nav = runBuildNavPages(root, o);
       const build = runBuild(root, o);
-      print('pipeline', { bootstrap, harvest: [h1.passed, h2.passed], grow: grow.idempotent, discover: discover.candidates, body: body.sourcesPassed, write: write.contentPassed, fill: { filled: fill.filled, skipped: fill.skipped }, nav: { built: nav.built, downgraded: nav.downgraded }, build: build.pages });
+      const drift = runDriftCheck(root, o);
+      print('pipeline', { bootstrap, harvest: [h1.passed, h2.passed], grow: grow.idempotent, discover: discover.candidates, body: body.sourcesPassed, write: write.contentPassed, fill: { filled: fill.filled, skipped: fill.skipped }, nav: { built: nav.built, downgraded: nav.downgraded }, build: build.pages, drift: { alertCount: drift.alertCount, critical: drift.critical.length } });
       break;
     }
     case 'help':
     default:
       console.log('用法: node scripts/cli.js <command> [--root DIR] [--dry-run] [options]');
-      console.log('命令: validate bootstrap harvest grow-tree discover fetch-body collect-sources write fill-site nav-pages build metrics prune report rollback reset pipeline');
+      console.log('命令: validate bootstrap harvest grow-tree discover fetch-body collect-sources write fill-site nav-pages build metrics prune drift-check report rollback reset pipeline');
       console.log('示例: npm run validate && npm run pipeline -- --apply');
   }
 }

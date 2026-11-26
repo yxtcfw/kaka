@@ -1,8 +1,8 @@
 {
   "stage": "fetch-body",
   "provider": "mock",
-  "fetched": 10,
-  "approved": 10,
+  "fetched": 0,
+  "approved": 0,
   "l1": 1,
   "independentL2": 1,
   "sourcesPassed": true

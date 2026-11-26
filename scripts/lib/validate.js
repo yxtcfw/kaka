@@ -88,7 +88,8 @@ const SCHEMA_FILES = {
   'sources/v1': 'sources.schema.json',
   'site/v1': 'site.schema.json',
   'signals/v1': 'signals.schema.json',
-  'bundle/v1': 'bundle.schema.json'
+  'bundle/v1': 'bundle.schema.json',
+  'alerts/v1': 'alert.schema.json'
 };
 
 export function validateDoc(value, schemaDir = path.join(ROOT, 'schema')) {
@@ -112,10 +113,13 @@ export function validateRepo(root = ROOT) {
     'data/sources.json',
     'data/site.json'
   ];
+  // 可选产物：存在才校验（如 alerts/latest.json，首次运行前不存在）
+  const optional = ['alerts/latest.json'];
   const results = [];
-  for (const rel of targets) {
+  for (const rel of [...targets, ...optional]) {
     const abs = path.join(root, rel);
     if (!fs.existsSync(abs)) {
+      if (optional.includes(rel)) continue;
       results.push({ file: rel, errors: ['file not found'] });
       continue;
     }
