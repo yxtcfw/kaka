@@ -3,7 +3,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { readJson, ROOT } from './lib/validate.js';
-import { esc, layout } from './lib/render.js';
+import { esc, layout, slugify } from './lib/render.js';
 
 function readSafe(file, fallback) {
   try { return readJson(file); } catch { return fallback; }
@@ -12,10 +12,6 @@ function writeFile(root, rel, content) {
   const abs = path.join(root, rel);
   fs.mkdirSync(path.dirname(abs), { recursive: true });
   fs.writeFileSync(abs, content, 'utf8');
-}
-
-function slugify(s) {
-  return String(s).toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]+/g, '-').replace(/^-|-$/g, '') || 'item';
 }
 
 export function runBuild(root = ROOT, args = {}) {
@@ -33,7 +29,8 @@ export function runBuild(root = ROOT, args = {}) {
   const cssSrc = fs.readFileSync(path.join(root, 'templates/assets/site.css'), 'utf8');
   const tokens = site.styleTokens || {};
   const cssVars = `:root{--primary:${esc(tokens.primary || '#2563eb')};--accent:${esc(tokens.accent || '#f59e0b')};--radius:${esc(tokens.radius || '12px')};--font:${esc(tokens.font || 'system-ui, sans-serif')};}\n`;
-  writeFile(root, `${outDir}/assets/site.css`, cssVars + cssSrc);
+  // 注入放到末尾，覆盖 site.css 的 :root 默认值，保证人工 styleTokens 生效。
+  writeFile(root, `${outDir}/assets/site.css`, cssSrc + '\n' + cssVars);
 
   // 首页：nav 列表（按分类分组），有正文的详情页入口，无正文的列表直跳
   const byCat = new Map();
@@ -50,9 +47,17 @@ export function runBuild(root = ROOT, args = {}) {
       const anchor = detail
         ? `<a href="/nav/${slugify(n.navId)}.html">${esc(n.title)}</a>`
         : `<a href="${esc(out)}" target="_blank" rel="sponsored nofollow noopener">${esc(n.title)} ↗</a>`;
-      return `<div class="card"><h3>${anchor}</h3><p>${esc(n.cardDesc || n.description || '')}</p><div class="out">${esc(n.category)}</div></div>`;
+      const initial = String(n.title || '站').trim().charAt(0) || '站';
+      return `<div class="card">
+<div class="card-head"><span class="card-icon" aria-hidden="true">${esc(initial)}</span><h3>${anchor}</h3></div>
+<p>${esc(n.cardDesc || n.description || '')}</p>
+<div class="out"><span>${esc(n.category)}</span></div>
+</div>`;
     }).join('');
-    return `<section id="${esc(slugify(cat))}"><h2>${esc(cat)}</h2><div class="grid">${cards}</div></section>`;
+    return `<section id="${esc(slugify(cat))}">
+<div class="section-head"><h2>${esc(cat)}</h2><span class="more">${items.length} 个入口</span></div>
+<div class="grid">${cards}</div>
+</section>`;
   }).join('\n');
   const homeBody = `<div class="intro"><p>${esc(site.intro || '资料整理与选购参考。')}</p></div>${homeSections || '<p class="empty">暂无导航条目</p>'}`;
   writeFile(root, `${outDir}/index.html`, layout(site, manifest, site.siteName || manifest.vertical || '首页', homeBody));
@@ -78,12 +83,18 @@ export function runBuild(root = ROOT, args = {}) {
   }
 
   // blog 文章列表 + 详情
+  // Eleventy 坑：不清输出目录。文章清空时必须主动删除旧 blog 产物，否则示例文章会残留在线上。
+  const blogDir = path.join(root, outDir, 'blog');
+  if (!articles.length && fs.existsSync(blogDir)) {
+    fs.rmSync(blogDir, { recursive: true, force: true });
+  }
   if (articles.length) {
-    const list = articles.map((a) => `<div class="card"><h3><a href="/blog/${slugify(a.id)}.html">${esc(a.title)}</a></h3><p>${esc(a.cardDesc || '')}</p></div>`).join('');
-    writeFile(root, `${outDir}/blog/index.html`, layout(site, manifest, '文章', `<section><h2>文章</h2><div class="grid">${list}</div></section>`));
+    fs.mkdirSync(blogDir, { recursive: true });
+    const list = articles.map((a) => `<div class="post-item"><h3><a href="/blog/${slugify(a.id)}.html">${esc(a.title)}</a></h3><p>${esc(a.cardDesc || '')}</p><div class="meta">${esc(a.generatedAt || '')}</div></div>`).join('');
+    writeFile(root, `${outDir}/blog/index.html`, layout(site, manifest, '文章', `<section><div class="section-head"><h2>文章</h2><span class="more">${articles.length} 篇</span></div><div class="post-list">${list}</div></section>`));
     urls.push(`${base}/blog/`);
     for (const a of articles) {
-      const body = `<article class="post"><h1>${esc(a.title)}</h1><p class="meta">${esc(a.generatedAt || '')} · ${esc(site.byline || '')}</p><p>${esc(a.body || '')}</p>
+      const body = `<article class="post"><h1>${esc(a.title)}</h1><p class="meta">${esc(a.generatedAt || '')} · ${esc(site.byline || '')}</p><p class="body-text">${esc(a.body || '')}</p>
 <a class="outbound" href="${esc(a.links?.[0]?.href || '#')}" target="_blank" rel="sponsored nofollow noopener">参考来源 ↗</a></article>`;
       writeFile(root, `${outDir}/blog/${slugify(a.id)}.html`, layout(site, manifest, a.title, body));
       urls.push(`${base}/blog/${slugify(a.id)}.html`);

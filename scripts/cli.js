@@ -17,6 +17,7 @@ import { runPrune } from './prune.js';
 import { runReport } from './report.js';
 import { runDriftCheck } from './drift-check.js';
 import { runGuardCheck } from './guard-check.js';
+import { runSyncApiNav } from './sync-api-nav.js';
 import { runRollback } from './rollback.js';
 import { runResetSite } from './reset-site.js';
 
@@ -58,6 +59,7 @@ async function main() {
     case 'prune': print('prune', runPrune(root, args)); break;
     case 'drift-check': print('drift-check', runDriftCheck(root, args)); break;
     case 'guard-check': print('guard-check', await runGuardCheck(root, args)); break;
+    case 'sync-api-nav': print('sync-api-nav', await runSyncApiNav(root, args)); break;
     case 'report': {
       const r = runReport(root, args);
       delete r.markdown;
@@ -86,7 +88,7 @@ async function main() {
     case 'help':
     default:
       console.log('用法: node scripts/cli.js <command> [--root DIR] [--dry-run] [options]');
-      console.log('命令: validate bootstrap harvest grow-tree discover fetch-body collect-sources write fill-site nav-pages build metrics prune drift-check guard-check report rollback reset pipeline');
+      console.log('命令: validate bootstrap harvest grow-tree discover fetch-body collect-sources sync-api-nav write fill-site nav-pages build metrics prune drift-check guard-check report rollback reset pipeline');
       console.log('示例: npm run validate && npm run pipeline -- --apply');
   }
 }

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { validateAgainst, validateDoc, validateRepo, readJson } from '../scripts/lib/validate.js';
-import { urlKey, domainOf, cosineSimilarity, extractNumbers, sha256, seededRandom } from '../scripts/lib/util.js';
+import { urlKey, domainOf, cosineSimilarity, extractNumbers, sha256, seededRandom, parseArgs } from '../scripts/lib/util.js';
 import { makeRoot, cleanup, writeJson } from './helper.js';
 import path from 'node:path';
 
@@ -71,4 +71,17 @@ test('sha256 稳定、seededRandom 可复现', () => {
   assert.equal(sha256({ b: 2, a: 1 }), sha256({ a: 1, b: 2 }));
   const a = seededRandom('seed'); const b = seededRandom('seed');
   assert.deepEqual([a(), a(), a()], [b(), b(), b()]);
+});
+
+test('parseArgs: --dry-run 同时产出 dry-run 与 dryRun，单词参数不变', () => {
+  const a = parseArgs(['harvest', '--dry-run', '--root', '/tmp/x']);
+  assert.equal(a._[0], 'harvest');
+  assert.equal(a['dry-run'], true);
+  assert.equal(a.dryRun, true); // 关键：脚本读的 camelCase 必须为真
+  assert.equal(a.root, '/tmp/x');
+  const b = parseArgs(['sync-api-nav', '--reclassify', '--dry-run']);
+  assert.equal(b.reclassify, true);
+  assert.equal(b.dryRun, true);
+  const c = parseArgs(['harvest']);
+  assert.equal(c.dryRun, undefined); // 未传时不伪造
 });

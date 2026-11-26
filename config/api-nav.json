@@ -1,0 +1,39 @@
+{
+  "schema": "api-nav/v1",
+  "enabled": true,
+  "endpoint": "https://h5api.lot-ml.com/api/ProductEn/Index2",
+  "id": "c8570adcb7030e9b",
+  "query": {
+    "title": "",
+    "Province": "全国",
+    "City": "全国",
+    "PriceTime": "优惠时间",
+    "LiuLiang": "可用流量",
+    "Tonghua": "通话时长",
+    "Operator": "精选"
+  },
+  "page": {
+    "start": 1,
+    "maxPages": 4,
+    "perPage": 20,
+    "rateRps": 0.5,
+    "timeoutMs": 15000
+  },
+  "maxItems": 73,
+  "dedupeBy": "productID",
+  "categoryByIsp": {
+    "广电": "广电套餐",
+    "中国广电": "广电套餐",
+    "联通": "联通套餐",
+    "中国联通": "联通套餐",
+    "移动": "移动套餐",
+    "中国移动": "移动套餐",
+    "电信": "电信套餐",
+    "中国电信": "电信套餐"
+  },
+  "defaultCategory": "资费套餐",
+  "cardDescMax": 60,
+  "rel": "sponsored nofollow noopener",
+  "hasContent": false,
+  "_comment": "推广产品 API 同步配置。客观参数（isp/taocan/nowPrice/tyLiuliang/tonghua）进 cardDesc；words/keywords 营销话术隔离、永不入卡面。shareUrl 带 tk 归因，落 promoUrl 与 url，脚本只新增不覆盖人工条目。密钥/推广位 id 非机密但可按需改；限流走 page.rateRps。"
+}

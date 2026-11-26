@@ -81,6 +81,12 @@ export function extractNumbers(text) {
   return String(text || '').match(/\d+(?:\.\d+)?/g) || [];
 }
 
+// kebab-case → camelCase：CLI 的 --dry-run 等连字符参数，脚本统一读 dryRun。
+// 同时保留原始 key，兼容直接读 kebab 名称的调用方（如 --reclassify 等单词参数不受影响）。
+function camelKey(key) {
+  return key.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
+}
+
 export function parseArgs(argv) {
   const out = { _: [] };
   for (let i = 0; i < argv.length; i++) {
@@ -88,12 +94,12 @@ export function parseArgs(argv) {
     if (a.startsWith('--')) {
       const key = a.slice(2);
       const next = argv[i + 1];
-      if (next !== undefined && !next.startsWith('--')) {
-        out[key] = next;
-        i++;
-      } else {
-        out[key] = true;
-      }
+      const hasValue = next !== undefined && !next.startsWith('--');
+      const value = hasValue ? next : true;
+      out[key] = value;
+      const ck = camelKey(key);
+      if (ck !== key) out[ck] = value; // --dry-run → dryRun
+      if (hasValue) i++;
     } else {
       out._.push(a);
     }

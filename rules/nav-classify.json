@@ -1,6 +1,6 @@
 {
   "schema": "rules/nav-classify/v1",
-  "categories": ["资费套餐", "办理攻略", "选购攻略", "工具资源"],
+  "categories": ["广电套餐", "联通套餐", "移动套餐", "电信套餐", "资费套餐", "办理攻略", "选购攻略", "工具资源"],
   "cardDescMax": 60,
   "defaultRel": "sponsored nofollow noopener",
   "promoOverride": "manual-only",

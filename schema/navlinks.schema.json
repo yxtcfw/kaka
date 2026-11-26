@@ -18,7 +18,10 @@
           "description": { "type": "string" },
           "cardDesc": { "type": "string", "maxLength": 60 },
           "hasContent": { "type": "boolean" },
-          "sourceIds": { "type": "array", "items": { "type": "string" } }
+          "sourceIds": { "type": "array", "items": { "type": "string" } },
+          "productId": { "type": "any" },
+          "isp": { "type": "any" },
+          "rel": { "type": "string" }
         }
       }
     }

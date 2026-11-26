@@ -57,6 +57,7 @@ const BASELINE = {
 // 从真实仓库静态读取的文件（不会被引擎改写）：rules/schema/CSS/package
 const STATIC_FILES = [
   'package.json',
+  'config/api-nav.json',
   'rules/signals-tree.json', 'rules/nav-classify.json', 'rules/source-grade.json', 'rules/autopilot.json', 'rules/collect-policy.json',
   'templates/assets/site.css',
   ...fs.readdirSync(path.join(REPO, 'schema')).map((f) => `schema/${f}`)
