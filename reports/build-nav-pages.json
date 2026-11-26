@@ -1,6 +1,6 @@
 {
   "stage": "build-nav-pages",
-  "provider": "mock",
+  "provider": "openrouter",
   "built": 2,
   "downgraded": 0,
   "blockedCount": 0,

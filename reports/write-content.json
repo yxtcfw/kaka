@@ -1,6 +1,6 @@
 {
   "stage": "write-content",
-  "provider": "mock",
+  "provider": "openrouter",
   "generated": 1,
   "blocked": 1,
   "gateBlockedCount": 1,

@@ -1,11 +1,13 @@
 {
   "stage": "grow-tree",
-  "provider": "mock",
+  "provider": "openrouter",
   "llm": {
-    "provider": "mock",
+    "provider": "openrouter",
     "available": true,
     "keys": 1,
-    "fingerprint": "mock"
+    "fingerprint": [
+      "1f448143"
+    ]
   },
   "idempotent": true,
   "canary": [

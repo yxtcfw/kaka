@@ -9,7 +9,7 @@
   },
   "tree": {
     "built": true,
-    "version": 6
+    "version": 7
   },
   "sources": {
     "l1": 1,
@@ -17,8 +17,8 @@
     "passed": true
   },
   "content": {
-    "generated": 6,
-    "gateBlocked": 6,
+    "generated": 7,
+    "gateBlocked": 7,
     "passed": true
   },
   "navPages": {
@@ -324,6 +324,55 @@
       "at": "2026-11-26T15:15:31.030Z",
       "stage": "build-nav-pages",
       "provider": "mock",
+      "inputHash": "b5f28420b76235f465757c730bb7906ea9ecd6a3440e42fc57ac82a70622d297",
+      "summary": "详情 2, 降级 0, 门禁拦截 0"
+    },
+    {
+      "at": "2026-11-26T15:21:05.442Z",
+      "stage": "harvest",
+      "provider": "mock",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 326 词，newRate=0"
+    },
+    {
+      "at": "2026-11-26T15:21:05.443Z",
+      "stage": "harvest",
+      "provider": "mock",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 326 词，newRate=0"
+    },
+    {
+      "at": "2026-11-26T15:21:05.638Z",
+      "stage": "grow-tree",
+      "provider": "openrouter",
+      "inputHash": "beecaf01c348881896a0e483dd1d9239f7631175ddbaa9d06a853389d2d3c649",
+      "summary": "关键词 +0, 节点 2, 幂等=true"
+    },
+    {
+      "at": "2026-11-26T15:21:08.978Z",
+      "stage": "discover",
+      "provider": "ddgs",
+      "inputHash": "ab92cdec14ac75722f1b37f3f63c79f8c7d6d02ee66b2e75b0bdd9bf76ccc016",
+      "summary": "0 候选(已降级mock)"
+    },
+    {
+      "at": "2026-11-26T15:21:08.979Z",
+      "stage": "fetch-body",
+      "provider": "ddgs",
+      "inputHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "summary": "+0 源, L1=1, L2独立域=1"
+    },
+    {
+      "at": "2026-11-26T15:21:09.073Z",
+      "stage": "write-content",
+      "provider": "openrouter",
+      "inputHash": "7922ce65b7977ce7f0bf7f99bc941b51acb595f193fdd9573dd62a400db05418",
+      "summary": "生成 1, 拦截 1"
+    },
+    {
+      "at": "2026-11-26T15:21:09.143Z",
+      "stage": "build-nav-pages",
+      "provider": "openrouter",
       "inputHash": "b5f28420b76235f465757c730bb7906ea9ecd6a3440e42fc57ac82a70622d297",
       "summary": "详情 2, 降级 0, 门禁拦截 0"
     }
