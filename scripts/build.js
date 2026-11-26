@@ -64,6 +64,11 @@ export function runBuild(root = ROOT, args = {}) {
   urls.push(`${base}/`);
 
   // nav 详情页（只有过闸且有正文的）
+  // 同 blog： Eleventy 坑——不清输出目录。详情清空时必须主动删旧产物，否则示例页残留线上。
+  const navDir = path.join(root, outDir, 'nav');
+  if (!navDetails.pages.length && fs.existsSync(navDir)) {
+    fs.rmSync(navDir, { recursive: true, force: true });
+  }
   for (const p of navDetails.pages) {
     const navItem = nav.items.find((n) => `nav-${n.navId}` === p.bundleId || n.navId === p.navId);
     const toc = `<div class="toc"><strong>目录</strong> · <a href="#intro">简介</a> · <a href="#checked">核对过的入口</a> · <a href="#note">说明</a></div>`;

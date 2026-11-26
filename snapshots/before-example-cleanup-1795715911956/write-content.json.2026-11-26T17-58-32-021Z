@@ -1,0 +1,17 @@
+{
+  "stage": "write-content",
+  "generated": 0,
+  "blocked": 0,
+  "gateBlockedCount": 0,
+  "contentPassed": false,
+  "deduped": 0,
+  "skippedNodes": [
+    "n1"
+  ],
+  "bannedDomains": [
+    "example.com",
+    "example.net",
+    "example.org"
+  ],
+  "blockedDetail": []
+}

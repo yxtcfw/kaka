@@ -1,33 +1,4 @@
 {
   "schema": "nav-details/v1",
-  "pages": [
-    {
-      "navId": "nav-001",
-      "bundleId": "nav-nav-001",
-      "title": "示例运营商官方资费页",
-      "outbound": "https://example.com/plan",
-      "gates": [
-        "fact",
-        "dedup",
-        "banned",
-        "structure",
-        "citable",
-        "compliance"
-      ]
-    },
-    {
-      "navId": "nav-002",
-      "bundleId": "nav-nav-002",
-      "title": "示例办理指南",
-      "outbound": "https://example.com/guide",
-      "gates": [
-        "fact",
-        "dedup",
-        "banned",
-        "structure",
-        "citable",
-        "compliance"
-      ]
-    }
-  ]
+  "pages": []
 }

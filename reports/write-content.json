@@ -1,6 +1,5 @@
 {
   "stage": "write-content",
-  "provider": "openrouter",
   "generated": 0,
   "blocked": 0,
   "gateBlockedCount": 0,

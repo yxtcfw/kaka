@@ -9,20 +9,20 @@
   },
   "tree": {
     "built": true,
-    "version": 12
+    "version": 11
   },
   "sources": {
-    "l1": 1,
-    "independentL2": 1,
-    "passed": true
+    "l1": 0,
+    "independentL2": 0,
+    "passed": false
   },
   "content": {
     "generated": 0,
-    "gateBlocked": 11,
-    "passed": true
+    "gateBlocked": 0,
+    "passed": false
   },
   "navPages": {
-    "built": 2,
+    "built": 0,
     "downgraded": 60
   },
   "runs": [
@@ -573,53 +573,25 @@
       "summary": "详情 2, 降级 60, 门禁拦截 0"
     },
     {
-      "at": "2026-11-26T17:44:18.763Z",
-      "stage": "harvest",
-      "provider": "mock",
-      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
-      "summary": "采集 326 词，newRate=0"
-    },
-    {
-      "at": "2026-11-26T17:44:18.765Z",
-      "stage": "harvest",
-      "provider": "mock",
-      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
-      "summary": "采集 326 词，newRate=0"
-    },
-    {
-      "at": "2026-11-26T17:44:19.626Z",
-      "stage": "grow-tree",
+      "at": "2026-11-26T17:43:03.187Z",
+      "stage": "write-content",
       "provider": "openrouter",
-      "inputHash": "beecaf01c348881896a0e483dd1d9239f7631175ddbaa9d06a853389d2d3c649",
-      "summary": "关键词 +0, 节点 2, 幂等=true"
+      "inputHash": "af012639643fb03803e0bb85a8291fdc83547655635b6a12b1b5d1de4a68a1be",
+      "summary": "生成 1, 拦截 0"
     },
     {
-      "at": "2026-11-26T17:44:21.436Z",
-      "stage": "discover",
-      "provider": "ddgs",
-      "inputHash": "ab92cdec14ac75722f1b37f3f63c79f8c7d6d02ee66b2e75b0bdd9bf76ccc016",
-      "summary": "0 候选(已降级mock)"
+      "at": "2026-11-26T17:43:03.811Z",
+      "stage": "write-content",
+      "provider": "openrouter",
+      "inputHash": "af012639643fb03803e0bb85a8291fdc83547655635b6a12b1b5d1de4a68a1be",
+      "summary": "生成 1, 拦截 0"
     },
     {
-      "at": "2026-11-26T17:44:21.437Z",
-      "stage": "fetch-body",
-      "provider": "ddgs",
-      "inputHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
-      "summary": "+0 源, L1=1, L2独立域=1"
-    },
-    {
-      "at": "2026-11-26T17:44:21.438Z",
+      "at": "2026-11-26T17:43:46.913Z",
       "stage": "write-content",
       "provider": "openrouter",
       "inputHash": "af012639643fb03803e0bb85a8291fdc83547655635b6a12b1b5d1de4a68a1be",
       "summary": "生成 0, 拦截 0"
-    },
-    {
-      "at": "2026-11-26T17:44:21.567Z",
-      "stage": "build-nav-pages",
-      "provider": "openrouter",
-      "inputHash": "010e084813c66fc23d58421816168ef808afa72226ecba655986b9df7e746522",
-      "summary": "详情 2, 降级 60, 门禁拦截 0"
     }
   ],
   "_comment": "三道达标判据进度 + 首次填空标记。脚本据此避免重复采集；siteFilled=true 后 fill-site 永久跳过。"

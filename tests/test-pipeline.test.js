@@ -55,6 +55,8 @@ test('grow-tree: 幂等且按映射扩展关键词，不改节点数', async () 
 test('discover→fetch-body: 搜索候选默认 L3，不自动升 L1/L2', async () => {
   const root = makeRoot();
   try {
+    // 本测试验证分级语义；fixture 用 example.* 作占位域名，显式清空排除规则。
+    writeJson(root, 'config/article-rules.json', { schema: 'article-rules/v1', skipNodeIds: [], bannedDomains: [] });
     runHarvest(root, {}); runHarvest(root, {});
     await runDiscover(root, { limit: 12 });
     const before = new Set(readJson(root, 'data/sources.json').sources.map((s) => s.sourceId));
@@ -168,6 +170,8 @@ test('fill-site: 首次填空、保留人工值、二次冻结、清空不重填
 test('build-nav-pages: 有关联源生成详情，数字无 citation 降级直跳', async () => {
   const root = makeRoot();
   try {
+    // fixture 用 example.com 作占位域名，本测试验证门禁语义，显式清空排除规则。
+    writeJson(root, 'config/article-rules.json', { schema: 'article-rules/v1', skipNodeIds: [], bannedDomains: [] });
     const nav = readJson(root, 'data/navlinks.json');
     nav.items.push({
       navId: 'nav-bad', title: '无引用测试', url: 'https://x.example/bad', category: '选购攻略',
@@ -192,6 +196,8 @@ test('build-nav-pages: 有关联源生成详情，数字无 citation 降级直�
 test('build-nav-pages: 无正文的 nav 不生成空壳页', async () => {
   const root = makeRoot();
   try {
+    // 本测试验证「无正文不建页」，需先放行 fixture 的 example.com 占位域，单独验证排除语义见下例。
+    writeJson(root, 'config/article-rules.json', { schema: 'article-rules/v1', skipNodeIds: [], bannedDomains: [] });
     const nav = readJson(root, 'data/navlinks.json');
     for (const it of nav.items) it.sourceIds = [];
     writeJson(root, 'data/navlinks.json', nav);
@@ -205,6 +211,8 @@ test('build-nav-pages: 无正文的 nav 不生成空壳页', async () => {
 test('build: 产物齐全 + sitemap 显式枚举，无空壳页', async () => {
   const root = makeRoot();
   try {
+    // 同上：fixture 用 example.com 占位，本测试验证产物结构，显式放行；示例域排除见新用例。
+    writeJson(root, 'config/article-rules.json', { schema: 'article-rules/v1', skipNodeIds: [], bannedDomains: [] });
     runFillSite(root, {});
     await runBuildNavPages(root, {});
     const r = runBuild(root, {});
@@ -217,5 +225,70 @@ test('build: 产物齐全 + sitemap 显式枚举，无空壳页', async () => {
     assert.ok(sitemap.includes('/nav/nav-001.html'));
     // sitemap 条目数 == 报告页数（显式枚举，不依赖 collections）
     assert.equal((sitemap.match(/<url>/g) || []).length, r.pages);
+  } finally { cleanup(root); }
+});
+
+// ---- 示例/占位域名全产线排除（批次 1 · 根治示例复活） ----
+
+test('discover: mock 产出的 example.* 候选被挡在 discovered.json 之外', async () => {
+  const root = makeRoot();
+  try {
+    runHarvest(root, {}); runHarvest(root, {});
+    const r = await runDiscover(root, { limit: 10 });
+    assert.ok(r.bannedFiltered > 0, '报告应记录被过滤的示例域候选');
+    const doc = readJson(root, 'data/discovered.json');
+    assert.equal(doc.candidates.length, 0, '默认规则下示例域候选不得入库');
+    assert.deepEqual(doc.candidates, []);
+  } finally { cleanup(root); }
+});
+
+test('fetch-body: 旧 discovered.json 里的示例域候选不会进入 sources', async () => {
+  const root = makeRoot();
+  try {
+    // 模拟旧版本写入的 discovered.json（含 example.* 候选，无 degraded 标记）。
+    writeJson(root, 'data/discovered.json', {
+      schema: 'discovered/v1', provider: 'mock', degraded: false,
+      queryTerms: ['流量卡'], discoveredAt: new Date().toISOString(),
+      candidates: [
+        { url: 'https://example.org/a/流量卡', title: '示例资料页', snippet: '示例' },
+        { url: 'https://news.example.net/a/副卡', title: '示例资料页', snippet: '示例' }
+      ]
+    });
+    const before = readJson(root, 'data/sources.json').sources.length;
+    const r = await runFetchBody(root, {});
+    assert.equal(r.bannedFiltered, 2);
+    assert.equal(r.fetched, 0);
+    assert.equal(readJson(root, 'data/sources.json').sources.length, before, 'sources 不应新增示例源');
+  } finally { cleanup(root); }
+});
+
+test('build-nav-pages: 示例域 nav 不生成详情页，列表出口不受影响', async () => {
+  const root = makeRoot();
+  try {
+    const r = await runBuildNavPages(root, {});
+    assert.equal(r.built, 0, '默认规则下两条示例 nav 均不得生成详情');
+    assert.equal(r.bannedNavCount, 2);
+    assert.ok(r.downgradedDetail.every((d) => d.reason === 'banned-domain'));
+    const nav = readJson(root, 'data/navlinks.json');
+    assert.ok(nav.items.every((n) => n.hasContent === false), '仍为列表直跳');
+    assert.ok(nav.items.every((n) => n.url && n.url.startsWith('https://')), '人工出口未被脚本改写');
+  } finally { cleanup(root); }
+});
+
+test('build: nav 详情清空时主动删除旧 _site/nav 产物', async () => {
+  const root = makeRoot();
+  try {
+    writeJson(root, 'config/article-rules.json', { schema: 'article-rules/v1', skipNodeIds: [], bannedDomains: [] });
+    runFillSite(root, {});
+    await runBuildNavPages(root, {});
+    runBuild(root, {});
+    assert.equal(fs.existsSync(path.join(root, '_site/nav/nav-001.html')), true, '前置：详情页已生成');
+
+    // 清空详情数据（等同示例清理后的状态），再构建。
+    writeJson(root, 'data/nav-details.json', { schema: 'nav-details/v1', pages: [] });
+    runBuild(root, {});
+    assert.equal(fs.existsSync(path.join(root, '_site/nav')), false, '旧详情目录必须被清除，避免示例页残留线上');
+    const sitemap = fs.readFileSync(path.join(root, '_site/sitemap.xml'), 'utf8');
+    assert.ok(!sitemap.includes('/nav/'), 'sitemap 不应再列出已清空的详情页');
   } finally { cleanup(root); }
 });

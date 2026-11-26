@@ -7,14 +7,12 @@ import { composeBundle } from './lib/llm.js';
 import { loadState, saveState, recordRun, sourcesPassed, contentPassed } from './lib/state.js';
 import { makeSnapshots } from './lib/snapshot.js';
 import { atomicWriteJson } from './lib/util.js';
+import { loadExclusions, isBannedDomain } from './lib/exclusions.js';
 
 export async function runWriteContent(root = ROOT, args = {}) {
   const manifest = readJson(path.join(root, 'config/manifest.json'));
-  // 文章创作排除规则：文件缺失时退化为空规则（兼容旧仓库），不中断产线。
-  let articleRules = {};
-  try { articleRules = readJson(path.join(root, 'config/article-rules.json')); } catch { /* 旧仓库无此文件 */ }
-  const skipNodeIds = new Set(articleRules.skipNodeIds || []);
-  const bannedDomains = new Set((articleRules.bannedDomains || []).map((d) => String(d).toLowerCase()));
+  // 示例/占位内容排除规则（与 discover/fetch-body/build-nav-pages 共用，文件缺失退化为空规则）。
+  const { bannedDomains, skipNodeIds } = loadExclusions(root);
   const tree = readJson(path.join(root, 'data/tree.json'));
   const sourcesDoc = readJson(path.join(root, 'data/sources.json'));
   const sources = sourcesDoc.sources;
@@ -28,8 +26,7 @@ export async function runWriteContent(root = ROOT, args = {}) {
   const approved = sources.filter((s) => {
     if (s.status !== 'approved' || (s.bodyExcerpt || '').length < 50) return false;
     // 禁用示例/占位域名信源，避免示例内容反复产出。
-    const domain = String(s.domain || '').toLowerCase();
-    return !(bannedDomains.has(domain) || [...bannedDomains].some((b) => domain.endsWith('.' + b)));
+    return !isBannedDomain(s.domain || s.url, bannedDomains);
   });
   // 跳过规则明确排除的节点（如初始示例节点 n1）。
   const nodes = tree.nodes.filter((n) => n.children !== undefined && !skipNodeIds.has(n.id));

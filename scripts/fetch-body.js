@@ -4,6 +4,7 @@ import path from 'node:path';
 import { readJson, writeJson, ROOT } from './lib/validate.js';
 import { fetchBody, gradeCandidate, dedupeCandidates, nextSourceId, createProviderGuard } from './lib/sources.js';
 import { loadState, saveState, recordRun, sourcesPassed } from './lib/state.js';
+import { loadExclusions, filterBannedCandidates } from './lib/exclusions.js';
 
 export async function runFetchBody(root = ROOT, args = {}) {
   const manifest = readJson(path.join(root, 'config/manifest.json'));
@@ -16,7 +17,10 @@ export async function runFetchBody(root = ROOT, args = {}) {
 
   const sourcesDoc = readJson(path.join(root, 'data/sources.json'));
   let sources = sourcesDoc.sources;
-  const candidates = dedupeCandidates(discovered.candidates, sources);
+  const deduped = dedupeCandidates(discovered.candidates, sources);
+  // 第二道闸：即便 discovered.json 由旧版本写入（含示例域候选），也不得进入信源池。
+  const { bannedDomains } = loadExclusions(root);
+  const { kept: candidates, dropped } = filterBannedCandidates(deduped, bannedDomains);
 
   // 真 provider 走 fetch-guard；discover 已降级时整链用 mock，不再发真实请求。
   const bodyProvider = discovered.degraded ? 'mock' : provider;
@@ -65,12 +69,13 @@ export async function runFetchBody(root = ROOT, args = {}) {
   const report = {
     stage: 'fetch-body', provider, fetched: results.length,
     approved: results.filter((r) => r.status === 'approved').length,
+    bannedFiltered: dropped.length,
     l1, independentL2: l2Domains.size, sourcesPassed: state.sources.passed, guard: guardStats
   };
 
   if (!args.dryRun) {
     writeJson(path.join(root, 'data/sources.json'), sourcesDoc);
-    recordRun(state, { stage: 'fetch-body', provider, summary: `+${results.length} 源, L1=${l1}, L2独立域=${l2Domains.size}`, inputs: candidates.map((c) => c.url).slice(0, 10) });
+    recordRun(state, { stage: 'fetch-body', provider, summary: `+${results.length} 源, L1=${l1}, L2独立域=${l2Domains.size}${dropped.length ? `, 过滤示例域 ${dropped.length}` : ''}`, inputs: candidates.map((c) => c.url).slice(0, 10) });
     saveState(state, root);
     writeJson(path.join(root, 'reports', 'fetch-body.json'), report);
   }

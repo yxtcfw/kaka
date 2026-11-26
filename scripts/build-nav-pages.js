@@ -10,6 +10,7 @@ import { composeBundle } from './lib/llm.js';
 import { loadState, saveState, recordRun, contentPassed } from './lib/state.js';
 import { makeSnapshots } from './lib/snapshot.js';
 import { atomicWriteJson, extractNumbers } from './lib/util.js';
+import { loadExclusions, isBannedDomain } from './lib/exclusions.js';
 
 // bodyKind 判定：nav 关联的 sourceIds 中存在 approved + 有正文摘录的源才算有正文。
 function hasBody(sourceIds, sources) {
@@ -25,6 +26,7 @@ export async function runBuildNavPages(root = ROOT, args = {}) {
   const sources = sourcesDoc.sources;
   const byId = new Map(sources.map((s) => [s.sourceId, s]));
   const provider = manifest.providers?.llm || 'mock';
+  const { bannedDomains } = loadExclusions(root);
 
   // 语料库（供重复闸）：已有文章
   let corpus = [];
@@ -34,7 +36,15 @@ export async function runBuildNavPages(root = ROOT, args = {}) {
   const downgraded = [];
   let blockedCount = 0;
 
+  let bannedNavCount = 0;
   for (const nav of navDoc.items) {
+    // 示例/占位域名的 nav 不生成详情页（首页列表仍保留原出口，人工入口不被脚本覆盖）。
+    if (isBannedDomain(nav.promoUrl || nav.url, bannedDomains)) {
+      nav.hasContent = false;
+      bannedNavCount += 1;
+      downgraded.push({ navId: nav.navId, reason: 'banned-domain', detail: '示例/占位域名不生成详情页' });
+      continue;
+    }
     const withBody = hasBody(nav.sourceIds || [], sources);
     if (!withBody) {
       // 无正文：保持列表直跳，不生成详情页
@@ -101,7 +111,7 @@ export async function runBuildNavPages(root = ROOT, args = {}) {
 
   const report = {
     stage: 'build-nav-pages', provider, built: pages.length,
-    downgraded: downgraded.length, blockedCount, pages, downgradedDetail: downgraded
+    downgraded: downgraded.length, blockedCount, bannedNavCount, pages, downgradedDetail: downgraded
   };
 
   if (!args.dryRun) {

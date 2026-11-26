@@ -2,32 +2,6 @@
   "schema": "navlinks/v1",
   "items": [
     {
-      "navId": "nav-001",
-      "title": "示例运营商官方资费页",
-      "url": "https://example.com/plan",
-      "promoUrl": null,
-      "category": "资费套餐",
-      "description": "审核留档：官方资费入口",
-      "cardDesc": "官方资费页，查看当前在售套餐与月租说明。",
-      "hasContent": true,
-      "sourceIds": [
-        "src-001"
-      ]
-    },
-    {
-      "navId": "nav-002",
-      "title": "示例办理指南",
-      "url": "https://example.com/guide",
-      "promoUrl": null,
-      "category": "办理攻略",
-      "description": "审核留档：办理流程入口",
-      "cardDesc": "办理流程汇总，含实名与首充注意事项。",
-      "hasContent": true,
-      "sourceIds": [
-        "src-002"
-      ]
-    },
-    {
       "navId": "api-5260",
       "productId": 5260,
       "isp": "广电",

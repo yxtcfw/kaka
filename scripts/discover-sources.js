@@ -5,6 +5,7 @@ import { readJson, writeJson, ROOT } from './lib/validate.js';
 import { searchCandidates, createProviderGuard } from './lib/sources.js';
 import { urlKey } from './lib/util.js';
 import { recordRun, loadState, saveState } from './lib/state.js';
+import { loadExclusions, filterBannedCandidates } from './lib/exclusions.js';
 
 export async function runDiscover(root = ROOT, args = {}) {
   const manifest = readJson(path.join(root, 'config/manifest.json'));
@@ -40,11 +41,16 @@ export async function runDiscover(root = ROOT, args = {}) {
   }
   const guardStats = guard ? { enabled: true, ...guard.getStats() } : { enabled: false, reason: degraded ? 'degraded-to-mock' : 'mock-provider' };
 
+  // 示例/占位域名在新候选入库前过滤（根因：mock 与降级链路固定产出 example.*，不清会反复入库）。
+  // 只作用于本轮候选，不动既有 sources/navlinks 人工数据。
+  const { bannedDomains } = loadExclusions(root);
+  const { kept, dropped } = filterBannedCandidates(candidates, bannedDomains);
+
   // 已有源 URL 判重（归因参数归一）
   const sources = readJson(path.join(root, 'data/sources.json')).sources;
   const seen = new Set(sources.map((s) => urlKey(s.url)));
   const fresh = [];
-  for (const c of candidates) {
+  for (const c of kept) {
     const k = urlKey(c.url);
     if (seen.has(k)) continue;
     seen.add(k);
@@ -52,13 +58,13 @@ export async function runDiscover(root = ROOT, args = {}) {
   }
 
   const doc = { schema: 'discovered/v1', provider, degraded, queryTerms: picked, candidates: fresh, discoveredAt: new Date().toISOString() };
-  const report = { stage: 'discover', provider, degraded, queries: picked.length, candidates: fresh.length, guard: guardStats };
+  const report = { stage: 'discover', provider, degraded, queries: picked.length, candidates: fresh.length, bannedFiltered: dropped.length, guard: guardStats };
 
   if (!args.dryRun) {
     writeJson(path.join(root, 'data/discovered.json'), doc);
     if (degraded) writeJson(path.join(root, 'reports', 'discover-degraded.json'), report);
     const state = loadState(root);
-    recordRun(state, { stage: 'discover', provider, summary: `${fresh.length} 候选${degraded ? '(已降级mock)' : ''}`, inputs: picked.slice(0, 10) });
+    recordRun(state, { stage: 'discover', provider, summary: `${fresh.length} 候选${degraded ? '(已降级mock)' : ''}${dropped.length ? `, 过滤示例域 ${dropped.length}` : ''}`, inputs: picked.slice(0, 10) });
     saveState(state, root);
   }
   return report;
