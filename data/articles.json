@@ -1,5 +1,25 @@
 {
   "schema": "articles/v1",
-  "articles": [],
-  "_comment": "Blog 正文由 write-content 生成；示例文章已清除，等待真实门禁通过的产出。"
+  "articles": [
+    {
+      "id": "article-n1",
+      "title": "大流量卡资费对比",
+      "nodeId": "n1",
+      "body": "大流量卡资费对比：以下内容依据已登记信源整理，具体数值以官方实时页面为准。\n\n参考信源：大流量大流量卡需要多少钱 - 资料页（example.net）。具体数值以官方实时页面为准。",
+      "sourceId": "src-003",
+      "citations": [
+        {
+          "sourceId": "src-003"
+        }
+      ],
+      "links": [
+        {
+          "href": "https://example.net/a/%E5%A4%A7%E6%B5%81%E9%87%8F%E5%A4%A7%E6%B5%81%E9%87%8F%E5%8D%A1%E9%9C%80%E8%A6%81%E5%A4%9A%E5%B0%91%E9%92%B1",
+          "rel": "sponsored nofollow noopener",
+          "kind": "outbound"
+        }
+      ],
+      "generatedAt": "2026-11-26"
+    }
+  ]
 }

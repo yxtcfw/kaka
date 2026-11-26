@@ -2,7 +2,7 @@
   "stage": "build-nav-pages",
   "provider": "openrouter",
   "built": 2,
-  "downgraded": 0,
+  "downgraded": 60,
   "blockedCount": 0,
   "pages": [
     {
@@ -34,5 +34,306 @@
       ]
     }
   ],
-  "downgradedDetail": []
+  "downgradedDetail": [
+    {
+      "navId": "api-5260",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4779",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5261",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5367",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5141",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5408",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5370",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5262",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5191",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5152",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5131",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5130",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5077",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5076",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5061",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5060",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5040",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4996",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4954",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4953",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4935",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4933",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4821",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4822",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4814",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4633",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4419",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4292",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4278",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4281",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4127",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4125",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4092",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-4011",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-3941",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-3867",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-3691",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-3763",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-3684",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5410",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5826",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5825",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5819",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5818",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5687",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5686",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5685",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5684",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5655",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5634",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5552",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5551",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5472",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5471",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5470",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5469",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5450",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5421",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5413",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    },
+    {
+      "navId": "api-5411",
+      "reason": "no-body",
+      "detail": "无可用正文，列表直跳，不生成空壳页"
+    }
+  ]
 }
