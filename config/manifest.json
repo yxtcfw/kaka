@@ -1,10 +1,10 @@
 {
   "schema": "manifest/v1",
-  "domain": "example.com",
+  "domain": "kaka.yxtcfw.cn",
   "vertical": "流量卡",
   "siteName": null,
   "tagline": null,
-  "hosting": "cloudflare-pages",
+  "hosting": "github-actions",
   "theme": {
     "primary": "#2563eb",
     "accent": "#f59e0b",
@@ -25,5 +25,5 @@
     "llm": "openrouter",
     "metrics": "site-estimate"
   },
-  "_comment": "站点配置初稿。domain/vertical 由 bootstrap 从种子词推断；null 字段留给首次构建 fill-site 补齐。密钥永不写此文件。"
+  "_comment": "站点配置。domain 已人工指定为 kaka.yxtcfw.cn；vertical 由 bootstrap 从种子词推断；null 字段留给首次构建 fill-site 补齐。密钥永不写此文件。"
 }
