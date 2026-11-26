@@ -1,17 +1,11 @@
 {
   "stage": "build",
-  "pages": 11,
+  "pages": 5,
   "urls": [
     "https://example.com/",
     "https://example.com/nav/nav-001.html",
     "https://example.com/nav/nav-002.html",
     "https://example.com/blog/",
-    "https://example.com/blog/article-n1.html",
-    "https://example.com/blog/article-n1.html",
-    "https://example.com/blog/article-n1.html",
-    "https://example.com/blog/article-n1.html",
-    "https://example.com/blog/article-n1.html",
-    "https://example.com/blog/article-n1.html",
     "https://example.com/blog/article-n1.html"
   ],
   "outDir": "_site"
