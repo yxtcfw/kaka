@@ -1,8 +1,11 @@
 name: pipeline
 
 # 采集→建树→信源→创作→构建 全链（达标驱动）。
-# 运行节奏：定时（cron）+ 手动。仓库公开 60 天无提交会停 cron，周报提交保持活动。
+# 运行节奏：push + 定时（cron）+ 手动。push 触发使每次代码更新即云端自检；
+# 回仓数据提交带 [skip ci]，不会造成循环。cron 作兜底（公开仓 60 天无提交会停 cron）。
 on:
+  push:
+    branches: [main]
   schedule:
     - cron: '0 2 * * *'
   workflow_dispatch:
