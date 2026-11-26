@@ -59,7 +59,7 @@ jobs:
         run: node scripts/cli.js report
 
       # 注意：GITHUB_TOKEN 提交默认不触发其他 workflow。
-      # 这里显式提交数据回仓；部署靠 workflow_run 链式（见 deploy.yml），不能指望 push 事件。
+      # 这里显式提交数据回仓；构建验收靠 workflow_run 链式（见 build-check workflow），不能指望 push 事件。
       - name: 提交数据回仓
         run: |
           git config user.name "bot"

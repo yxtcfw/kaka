@@ -1,7 +1,8 @@
-name: deploy
+name: build-check
 
-# Cloudflare Pages 部署。用 workflow_run 链式，正面处理「GITHUB_TOKEN 提交不触发 workflow」的坑：
-# 部署在 pipeline 完成后触发，读的是 pipeline 已提交回仓的最新数据。
+# 云端构建验收（全部在 GitHub 内完成，不外发部署）。
+# 用 workflow_run 链式，正面处理「GITHUB_TOKEN 提交不触发 workflow」的坑：
+# 在 pipeline 完成后触发，校验的是 pipeline 已提交回仓的最新数据能否独立 build。
 on:
   workflow_run:
     workflows: ["pipeline"]
@@ -12,7 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  # 独立构建自检：clone 即可 build 的硬验收，不进部署 needs 链，避免 if 链陷阱。
+  # 独立构建自检：clone 即可 build 的硬验收，不进任何部署链。
   build-check:
     runs-on: ubuntu-latest
     steps:
@@ -26,28 +27,3 @@ jobs:
           node scripts/cli.js build
       - name: 断言产物齐全
         run: test -f _site/index.html && test -f _site/sitemap.xml && echo "build artifacts OK"
-
-  build-and-deploy:
-    # 只在该 pipeline 成功时部署；跳过则由 build-check 覆盖验证（见下）
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_branch || github.ref }}
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: 校验 + 构建（clone 即可 build 的硬验收）
-        run: |
-          node scripts/cli.js validate
-          node scripts/cli.js build
-
-      - name: 部署到 Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy _site --project-name=${{ vars.PAGES_PROJECT || 'vertical-site' }} --branch=main
