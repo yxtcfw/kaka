@@ -95,10 +95,14 @@ async function main() {
       const fill = runFillSite(root, o);
       const nav = await runBuildNavPages(root, o);
       const build = runBuild(root, o);
+      // 回流采集在构建后：可用 --provider bing / --site-url 手动指定，默认按 manifest。
+      const metrics = await runFetchMetrics(root, {
+        ...o, provider: args.provider, siteUrl: args.siteUrl, fetchFn: args.fetchFn
+      });
       const drift = runDriftCheck(root, o);
       // 兜底：周任务漏跑/失败导致超期时，在这里补跑一次建树（仍受阈值门槛）。
       const overdue = await runTreeOverdue(root, o);
-      print('pipeline', { bootstrap, harvest: [h1.passed, h2.passed], overdue: { action: overdue.action, alert: overdue.alert }, discover: discover.candidates, body: body.sourcesPassed, write: write.contentPassed, apiNav: apiNav.skipped === true ? { disabled: true } : { added: apiNav.added, duplicate: apiNav.skipped?.duplicate, degraded: apiNav.degraded }, details: { created: details.created, updated: details.updated, failed: details.failed }, maintenance: { removedSources: maintenance.removedSources.length, removedNodes: maintenance.removedNodes.length, rechecked: maintenance.recheck.checked }, fill: { filled: fill.filled, skipped: fill.skipped }, nav: { built: nav.built, skipped: nav.skipped, downgraded: nav.downgraded }, build: build.pages, drift: { alertCount: drift.alertCount, critical: drift.critical.length } });
+      print('pipeline', { bootstrap, harvest: [h1.passed, h2.passed], overdue: { action: overdue.action, alert: overdue.alert }, discover: discover.candidates, body: body.sourcesPassed, write: write.contentPassed, apiNav: apiNav.skipped === true ? { disabled: true } : { added: apiNav.added, duplicate: apiNav.skipped?.duplicate, degraded: apiNav.degraded }, details: { created: details.created, updated: details.updated, failed: details.failed }, maintenance: { removedSources: maintenance.removedSources.length, removedNodes: maintenance.removedNodes.length, rechecked: maintenance.recheck.checked }, fill: { filled: fill.filled, skipped: fill.skipped }, nav: { built: nav.built, skipped: nav.skipped, downgraded: nav.downgraded }, build: build.pages, metrics: { provider: metrics.provider, rows: metrics.rows, degraded: !!metrics.degraded }, drift: { alertCount: drift.alertCount, critical: drift.critical.length } });
       break;
     }
     case 'help':

@@ -14,7 +14,7 @@ v7 的最低可运行标准：人工只提供 **种子词 + 云端密钥 + 域�
 | `EXA_API_KEY` | 搜索发现信源 | 切 `providers.search=exa` 时需要 |
 | `OPENROUTER_API_KEYS` | 模型创作（逗号分隔多 key） | 切 `providers.llm=openrouter` 时需要 |
 | `GSC_SERVICE_ACCOUNT` | 曝光回流 | 切 `providers.metrics=gsc` 时需要 |
-| `BING_API_KEY` | 曝光回流（须用 JSON 端点） | 切 `providers.metrics=bing` 时需要 |
+| `BING_API_KEY` | Bing Webmaster Tools API key（非 Bing Search v7 订阅 key）；站点须先在 Bing Webmaster Tools 验证 | 切 `providers.metrics=bing` 时需要 |
 | `CLOUDFLARE_API_TOKEN` | Pages 部署 | 部署必需 |
 | `CLOUDFLARE_ACCOUNT_ID` | Pages 部署 | 部署必需 |
 
@@ -23,6 +23,8 @@ v7 的最低可运行标准：人工只提供 **种子词 + 云端密钥 + 域�
 **默认无 key 配置**：`config/manifest.json` 里 `providers.search="ddgs"`、`providers.metrics="site-estimate"`。搜索走 Termux/PC 的 `adapters/ddgs_search.py`（`pip install ddgs`，Node 侧仍零依赖，经 guard 限速）；回流用 `site:域名` 查收录数，产出**估算值**（`estimated=true`），不是 GSC 曝光/点击真值，不参与内容裁剪。未装 ddgs / 失败时显式降级 mock 或跳过，不静默伪造。
 
 **后期补 key**：只改 `config/manifest.json` 的 `providers` 目标值 + 配对应 Secret，脚本自动切换，无需改代码。`pipeline.yml` 的 env 已注入全部 7 个候选变量（`OPENROUTER_API_KEYS`/`TAVILY_API_KEY`/`EXA_API_KEY`/`DEEPSEEK_API_KEY`/`DASHSCOPE_API_KEY`/`GSC_SERVICE_ACCOUNT`/`BING_API_KEY`），切到 `exa`/`deepseek`/`dashscope` 时只需配对应 Secret，无需改 workflow。
+
+**Bing 回流实测**：`providers.metrics=bing` 走官方 JSON/REST `https://ssl.bing.com/webmaster/api.svc/json/GetPageStats`（SOAP/POX 已于 2026-08-31 退役），API key 只从 `BING_API_KEY` 读取，报告只留 8 位指纹。也可用手动 dispatch 填 `metricsProvider=bing` 做一次性测试，不必改默认配置；若站点验证 URL 与 `https://${domain}/` 不一致，可同时填 `bingSiteUrl`。接口失败或缺 key 会显式 `degraded`，不写假数据。
 
 **密钥永不写进任何文件**，只走环境变量 / GitHub Secrets；脚本日志只打印是否设置，不打印明文。
 

@@ -10,6 +10,17 @@ on:
   schedule:
     - cron: '0 2 * * *'
   workflow_dispatch:
+    inputs:
+      metricsProvider:
+        description: '手动指定回流 provider（如 bing），留空按 manifest'
+        type: string
+        required: false
+        default: ''
+      bingSiteUrl:
+        description: 'Bing Webmaster 已验证站点 URL（可选，如 https://kaka.yxtcfw.cn/）'
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -49,7 +60,14 @@ jobs:
         run: node scripts/cli.js validate
 
       - name: 运行全链
-        run: node scripts/cli.js pipeline
+        run: |
+          if [ -n "$METRICS_PROVIDER" ] && [ -n "$BING_SITE_URL" ]; then
+            node scripts/cli.js pipeline --provider "$METRICS_PROVIDER" --site-url "$BING_SITE_URL"
+          elif [ -n "$METRICS_PROVIDER" ]; then
+            node scripts/cli.js pipeline --provider "$METRICS_PROVIDER"
+          else
+            node scripts/cli.js pipeline
+          fi
         env:
           OPENROUTER_API_KEYS: ${{ secrets.OPENROUTER_API_KEYS }}
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
@@ -58,6 +76,8 @@ jobs:
           DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
           GSC_SERVICE_ACCOUNT: ${{ secrets.GSC_SERVICE_ACCOUNT }}
           BING_API_KEY: ${{ secrets.BING_API_KEY }}
+          METRICS_PROVIDER: ${{ github.event.inputs.metricsProvider }}
+          BING_SITE_URL: ${{ github.event.inputs.bingSiteUrl }}
 
       - name: 生成周报
         run: node scripts/cli.js report
@@ -69,6 +89,15 @@ jobs:
             node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync('reports/tree-overdue.json','utf8'));console.log('tree-overdue:',r.action,r.alert||'no-alert')"
           else
             echo "tree-overdue: report not generated"
+          fi
+
+      - name: 回流采集结果
+        if: always()
+        run: |
+          if [ -f reports/metrics.json ]; then
+            node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync('reports/metrics.json','utf8'));console.log('metrics:',r.provider,'rows='+r.rows,'degraded='+!!r.degraded,'fingerprint='+(r.keyFingerprint||'-'),r.reason||'')"
+          else
+            echo "metrics: report not generated"
           fi
 
       # 注意：GITHUB_TOKEN 提交默认不触发其他 workflow。
