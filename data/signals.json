@@ -560,25 +560,25 @@
       "collectedAt": "2026-11-27"
     },
     {
-      "term": "联通流量大王卡",
-      "source": "baidu-suggest",
-      "query": "联通大流量卡办理",
-      "collectedAt": "2026-11-27"
-    },
-    {
       "term": "联通大流量卡",
       "source": "baidu-suggest",
       "query": "联通大流量卡办理",
       "collectedAt": "2026-11-27"
     },
     {
-      "term": "联通大流量套餐有哪些",
+      "term": "联通流量大王卡",
       "source": "baidu-suggest",
       "query": "联通大流量卡办理",
       "collectedAt": "2026-11-27"
     },
     {
       "term": "联通大流量卡有哪些套餐",
+      "source": "baidu-suggest",
+      "query": "联通大流量卡办理",
+      "collectedAt": "2026-11-27"
+    },
+    {
+      "term": "联通大流量套餐有哪些",
       "source": "baidu-suggest",
       "query": "联通大流量卡办理",
       "collectedAt": "2026-11-27"
@@ -1124,12 +1124,6 @@
       "collectedAt": "2026-11-27"
     },
     {
-      "term": "大流量卡办理",
-      "source": "baidu-suggest",
-      "query": "大流量流量卡办理",
-      "collectedAt": "2026-11-27"
-    },
-    {
       "term": "大流量卡怎么办理才正规",
       "source": "baidu-suggest",
       "query": "大流量流量卡办理",
@@ -1143,12 +1137,6 @@
     },
     {
       "term": "大流量的手机卡在哪里办理",
-      "source": "baidu-suggest",
-      "query": "大流量流量卡办理",
-      "collectedAt": "2026-11-27"
-    },
-    {
-      "term": "大流量卡办理条件",
       "source": "baidu-suggest",
       "query": "大流量流量卡办理",
       "collectedAt": "2026-11-27"
@@ -1169,6 +1157,24 @@
       "term": "大流量卡办理网址",
       "source": "baidu-suggest",
       "query": "大流量流量卡办理",
+      "collectedAt": "2026-11-27"
+    },
+    {
+      "term": "大流量卡办理入口正规",
+      "source": "baidu-suggest",
+      "query": "大流量流量卡办理",
+      "collectedAt": "2026-11-27"
+    },
+    {
+      "term": "大流量卡办理",
+      "source": "baidu-suggest",
+      "query": "大流量大流量卡办理",
+      "collectedAt": "2026-11-27"
+    },
+    {
+      "term": "大流量卡办理条件",
+      "source": "baidu-suggest",
+      "query": "大流量大流量卡办理",
       "collectedAt": "2026-11-27"
     },
     {
@@ -1496,6 +1502,12 @@
       "collectedAt": "2026-11-27"
     },
     {
+      "term": "移动流量套餐资费一览表",
+      "source": "baidu-suggest",
+      "query": "移动流量卡资费",
+      "collectedAt": "2026-11-27"
+    },
+    {
       "term": "移动流量卡每月多少钱",
       "source": "baidu-suggest",
       "query": "移动流量卡资费",
@@ -1509,12 +1521,6 @@
     },
     {
       "term": "移动流量卡价格",
-      "source": "baidu-suggest",
-      "query": "移动流量卡资费",
-      "collectedAt": "2026-11-27"
-    },
-    {
-      "term": "移动流量卡什么价位",
       "source": "baidu-suggest",
       "query": "移动流量卡资费",
       "collectedAt": "2026-11-27"
@@ -1952,6 +1958,6 @@
       "collectedAt": "2026-11-27"
     }
   ],
-  "collectedAt": "2026-11-27T07:08:50.138Z",
+  "collectedAt": "2026-11-27T08:30:25.162Z",
   "provider": "baidu-suggest"
 }

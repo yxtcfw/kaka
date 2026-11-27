@@ -2,9 +2,9 @@
   "schema": "state/v1",
   "siteFilled": true,
   "signals": {
-    "count": 329,
+    "count": 330,
     "sources": 2,
-    "newRate": 0,
+    "newRate": 0.003,
     "passed": true
   },
   "tree": {
@@ -17,7 +17,7 @@
     "passed": true
   },
   "content": {
-    "generated": 1,
+    "generated": 5,
     "gateBlocked": 9,
     "passed": true
   },
@@ -1023,6 +1023,55 @@
     },
     {
       "at": "2026-11-27T07:09:13.604Z",
+      "stage": "build-nav-pages",
+      "provider": "openrouter",
+      "inputHash": "aed85b03d04a625789567cbe442f93526b32cb037074df17156cd4f1c64f710a",
+      "summary": "新建 0, 跳过已有 63, 降级 0, 门禁拦截 0"
+    },
+    {
+      "at": "2026-11-27T08:30:13.941Z",
+      "stage": "harvest",
+      "provider": "baidu-suggest",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 329 词，newRate=0.003"
+    },
+    {
+      "at": "2026-11-27T08:30:25.162Z",
+      "stage": "harvest",
+      "provider": "baidu-suggest",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 330 词，newRate=0.003"
+    },
+    {
+      "at": "2026-11-27T08:30:25.563Z",
+      "stage": "discover",
+      "provider": "ddgs",
+      "inputHash": "48c66e6c2f719f07fd1019ef45a02a77eac04751c2d15a68f050f3481022e356",
+      "summary": "0 候选(已降级mock), 过滤示例域 10"
+    },
+    {
+      "at": "2026-11-27T08:30:25.567Z",
+      "stage": "fetch-body",
+      "provider": "ddgs",
+      "inputHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "summary": "+0 源, L1=63, L2独立域=0"
+    },
+    {
+      "at": "2026-11-27T08:34:36.688Z",
+      "stage": "write-content",
+      "provider": "openrouter",
+      "inputHash": "20b2536d8b7b85e41f9c86ffd93fc4e7d831206c60510dcc17976de6c839b083",
+      "summary": "生成 5, 拦截 0"
+    },
+    {
+      "at": "2026-11-27T08:35:30.431Z",
+      "stage": "maintenance",
+      "provider": "ddgs",
+      "inputHash": "f3cb323144d6e8159579411689ec9b8c56e535c2df42bf742783003bcf843326",
+      "summary": "信源 -0/改0, 候选 -0, 节点 -0, 复检 0"
+    },
+    {
+      "at": "2026-11-27T08:35:30.437Z",
       "stage": "build-nav-pages",
       "provider": "openrouter",
       "inputHash": "aed85b03d04a625789567cbe442f93526b32cb037074df17156cd4f1c64f710a",

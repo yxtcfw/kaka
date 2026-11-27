@@ -2,7 +2,7 @@
   "stage": "discover",
   "provider": "ddgs",
   "degraded": true,
-  "reason": "Error: ddgs 适配器退出码 1: {\"error\": \"ModuleNotFoundError: No module named 'duckduckgo_search'\"}\n",
+  "reason": "Error: ddgs 适配器退出码 1: {\"error\": \"DDGSException: No results found.\"}\n",
   "queries": 10,
   "candidates": 0,
   "bannedFiltered": 10,

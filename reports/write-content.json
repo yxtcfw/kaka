@@ -1,10 +1,16 @@
 {
   "stage": "write-content",
   "provider": "openrouter",
-  "generated": 1,
-  "blocked": 4,
-  "gateBlockedCount": 4,
+  "generated": 5,
+  "blocked": 0,
+  "gateBlockedCount": 0,
   "contentPassed": true,
+  "models": [
+    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "nvidia/nemotron-3.5-super-vl:free",
+    "recursive/flint-v1.0:free"
+  ],
   "deduped": 1,
   "skippedNodes": [
     "n1"
@@ -14,42 +20,5 @@
     "example.net",
     "example.org"
   ],
-  "blockedDetail": [
-    {
-      "nodeId": "auto-scene",
-      "blockers": [
-        {
-          "gate": "dedup",
-          "detail": "max cosine=0.836 (limit 0.7) with article-n2"
-        }
-      ]
-    },
-    {
-      "nodeId": "auto-region",
-      "blockers": [
-        {
-          "gate": "dedup",
-          "detail": "max cosine=0.859 (limit 0.7) with article-n2"
-        }
-      ]
-    },
-    {
-      "nodeId": "auto-sub-apply",
-      "blockers": [
-        {
-          "gate": "dedup",
-          "detail": "max cosine=0.828 (limit 0.7) with article-n2"
-        }
-      ]
-    },
-    {
-      "nodeId": "auto-sub-manage",
-      "blockers": [
-        {
-          "gate": "dedup",
-          "detail": "max cosine=0.731 (limit 0.7) with article-n2"
-        }
-      ]
-    }
-  ]
+  "blockedDetail": []
 }

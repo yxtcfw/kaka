@@ -1,0 +1,12 @@
+{
+  "stage": "tree-overdue",
+  "checkedAt": "2026-11-27T08:35:30.456Z",
+  "lastGrowAt": "2026-11-27T07:08:50.202Z",
+  "overdueDays": 10,
+  "ageDays": 0.06,
+  "action": "none",
+  "alert": null,
+  "grow": null,
+  "manualStep": null,
+  "dryRun": false
+}

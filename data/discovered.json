@@ -2,7 +2,7 @@
   "schema": "discovered/v1",
   "provider": "ddgs",
   "degraded": true,
-  "reason": "Error: ddgs 适配器退出码 1: {\"error\": \"ModuleNotFoundError: No module named 'duckduckgo_search'\"}\n",
+  "reason": "Error: ddgs 适配器退出码 1: {\"error\": \"DDGSException: No results found.\"}\n",
   "queryTerms": [
     "联通飞特卡【39元200G+300分钟】",
     "联通飞超卡【39元235G+200分钟】",
@@ -16,5 +16,5 @@
     "联通流量卡办理要身份证外还要什么?"
   ],
   "candidates": [],
-  "discoveredAt": "2026-11-27T07:08:50.607Z"
+  "discoveredAt": "2026-11-27T08:30:25.563Z"
 }

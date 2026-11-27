@@ -5,7 +5,7 @@
       "id": "article-n2",
       "title": "流量卡办理避坑",
       "nodeId": "n2",
-      "body": "流量卡办理避坑：以下内容依据已登记信源整理，具体数值以官方实时页面为准。\n\n参考信源：广电飞花卡3.0【29元192G】 · 官方详情（lingqu.haokalingqu.cn）。具体数值以官方实时页面为准。",
+      "body": "不同运营商提供的流量卡套餐差异明显，适合轻度使用者的低容量卡与高速需求者的大容量卡各有特色\n建议通过官方渠道或可信赖的合作店铺办理，避免在非正规平台购买导致卡片失效或资费纠纷\n激活后请及时检查流量使用情况，如出现异常及时联系客服处理，确保套餐使用顺畅\n在套餐使用期间，可根据实际需求选择续费或变更套餐，注意查看新套餐的资费说明，避免产生额外费用\n\n参考信源：广电飞花卡3.0【29元192G】 · 官方详情（lingqu.haokalingqu.cn）。具体数值以官方实时页面为准。",
       "sourceId": "src-api-5260",
       "citations": [
         {
@@ -15,6 +15,86 @@
       "links": [
         {
           "href": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=3bc1c6eead648fab",
+          "rel": "sponsored nofollow noopener",
+          "kind": "outbound"
+        }
+      ],
+      "generatedAt": "2026-11-27"
+    },
+    {
+      "id": "article-auto-scene",
+      "title": "auto-scene",
+      "nodeId": "auto-scene",
+      "body": "auto-scene 是一种自动场景识别技术，能根据环境自动调整设备参数，提升用户体验。\n支持光线、音频、运动等多维感知，实现智能联动与场景切换。\n广泛应用于智能家居、安防监控、车载系统等领域。\n关注兼容性、响应速度与隐私保护，选择支持开放协议的产品。\n\n参考信源：广电飞甜卡【29元230G】 · 官方详情（lingqu.haokalingqu.cn）。具体数值以官方实时页面为准。",
+      "sourceId": "src-api-4779",
+      "citations": [
+        {
+          "sourceId": "src-api-4779"
+        }
+      ],
+      "links": [
+        {
+          "href": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=1ca5b53f89089b1b",
+          "rel": "sponsored nofollow noopener",
+          "kind": "outbound"
+        }
+      ],
+      "generatedAt": "2026-11-27"
+    },
+    {
+      "id": "article-auto-region",
+      "title": "按办理地区查找专属流量卡",
+      "nodeId": "auto-region",
+      "body": "用户可根据办理地区筛选对应的专属流量卡，不同区域可能提供不同的资费组合与网络服务。建议先确认常驻地或常用地，再匹配该地区可办理的卡种，降低信号不佳或资费不匹配的风险。\n选购时应重点查看套餐内的通用流量、定向流量以及通话短信规则，并留意合约期限与办理资格。部分地区专属卡可能仅面向本地用户，或需在指定渠道办理与激活。\n办理前请核对个人身份信息与配送地址，收到卡片后按说明完成实名认证与激活。使用过程中如遇网络异常，可联系运营商客服，确认所办地区卡的覆盖与支持情况。\n\n参考信源：重庆专享联通卡【19元150G+200分钟】 · 官方详情（lingqu.haokalingqu.cn）。具体数值以官方实时页面为准。",
+      "sourceId": "src-api-5261",
+      "citations": [
+        {
+          "sourceId": "src-api-5261"
+        }
+      ],
+      "links": [
+        {
+          "href": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=eac010d020e8a500",
+          "rel": "sponsored nofollow noopener",
+          "kind": "outbound"
+        }
+      ],
+      "generatedAt": "2026-11-27"
+    },
+    {
+      "id": "article-auto-sub-apply",
+      "title": "副卡办理条件、流程与生效时间",
+      "nodeId": "auto-sub-apply",
+      "body": "当前官方资料未提供副卡办理条件，因此无法说明哪些主体或场景可以申请副卡，也不能确认是否需要额外要求或限制。\n官方摘录没有列出副卡办理流程，也没有给出资料整理顺序、提交步骤或所需材料清单，因此不能据此形成流程说明。\n官方资料未提及副卡生效时间，暂时不能说明是否立即生效、延迟办理或其他处理安排。\n卡片描述只提到副卡办理相关资料整理与选购参考，但当前引用内容不足以支撑办理条件、流程与生效时间的结论。\n\n参考信源：联通重庆专属卡【19元200G+300分钟】 · 官方详情（lingqu.haokalingqu.cn）。具体数值以官方实时页面为准。",
+      "sourceId": "src-api-5367",
+      "citations": [
+        {
+          "sourceId": "src-api-5367"
+        }
+      ],
+      "links": [
+        {
+          "href": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=2e09eae404942f22",
+          "rel": "sponsored nofollow noopener",
+          "kind": "outbound"
+        }
+      ],
+      "generatedAt": "2026-11-27"
+    },
+    {
+      "id": "article-auto-sub-manage",
+      "title": "副卡资费规则、注销退订与主卡关系",
+      "nodeId": "auto-sub-manage",
+      "body": "当前可引用的官方资料未给出可确认的副卡资费项目，也没有提供可整理的收费说明。因此资费内容暂不宜展开。\n关于副卡注销、退订与主卡的关联处理，官方摘录中暂无可引用内容，不能确认流程或责任边界。\n资料可整理为选购与管理提示，但具体规则仍需以银行正式版本、持卡人协议和实际办理反馈为准。\n若后续获得正式资料，再补充资费、状态变更和主卡关系的可核准说明。\n\n参考信源：广电福建专属卡【19元130G+200分钟】 · 官方详情（lingqu.haokalingqu.cn）。具体数值以官方实时页面为准。",
+      "sourceId": "src-api-5141",
+      "citations": [
+        {
+          "sourceId": "src-api-5141"
+        }
+      ],
+      "links": [
+        {
+          "href": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=1d1b7539ef2b2eb6",
           "rel": "sponsored nofollow noopener",
           "kind": "outbound"
         }
