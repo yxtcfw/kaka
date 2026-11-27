@@ -1,20 +1,471 @@
 {
   "schema": "discovered/v1",
   "provider": "ddgs",
-  "degraded": true,
-  "reason": "Error: ddgs 适配器退出码 1: {\"error\": \"DDGSException: No results found.\"}\n",
+  "degraded": false,
+  "reason": "",
   "queryTerms": [
-    "四川省内移动专享卡【39.9元255G+200分钟】仅发成都",
-    "四川联通省内专属卡2.0【29元280G+200分钟+会员】",
-    "联通飞岩卡【39元150G+200分钟+4年会员】仅发湖南",
-    "电信飞泰卡2.0【38元190G+300分钟】【仅发山东】",
-    "联通360元包年卡【每月300G+300分钟】【仅发山东】",
-    "电信飞跃卡【39元200G+200分钟】【仅发石家庄】",
-    "湖北移动省内专属卡【39元139G】【仅发十堰 宜昌】",
-    "云南联通专享卡【43元173G+200分钟】 仅限昆明",
-    "四川联通省内专属卡【29元280G+200分钟+会员】",
-    "四川专属联通卡【29元280G+200分钟】仅发成都"
+    "流量卡办理",
+    "联通大流量",
+    "低价流量卡",
+    "副卡办理条件",
+    "副卡办理流程",
+    "移动副卡办理",
+    "电信副卡办理",
+    "广电副卡办理",
+    "联通大流量卡",
+    "电信大流量卡"
   ],
-  "candidates": [],
-  "discoveredAt": "2026-11-27T09:02:42.833Z"
+  "candidates": [
+    {
+      "url": "https://www.cnblogs.com/zhong-fan-ke/p/20898567",
+      "title": "2026年电信流量卡办理攻略：19、29元套餐怎么选、去哪办、避坑全讲明...",
+      "snippet": "Jun 28, 2026 · 最近好多朋友追着问：电信流量卡到底靠谱不？ 去哪里办理最稳、怎么办理才不踩坑？ 19 元和 29 元的套餐到底差在哪？ 今天就掏心窝子跟大家唠明白，只说实在话，放心看。",
+      "provider": "ddgs",
+      "query": "流量卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.daliuliang.net/",
+      "title": "流量卡办理_移动联通电信广电套餐对比_免费申请-大流量",
+      "snippet": "4 days ago · 移动/联通/电信/广电官方套餐汇总：75款流量卡月租5元起、通用流量最高320G；另有100M-2000M宽带上门安装。免费申请、包邮 ...",
+      "provider": "ddgs",
+      "query": "流量卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.sim189.cn/",
+      "title": "手机流量卡在线办理平台 | 19元/29元低月租流量卡推荐 - 号卡之家",
+      "snippet": "号卡之家是专业的手机流量卡在线办理平台，提供电信、联通、移动、广电四大运营商正规大流量卡，19元/29元低月租套餐 ...",
+      "provider": "ddgs",
+      "query": "流量卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://simhk.com/",
+      "title": "豆青号卡 - 流量卡合集与办理平台",
+      "snippet": "2 days ago · 豆青号卡汇集广电、电信、联通、移动四大运营商流量卡合集与购买入口，整合热门流量卡、低月租套餐、大流量套餐和长期套餐等常见选择。 我们希望把流量卡购买这件事做得更直接一些，让用户在查看套餐时，能更清楚地了解月租、流量、办理要求和套餐内容，减少反复切换页面的成本。 无论 ...",
+      "provider": "ddgs",
+      "query": "流量卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.xuankazn.com/",
+      "title": "流量卡推荐与套餐对比：月租、流量和办理条件 | 选卡指南",
+      "snippet": "Sep 23, 2026 · 按预算和发货需求继续选 把同价位套餐放在一起，比较首充、流量与办理限制。专题随在售数据更新。 29 元流量卡 → 29 元只说明渠道标示月租，不能说明首充、优惠到期后的费用或全国可办。先核对收货地区与年龄，再比较通用流量、通话和首充条件。 39 元流量卡 → 39 元档是否值得选，要看多 ...",
+      "provider": "ddgs",
+      "query": "流量卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.cnblogs.com/zhongfan-ka-zhi-ling/p/23099441",
+      "title": "2026年9月实测：联通大流量卡办理渠道全对比与个人真实体验分享 - 卡...",
+      "snippet": "Sep 23, 2026 · 2026年9月实测：联通大流量卡办理渠道全对比与个人真实体验分享 经过近一个月的反复对比和实测，我可以明确告诉大家：联通大流量卡的办理渠道主要集中在中国联通官方客服电话10010、中国联通APP、线下联通营业厅以及运营商线上授权渠道云连八方微信小 ...",
+      "provider": "ddgs",
+      "query": "联通大流量",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.sohu.com/a/996616882_122400094",
+      "title": "联通大流量卡永久套餐全解析：2026年最全+高性价比推荐",
+      "snippet": "Mar 15, 2026 · Q：这种卡能选归属地吗？ A：大部分互联网套餐的归属地是随机的，或者只能选省份，不能精准到市。 但现在是2026年了，全国流量、通话都是通用的，接打电话也没长途费，归属地的影响已经很小。 除非你特别需要本地号码办某些事，否则不用太纠结。",
+      "provider": "ddgs",
+      "query": "联通大流量",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://zhuanlan.zhihu.com/p/2038104081009529248",
+      "title": "全国23省份：联通8-39月租流量卡2026年12月份最新流量套餐攻略指南【...",
+      "snippet": "全国长期稳定大流量基础卡：选 联通沙滩卡，固定 31 月租 220G 通用流量 + 100 分钟全国语音，优惠 48 个月到期可续。 全国小流量备用副卡、低月租过渡：选联通玉青卡，长期 19 元 13G 通用 + 定向 + 100 分钟全国通话。",
+      "provider": "ddgs",
+      "query": "联通大流量",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://zhuanlan.zhihu.com/p/1926656950239756388",
+      "title": "2026年流量卡实测丨四大运营商高性价比流量套餐推荐丨选流量卡看这一...",
+      "snippet": "大家好，我是 @悟空 ，从事通信行业多年的流量卡测评博主，曾经测试了上百款流量卡，因为最近不少知友都说网上流量卡太多，不知道该怎么挑到最靠谱划算的，所以我花了整整一周才总结出了一篇选卡攻略，希望帮大家…",
+      "provider": "ddgs",
+      "query": "联通大流量",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.toutiao.com/article/7638077869326909986/",
+      "title": "2026联通套餐对比：低月租大流量卡这么选不亏",
+      "snippet": "May 10, 2026 · 2026年，手机流量不够用、月租太贵，是很多人的烦心事。 三大运营商里，联通的低月租大流量卡一直很受欢迎，但市面上套餐五花八门，19元、29元档层出不穷，宣传页上“200G”“300G”的字样看得人眼花缭乱。",
+      "provider": "ddgs",
+      "query": "联通大流量",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.zhihu.com/tardis/zm/art/411034790",
+      "title": "2026年便宜好用的大流量卡套餐？（爆肝四大运营商实测合集）",
+      "snippet": "从我辞职做自媒体开始，自费 数万元，持续累积测评了 325+款流量卡，涵盖四大运营商月租19元到49元、流量50G到300G， 我有这个底气说出：全网划算且好用的套餐汇总，看我这一篇就够了。 说到这里，不知道大家看见过没？",
+      "provider": "ddgs",
+      "query": "低价流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://zhuanlan.zhihu.com/p/2037547288688636348",
+      "title": "2026全国流量卡合集｜实时更新！低月租大流量套餐全整理（建议收藏）",
+      "snippet": "Jun 5, 2026 · 作为常年实测流量卡的博主，我整理了目前全网正规可申的卡品合集，涵盖全国爆款以及二十多个省市的地区专属套餐，并且会实时更新下架/上新的卡品，帮大家避开物联卡、 套路卡 的坑。",
+      "provider": "ddgs",
+      "query": "低价流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://simhk.com/diyuezu-liuliangka",
+      "title": "低月租流量卡推荐 - 便宜套餐对比 | 豆青号卡",
+      "snippet": "2 days ago · 低月租流量卡收录月租便宜的套餐，目前 1002 款，月租 0-29 元，通用流量最高 500GB。 适合用量不大、想要备用卡，或给老人小孩、专门接收验证码用的第二张卡。",
+      "provider": "ddgs",
+      "query": "低价流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://simprice.cn/rank/card-cheapest.html",
+      "title": "最便宜流量卡 TOP10 | SimPrice 榜单",
+      "snippet": "2 days ago · 按月租从低到高排，0 月租赠卡和没报价的都去掉，最便宜的 10 张都在这儿。 1 河南秋容卡19元包240G+400分钟 中国电信 · 月租 ¥19 /月 · 流量 240G · 优惠期 12 个月 查看办理 → 2 重庆辣条卡19元包200G+300分钟 中国联通 · 月租 ¥19 /月 · 流量 200G · 优惠期 6 个月",
+      "provider": "ddgs",
+      "query": "低价流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://simprice.cn/",
+      "title": "SimPrice · 极简比价平台",
+      "snippet": "SimPrice 是覆盖流量卡、宽带、手机与数码家电的比价与排行榜平台。",
+      "provider": "ddgs",
+      "query": "低价流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.sohu.com/a/905287261_100262162",
+      "title": "中国移动办理副卡需要什么条件？2025最新攻略，一篇全搞定！",
+      "snippet": "Jun 17, 2025 · Q2：副卡收费吗？ A：通常会收取一定的月功能费，比如 10元/月。 不过，很多家庭套餐的首张副卡是免费赠送的。 具体费用标准取决于你的主卡套餐内容，办理时可以向工作人员详细咨询。 Q3：我最多能办几张副卡？ A：这同样取决于你的主卡套餐。",
+      "provider": "ddgs",
+      "query": "副卡办理条件",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://ailegal.baidu.com/legalarticle/qadetail?id=79e7f80cf4c395241222",
+      "title": "副卡办理的具体条件是什么 - ailegal.baidu.com",
+      "snippet": "Dec 23, 2024 · 办理副卡的具体条件主要依据银行或通信运营商的相关规定，并非直接由某部特定法律详细规定。 但根据一般实践及相关知识，可以明确以下几点办理副卡的条件： 年龄要求： 副卡申请人通常需年满18周岁，具备完全民事行为能力。",
+      "provider": "ddgs",
+      "query": "副卡办理条件",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.php.cn/faq/496770.html",
+      "title": "移动办副卡需要什么条件-PHP中文网",
+      "snippet": "Oct 21, 2022 · 移动办副卡的条件：1、携带本人身份证（主卡户主）；2、主号要有最低流量套餐要求（各个地区要求不同）；3、副卡需要实名登记后才可激活；4、取消副号或解散群组生效后，副卡将会立即销号。",
+      "provider": "ddgs",
+      "query": "副卡办理条件",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://zhuanlan.zhihu.com/p/677147152",
+      "title": "移动怎么开通副卡？ - 知乎",
+      "snippet": "Jan 10, 2024 · 副卡的开通方式 线上开通： 通过中国移动官方网站或APP办理副卡开通，只需提供主卡号码、副卡用户信息即可。 线下开通： 主卡本人携带主卡手机卡和副卡用户有效身份证件到中国移动营业厅办理副卡开通。 副卡的月功能费为10元，由主卡代付。",
+      "provider": "ddgs",
+      "query": "副卡办理条件",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.sohu.com/a/967605696_122154728",
+      "title": "2025年中国移动副卡办理全攻略：让家庭通信更轻松！",
+      "snippet": "Dec 21, 2025 · 2025年，中国移动还进一步简化了副卡的办理流程，明确了政策，让大家可以轻松通过线上和线下两种方式办理。 实名一致性要求：副卡的实名信息必须与主卡一致，非直系亲属办理时需双方到场。 案例分享：例如，北京的李先…",
+      "provider": "ddgs",
+      "query": "副卡办理条件",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://ailegal.baidu.com/legalarticle/qadetail?id=e0e2aa81d2a9cf250723",
+      "title": "副卡办理流程及条件 - ailegal.baidu.com",
+      "snippet": "Jul 24, 2025 · 确定主卡与副卡关系，明确副卡权益。 2. 选择运营商与套餐，考虑副卡数量限制、共享资源额度、费用等因素。 3. 准备办理材料，包括主卡与副卡申请人的身份证明等。 4. 前往运营商营业厅或在线办理，提交申请并上传材料。 5. 等待审核与激活，副卡激活后 ...",
+      "provider": "ddgs",
+      "query": "副卡办理流程",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.sohu.com/a/827379998_121798711",
+      "title": "信用卡副卡办理全攻略：步骤、注意事项与常见问题解析",
+      "snippet": "Nov 16, 2024 · 结语 办理副卡是一种便捷的方式，帮助家庭成员或亲友共同管理消费。 通过本文对副卡的办理流程和注意事项的解析，您可以更高效、安全地使用信用卡。 在使用副卡的过程中，也可以借助AI工具如简单AI，提升管理效率，提高创作及决策的质量。",
+      "provider": "ddgs",
+      "query": "副卡办理流程",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.nideyu.com/post/514.html",
+      "title": "副卡过户给家人怎么办理？2026最新操作流程",
+      "snippet": "Jun 28, 2026 · 2026 年手机副卡过户流程已大幅简化，副卡过户给家人无需主卡持有人全程到场，材料齐全可线上提交办理。 本文整理副卡过户条件、材料清单与完整步骤，附常见误区解答。",
+      "provider": "ddgs",
+      "query": "副卡办理流程",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://aiqicha.baidu.com/details/ugknowledge?id=8d109114554f1463331c3d1eb4f1b8f4",
+      "title": "如何申请手机卡副卡流程 - 爱企查",
+      "snippet": "Nov 16, 2026 · - 中国移动：登录\"中国移动APP\"→搜索\"副卡办理\"或进入\"我的-副卡管理\"→上传身份证→人脸识别→选号→等待邮寄激活。 - 中国联通：联通APP\"服务-办理-副卡办理\"提交申请，部分支持eSIM副卡。 - 中国电信：电信APP\"查询办理\"→\"办理副卡\"，但部分省份需线下确认。",
+      "provider": "ddgs",
+      "query": "副卡办理流程",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.sohu.com/a/918506439_100262162",
+      "title": "移动副卡怎么办理？给家人办卡超划算，一篇说透！",
+      "snippet": "Jul 28, 2025 · 办理流程：带上你和家人的身份证，到营业厅跟工作人员说“你好，我想办理一张副卡”，他们就会全程指导你完成所有步骤，通常十几分钟就能搞定，现场拿到新卡。 总而言之，办理一张副卡，不仅仅是节省了一份套餐费那么简单。",
+      "provider": "ddgs",
+      "query": "移动副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "http://wap.sx.10086.cn/shop/fuka/index.html",
+      "title": "移动副卡 - 10086",
+      "snippet": "1、38元及以上4G套餐用户可免费领取一张副卡，第一年免月租，第二年10元/月。 2、副卡共享主卡语音、流量，由主卡统一付费。 3、副卡独享每月1GB省内流量+100MB国内流量。",
+      "provider": "ddgs",
+      "query": "移动副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "http://wap.gs.10086.cn/newcard/universalSubCardWb?00C967184E8634D5A67CAC0ECA155FC14206B8E9F8A6E87C24E937C84FCDC4436D78624D80650592C852F18B5984E383",
+      "title": "万能副卡 - wap.gs.10086.cn",
+      "snippet": "（1）副卡优先使用订购的流量、通话产品包含资源，使用完后共享主卡通话、流量资源。 （2）共享流量使用完后，副卡国内流量前3GB按5元/GB收取，超出3GB后按3元/GB收取。 （3）共享通话使用完后，普通副卡国内通话0.19元/分钟，5G副卡国内通话0.15元/分钟。",
+      "provider": "ddgs",
+      "query": "移动副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://gd.189.cn/5g/tcsj/ssinfo.html",
+      "title": "副卡办理 - gd.189.cn",
+      "snippet": "1、具体办理数量视主卡套餐而定；同一身份证名下最多5个电信号码（含副卡），部分套餐协议不能超过办理数量。 2、本页面仅供线上预约申领，并不保证可成功办理，符合办理条件的号码在提交申领订单后会有专属工作人员与您联系，办理情况以实际结果为准。",
+      "provider": "ddgs",
+      "query": "电信副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.189.cn/products/93361141875.html",
+      "title": "中国电信网上营业厅",
+      "snippet": "中国电信网上营业厅",
+      "provider": "ddgs",
+      "query": "电信副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.189.cn/client/wap/wapproject/personalcustom/secondarycardvue/index.html",
+      "title": "中国电信网上营业厅",
+      "snippet": "1、生效规则. 副卡办理后功能立即生效，激活后首月功能费按天折算。部分省、市(如北京、天津等)副卡生效当月无法共享主 ...",
+      "provider": "ddgs",
+      "query": "电信副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "http://hn.189.cn/eshop/product/addViceCard/addViceCard.jsp",
+      "title": "电信主副卡-一个套餐全家享 - 189",
+      "snippet": "新乐享39-59档可办1张副卡，月功能费：1元/月/张,每张副卡每月赠送100分钟语音； 新乐享79-99档可办2张副卡，月功能费：1元/月/张,每张副卡每月赠送300M省内流量； 新乐享129元档及以上可办3张副卡，月功能费：1元/月/张,每张副卡每月赠送500M省内流量；",
+      "provider": "ddgs",
+      "query": "电信副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://aiqicha.baidu.com/details/ugknowledge?id=51da3af187d67177de63b1f3145094ad",
+      "title": "中国电信怎样办理副卡 - 爱企查",
+      "snippet": "Nov 8, 2026 · 怎么去营业厅办理 准备材料：携带主卡持有人有效身份证件原件，若代办还需代办人身份证 。 现场办理：前往就近电信营业厅，取号排队，向工作人员说明办理副卡 。 选号激活：现场选号、签订协议，一般当场可领取并激活副卡 。",
+      "provider": "ddgs",
+      "query": "电信副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.sohu.com/a/904949384_100262162",
+      "title": "中国广电副卡怎么办理？全家共享套餐，省钱攻略一篇搞定！",
+      "snippet": "Jun 16, 2025 · 想给家人、孩子或者自己的备用设备办张广电手机卡，又不想再多开一个昂贵的套餐?那广电副卡绝对是你的最佳选择!简单来说，办理广电副卡，就是让多张卡共享你主卡的套餐流量和语音，每个月只用多花一点点功能费 (通常是10…",
+      "provider": "ddgs",
+      "query": "广电副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://aiqicha.baidu.com/details/ugknowledge?id=2c6e2069b56cd3f98bd6dce3cc85eebf",
+      "title": "广电卡副卡怎么办理 - 爱企查",
+      "snippet": "Nov 17, 2026 · 1. 携带证件：带上主卡持有人身份证原件、副卡使用人身份证原件（未成年人需带户口本） 。 2. 现场办理：前往附近广电自营营业厅，向工作人员说明需求，现场选号并激活 。 3. 耗时预估：流程顺利约 15-25 分钟，可当场拿卡使用，适合不熟悉线上操作的用户 。",
+      "provider": "ddgs",
+      "query": "广电副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://aiqicha.baidu.com/details/ugknowledge?id=591e04806f77f07f23f8b21dd0b0939d",
+      "title": "如何办广电手机副卡 - 爱企查",
+      "snippet": "Nov 12, 2026 · 1. 准备材料：携带主卡持有人身份证原件、副卡使用人身份证原件（未成年人需户口本） 。 2. 前往网点：通过地图搜索“中国广电营业厅”，选择自营厅前往办理 。 3. 现场办理：工作人员指导填写表格、验证身份，缴纳制卡费后现场写卡激活，约 20 分钟可用 。",
+      "provider": "ddgs",
+      "query": "广电副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://m.10099.com.cn/h5wap/busiClient/account/d100/index.html?chanId=VCH020000697",
+      "title": "中国广电营业厅 - 10099",
+      "snippet": "业务规则 1.本套餐无免费副卡、至多可办理两张副卡（折后6元/月）； 2.本套餐可开通亲情网，主号6元/月，可以免费添加3张成员号，3张以外1元/张/月，国内互拨免费； 3.套外语音0.15元/分钟、流量3元/GB、短信0.1元/条套餐内通用流量可转结；",
+      "provider": "ddgs",
+      "query": "广电副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.sohu.com/a/867045704_122307090",
+      "title": "广电办理副卡应前往哪个营业厅？_社区服务站_业务_套餐",
+      "snippet": "Mar 5, 2025 · 广电副卡的办理本质上是通信资源管理的延伸，选择营业厅时，不必盲目追求网点规模，而应注重服务合规性与办理效率，特别提醒：近期部分城市试点\"线上副卡申领\"服务，用户提交材料审核通过后，SIM卡可邮寄到家，若所在区域已开通该服务，可大幅节省 ...",
+      "provider": "ddgs",
+      "query": "广电副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://sim9.cn/",
+      "title": "联通大流量卡办理_联通流量卡在线办理入口 - SIM9",
+      "snippet": "联通大流量卡，全国套餐与省内套餐都能选：全国发货套餐覆盖各省，省内专属套餐价格更低，29元起、最高550G。 中国联通正规号卡，申请免费、包邮寄送、实名激活，部分套餐需先激活充值再发货，资费与禁发地区见下文。",
+      "provider": "ddgs",
+      "query": "联通大流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.sim189.cn/topic/unicom",
+      "title": "联通流量卡大全_联通流量卡、中国联通流量卡、联通大流量卡、联通手机...",
+      "snippet": "本文整理当前在售的中国联通流量卡与宽带套餐，按月租、通用流量、通话和优惠期逐项对比——套餐性价比高、互联网合作卡多，看重这些的用户直接在这一页里挑。 收录口径：运营商为中国联通的在售号卡与宽带（含融合套餐）。",
+      "provider": "ddgs",
+      "query": "联通大流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.cnblogs.com/zhong-fan-ke/p/21139438",
+      "title": "2026年联通19元流量卡办理攻略：135G、185G、200G、235G、300G套餐怎...",
+      "snippet": "Jul 5, 2026 · 联通 19 元流量卡这 5 款（135G 江河卡、185G 麦浪卡、200G 云帆卡、235G 水仙卡、300G 星耀卡），都是全国通用、正规可查的靠谱套餐，不管你在哪里，办理渠道就认准「中国联通」APP、线下自营厅、微信「云连天下」小程序，流程按选卡→填信息→收卡→激活→首 ...",
+      "provider": "ddgs",
+      "query": "联通大流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.sohu.com/a/1008267891_122700701",
+      "title": "2026年电信大流量卡全攻略：套餐资费、避坑指南与选卡流程深度解析",
+      "snippet": "Apr 11, 2026 · 电信大流量卡是中国电信推出的高流量套餐产品，主打“低月租、大流量”特性，2026年市场呈现三大趋势： 1. 流量资源升级：主流套餐流量普遍超过100GB，部分套餐月租低至19元； 2. 技术支撑优化：5G网…",
+      "provider": "ddgs",
+      "query": "电信大流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.urlka.cn/blog/25",
+      "title": "2026年电信流量卡推荐：电信星卡、大圣卡、星驰卡全对比",
+      "snippet": "Jun 14, 2026 · 2026年电信流量卡怎么选？本文深度对比电信星卡、大圣卡、星驰卡等热门产品，帮你找到更适合的电信大流量卡套餐。",
+      "provider": "ddgs",
+      "query": "电信大流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.cnblogs.com/zhong-fan-ke/p/21146167",
+      "title": "2026年电信19元流量卡办理攻略：135G、185G、200G、235G套餐怎么选？ ...",
+      "snippet": "Jul 5, 2026 · 哈喽宝子们，今天掏心窝子跟大家唠唠现在热门的电信19元流量卡，从怎么办理、去哪办，到135G、185G、200G、235G套餐对比，再到避坑选卡，全给你们捋明白，不管你在哪个省市，照着来就行～ 先跟大家说清楚：下面提到的所有办理渠道、流程、套餐内容，在广东 ...",
+      "provider": "ddgs",
+      "query": "电信大流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.zhihu.com/tardis/bd/art/518370721",
+      "title": "26年有什么良心好用的流量卡推荐？大流量手机卡入手指南（正规套餐实...",
+      "snippet": "为了帮助大家在短时间内挑选到 低价高配 的正规手机卡套餐，我基于在电信七年的从业经历，对 近百款 手机卡进行了 深度激活测试，产出这篇万字选择指南，希望这篇指南能够对你有所帮助！",
+      "provider": "ddgs",
+      "query": "电信大流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    },
+    {
+      "url": "https://www.zhihu.com/tardis/bd/art/411034790",
+      "title": "2026年便宜好用的大流量卡套餐？（爆肝四大运营商实测合集）",
+      "snippet": "从我辞职做自媒体开始，自费 数万元，持续累积测评了 325+款流量卡，涵盖四大运营商月租19元到49元、流量50G到300G， 我有这个底气说出：全网划算且好用的套餐汇总，看我这一篇就够了。 说到这里，不知道大家看见过没？",
+      "provider": "ddgs",
+      "query": "电信大流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-27"
+    }
+  ],
+  "discoveredAt": "2026-11-27T10:07:17.653Z"
 }

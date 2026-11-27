@@ -1,12 +1,10 @@
 {
   "stage": "build-nav-pages",
   "provider": "openrouter",
-  "built": 1,
-  "skipped": 63,
+  "built": 0,
+  "skipped": 64,
   "total": 64,
-  "models": [
-    "liquid/lfm-3-1.7b:free"
-  ],
+  "models": [],
   "downgraded": 0,
   "blockedCount": 0,
   "bannedNavCount": 0,

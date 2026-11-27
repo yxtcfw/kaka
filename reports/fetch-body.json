@@ -1,15 +1,44 @@
 {
   "stage": "fetch-body",
   "provider": "ddgs",
-  "fetched": 0,
-  "approved": 0,
+  "fetched": 45,
+  "approved": 28,
   "bannedFiltered": 0,
-  "fetchFailures": [],
-  "l1": 63,
+  "fetchFailures": [
+    {
+      "url": "https://www.daliuliang.net/",
+      "reason": "GuardError: fetch guard error: http-403 (https://www.daliuliang.net/)"
+    },
+    {
+      "url": "https://zhuanlan.zhihu.com/p/2038104081009529248",
+      "reason": "GuardError: fetch guard error: http-403 (https://zhuanlan.zhihu.com/p/2038104081009529248)"
+    },
+    {
+      "url": "https://zhuanlan.zhihu.com/p/1926656950239756388",
+      "reason": "GuardError: fetch guard error: http-403 (https://zhuanlan.zhihu.com/p/1926656950239756388)"
+    },
+    {
+      "url": "https://zhuanlan.zhihu.com/p/2037547288688636348",
+      "reason": "GuardError: fetch guard error: http-403 (https://zhuanlan.zhihu.com/p/2037547288688636348)"
+    },
+    {
+      "url": "https://zhuanlan.zhihu.com/p/677147152",
+      "reason": "GuardError: fetch guard error: http-403 (https://zhuanlan.zhihu.com/p/677147152)"
+    }
+  ],
+  "l1": 64,
   "independentL2": 0,
   "sourcesPassed": true,
   "guard": {
-    "enabled": false,
-    "reason": "degraded-to-mock"
+    "enabled": true,
+    "requests": 44,
+    "retries": 4,
+    "waitsMs": 198053,
+    "denied": 0,
+    "timeouts": 0,
+    "robotsChecked": 0,
+    "concurrencyPeak": 1,
+    "errors": 10,
+    "externalCalls": 0
   }
 }

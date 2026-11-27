@@ -2,10 +2,10 @@
   "schema": "state/v1",
   "siteFilled": true,
   "signals": {
-    "count": 389,
-    "sources": 3,
-    "newRate": 0,
-    "passed": true
+    "count": 232,
+    "sources": 2,
+    "newRate": 0.0086,
+    "passed": false
   },
   "tree": {
     "built": true,
@@ -18,12 +18,12 @@
   },
   "content": {
     "generated": 5,
-    "gateBlocked": 10,
+    "gateBlocked": 11,
     "passed": true
   },
   "navPages": {
-    "built": 1,
-    "skipped": 63,
+    "built": 0,
+    "skipped": 64,
     "downgraded": 0
   },
   "runs": [
@@ -1153,6 +1153,55 @@
       "provider": "openrouter",
       "inputHash": "6d392350898f3f7a3b0aa201b1e077235fb88803b8cda430d0cd34439ef2f7dc",
       "summary": "生成 2, 拦截 0"
+    },
+    {
+      "at": "2026-11-27T10:06:51.691Z",
+      "stage": "harvest",
+      "provider": "baidu-suggest",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 233 词，newRate=0.8584"
+    },
+    {
+      "at": "2026-11-27T10:06:58.950Z",
+      "stage": "harvest",
+      "provider": "baidu-suggest",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 232 词，newRate=0.0086"
+    },
+    {
+      "at": "2026-11-27T10:07:17.654Z",
+      "stage": "discover",
+      "provider": "ddgs",
+      "inputHash": "5599b1b5e290f1f6cadde878ed815a8c3def1a9195a3978c535ba695995cbd2d",
+      "summary": "45 候选"
+    },
+    {
+      "at": "2026-11-27T10:08:18.692Z",
+      "stage": "fetch-body",
+      "provider": "ddgs",
+      "inputHash": "e23cc39b689b94a4824ca278e220acc977f48ea9227bdee4d3fd595c9c7c1b92",
+      "summary": "+45 源, L1=64, L2独立域=0"
+    },
+    {
+      "at": "2026-11-27T10:09:36.563Z",
+      "stage": "write-content",
+      "provider": "openrouter",
+      "inputHash": "20b2536d8b7b85e41f9c86ffd93fc4e7d831206c60510dcc17976de6c839b083",
+      "summary": "生成 4, 拦截 1"
+    },
+    {
+      "at": "2026-11-27T10:10:41.070Z",
+      "stage": "maintenance",
+      "provider": "ddgs",
+      "inputHash": "433b70ddfa5630eecaff9b60520f59e6f8968f0a1056e5a55487cbd66263e53a",
+      "summary": "信源 -5/改15, 候选 -0, 节点 -0, 复检 20"
+    },
+    {
+      "at": "2026-11-27T10:10:41.079Z",
+      "stage": "build-nav-pages",
+      "provider": "openrouter",
+      "inputHash": "7b971cd3041703d3ae37e2124bf9ac10ecbafdd4f9aee4e59c50f9d9fcf1c387",
+      "summary": "新建 0, 跳过已有 64, 降级 0, 门禁拦截 0"
     }
   ],
   "_comment": "三道达标判据进度 + 首次填空标记。脚本据此避免重复采集；siteFilled=true 后 fill-site 永久跳过。"

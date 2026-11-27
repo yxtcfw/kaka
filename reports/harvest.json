@@ -1,15 +1,24 @@
 {
   "stage": "harvest",
   "provider": "baidu-suggest",
-  "count": 389,
-  "sources": 3,
-  "newRate": 0,
-  "passed": true,
-  "degraded": true,
-  "reason": "GuardTimeout: fetch guard timeout: https://suggestion.baidu.com/su?wd=%E6%B5%81%E9%87%8F%E5%8D%A1%E5%8A%9E%E7%90%86&cb=vstcb&ie=utf-8",
+  "count": 232,
+  "sources": 2,
+  "newRate": 0.0086,
+  "passed": false,
+  "degraded": false,
+  "reason": "",
   "guard": {
-    "enabled": false,
-    "reason": "degraded: GuardTimeout: fetch guard timeout: https://suggestion.baidu.com/su?wd=%E6%B5%81%E9%87%8F%E5%8D%A1%E5%8A%9E%E7%90%86&cb=vstcb&ie=utf-8"
+    "enabled": true,
+    "requests": 24,
+    "retries": 0,
+    "waitsMs": 8979,
+    "denied": 0,
+    "timeouts": 0,
+    "robotsChecked": 0,
+    "concurrencyPeak": 1,
+    "errors": 0,
+    "externalCalls": 0,
+    "failures": []
   },
   "threshold": {
     "signalsMin": 300,
