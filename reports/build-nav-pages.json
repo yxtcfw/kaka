@@ -2,8 +2,8 @@
   "stage": "build-nav-pages",
   "provider": "openrouter",
   "built": 0,
-  "skipped": 64,
-  "total": 64,
+  "skipped": 63,
+  "total": 63,
   "models": [],
   "downgraded": 0,
   "blockedCount": 0,
@@ -532,7 +532,7 @@
     {
       "navId": "api-5076",
       "bundleId": "nav-api-5076",
-      "title": "江西广电专享卡【28元350G+200分钟】",
+      "title": "江西广电专享卡【28元320G通用+30G定向+200分钟】",
       "outbound": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=fb74cf4281b26e7f",
       "intro": [
         {
@@ -732,7 +732,7 @@
     {
       "navId": "api-4954",
       "bundleId": "nav-api-4954",
-      "title": "电信飞享卡【39.5元310G+200分钟】",
+      "title": "电信飞享卡【39.5元310G通用+200分钟】",
       "outbound": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=41a866bb7ea8c314",
       "intro": [
         {
@@ -772,7 +772,7 @@
     {
       "navId": "api-4953",
       "bundleId": "nav-api-4953",
-      "title": "电信飞秋卡【39.5元190G+200分钟】",
+      "title": "电信飞秋卡【39.5元190G通用+200分钟】",
       "outbound": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=0bee637a5201f11c",
       "intro": [
         {
@@ -1052,7 +1052,7 @@
     {
       "navId": "api-4419",
       "bundleId": "nav-api-4419",
-      "title": "湖北移动省内专属卡【39元139G】【仅发十堰 宜昌】",
+      "title": "湖北移动省内专属卡【39元109G通用+30G定向】【仅发十堰宜昌】",
       "outbound": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=a65a453efbc06e88",
       "intro": [
         {
@@ -1172,7 +1172,7 @@
     {
       "navId": "api-4281",
       "bundleId": "nav-api-4281",
-      "title": "电信梦泰卡【38元190G+300分钟】【仅发山东】",
+      "title": "电信梦泰卡【38元190G通用+300分钟】【仅发山东】",
       "outbound": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=ac3b03c8f5d2c879",
       "intro": [
         {
@@ -1252,7 +1252,7 @@
     {
       "navId": "api-4125",
       "bundleId": "nav-api-4125",
-      "title": "电信飞泰卡2.0【38元190G+300分钟】【仅发山东】",
+      "title": "电信飞泰卡2.0【38元190G通用+300分钟】【仅发山东】",
       "outbound": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=c0927a01f27bbd43",
       "intro": [
         {
@@ -1292,7 +1292,7 @@
     {
       "navId": "api-4092",
       "bundleId": "nav-api-4092",
-      "title": "电信飞泰卡【38元190G+300分钟】【仅发山东】",
+      "title": "电信飞泰卡【38元190G通用+300分钟】【仅发山东】",
       "outbound": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=da8c4761d6b6f5a2",
       "intro": [
         {
@@ -1399,46 +1399,6 @@
       "sourceBody": "套餐名称：29元200G\n套餐资费：原套餐39元20G通用流量，通话0.15元/分钟，短信/彩信:0.1元/条，流量超出5元/G。\n优惠说明：激活快递处首充100元+复充100元\n（首充快递处或专属渠道，复充仅快递处充值）\n复充参与方式:用户须在快递小哥上门激活或者专属渠道完成首充有礼后，扫描快递小哥出示的复充有礼”活动二维码参与\n1.首月赠送入网体验金,实现首月免月租。\n2.首充后添加40G通用流量,参加复充有礼，每月获赠140G通用流量包(36个月)。\n3.参与首充+复充活动后，(2-36）个月月底到账10元话费，(要求在网，状态正常，逾期不支持补返)\n4.综上所述:首月免费，套餐内容按天折算，参与首充+复充2-36个月29元200G\n目前仅发陕西、湖南、四川、云南、甘肃、山东、江西、广西、贵州、安徽\n配送方式：京东、顺丰、邮政随机\n激活方式：快递激活\n首充要求：激活快递处首充100元+复充100元\n年龄要求：18-60周岁\n合约期限：12个月\n禁发地区：北京市,重庆市,福建省,广东省,河北省,湖北省,黑龙江省,河南省,海南省,吉林省,江苏省,辽宁省,内蒙古自治区,宁夏回族自治区,青海省,上海市,山西省,天津市,新疆维吾尔自治区,西藏自治区,浙江省\n适用范围：无\n活动流量：无\n销户方式：广电app或拨打10099\n网络制式：5G网速\n产品名称：广电飞桔卡【29元200G】\n资费套餐：29元200G\n通用流量：200G\n定向流量：0G\n通话时长：0分钟\n月租费用：29元/月",
       "sourceIds": [
         "src-api-3941"
-      ],
-      "gates": [
-        "fact",
-        "dedup",
-        "banned",
-        "structure",
-        "citable",
-        "compliance"
-      ]
-    },
-    {
-      "navId": "api-3867",
-      "bundleId": "nav-api-3867",
-      "title": "山东移动120元视频会员年卡",
-      "outbound": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=fbbd68db49586808",
-      "intro": [
-        {
-          "title": "套餐包含什么",
-          "text": "山东移动120元视频会员年卡：120元/月，0G通用流量。"
-        },
-        {
-          "title": "怎么办理",
-          "text": "办理方式：无配送，移动APP--右下方爱购--我的权益。"
-        },
-        {
-          "title": "谁能办理",
-          "text": "办理条件：年龄18-65周岁，合约12个月。"
-        },
-        {
-          "title": "禁发地区",
-          "text": "以下地区不办理：仅限 青岛 潍坊 威海 东营 日照 滨州 淄博 济南可办理。"
-        },
-        {
-          "title": "",
-          "text": "信息转录自官方详情，具体资费以官方实时页面为准。"
-        }
-      ],
-      "sourceBody": "套餐名称：120元会员年卡 仅限山东移动手机卡用户\n套餐资费：会员每月领取一次 每次领取都可重新选择不同会员 逾期未领取 无法补发，请每月记得领取\n需办理手机卡余额大于120元 年包费用直接从余额扣除\n移动会下发短信收到短信回复“1“即可办理成功\n优惠说明：可办理地区：青岛 潍坊 威海 东营 日照 滨州 淄博 济南\n配送方式：无\n激活方式：移动APP--右下方爱购--我的权益\n首充要求：需办理手机卡余额大于120元，年包费用直接从余额扣除\n年龄要求：18-65周岁\n合约期限：12个月\n禁发地区：仅限 青岛 潍坊 威海 东营 日照 滨州 淄博 济南可办理\n适用范围：无\n活动流量：https://haokaapi.lot-ml.com/upload/ProductUpDateImage/20260827/642b5bfbaa3e48cda50226fcb852aba4.jpg\n销户方式：无\n网络制式：不支持\n产品名称：山东移动120元视频会员年卡\n资费套餐：山东移动120元视频会员年卡\n通用流量：0G\n定向流量：0G\n通话时长：0分钟\n月租费用：120元/月",
-      "sourceIds": [
-        "src-api-3867"
       ],
       "gates": [
         "fact",
@@ -1572,12 +1532,12 @@
     {
       "navId": "api-5410",
       "bundleId": "nav-api-5410",
-      "title": "广电陕西专属卡【29元200G】",
+      "title": "广电陕西专属卡【29元200G通用】",
       "outbound": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=da93312a9a874d44",
       "intro": [
         {
           "title": "套餐包含什么",
-          "text": "广电陕西专属卡【29元200G】：29元/月，60G通用流量。"
+          "text": "广电陕西专属卡【29元200G通用】：29元/月，200G通用流量（基础60G+首充200元赠送140G，36个月）。"
         },
         {
           "title": "怎么办理",
@@ -1612,7 +1572,7 @@
     {
       "navId": "api-5826",
       "bundleId": "nav-api-5826",
-      "title": "电信飞耳卡【29元240G+400分钟】仅限郑州",
+      "title": "电信飞耳卡【29元240G通用+400分钟】仅限郑州",
       "outbound": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=ef27c4813535ba22",
       "intro": [
         {
@@ -1652,7 +1612,7 @@
     {
       "navId": "api-5825",
       "bundleId": "nav-api-5825",
-      "title": "湖北省内移动专属卡【39元145G】",
+      "title": "湖北省内移动专属卡【39元115G通用+30G定向】",
       "outbound": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=e550c25bcdc4e9be",
       "intro": [
         {
@@ -1932,7 +1892,7 @@
     {
       "navId": "api-5655",
       "bundleId": "nav-api-5655",
-      "title": "云南联通专享卡【43元173G+200分钟】 仅限昆明",
+      "title": "云南联通专享卡【43元88G通用+85G定向+200分钟】仅限昆明",
       "outbound": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=5599fb8cd195bc64",
       "intro": [
         {
@@ -2252,7 +2212,7 @@
     {
       "navId": "api-5450",
       "bundleId": "nav-api-5450",
-      "title": "广电飞羽卡【28元350G+200分钟】",
+      "title": "广电飞羽卡【28元320G通用+30G定向+200分钟】",
       "outbound": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=030ee0170f9b38c1",
       "intro": [
         {
@@ -2332,7 +2292,7 @@
     {
       "navId": "api-5413",
       "bundleId": "nav-api-5413",
-      "title": "广电陕西专属卡【28元150G+200分钟】",
+      "title": "广电陕西专属卡【28元120G通用+30G定向+200分钟】",
       "outbound": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=3fdd647138058ff5",
       "intro": [
         {
@@ -2452,7 +2412,7 @@
     {
       "navId": "api-4135",
       "bundleId": "nav-api-4135",
-      "title": "联通360元包年卡【每月300G+300分钟】【仅发山东】",
+      "title": "联通360元包年卡【每月300G通用+300分钟】【仅发山东】",
       "outbound": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=110b93aecda2b1a6",
       "intro": [
         {

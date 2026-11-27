@@ -1,35 +1,67 @@
 {
   "stage": "write-content",
   "provider": "openrouter",
-  "generated": 5,
-  "blocked": 0,
-  "gateBlockedCount": 0,
+  "generated": 3,
+  "blocked": 2,
+  "gateBlockedCount": 2,
   "contentPassed": true,
   "models": [
-    "nvidia/nemotron-3-ultra-550b-a55b:free",
-    "baidu/ernie-5.5-flash-preview:free",
-    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-    "nvidia/nemotron-3.5-super-vl:free",
-    "recursive/flint-v1.0:free"
+    "liquid/lfm-3-1.7b:free",
+    "nvidia/nemotron-3.5-lightning:free",
+    "nvidia/nemotron-3.5-super-vl:free"
   ],
-  "deduped": 3,
+  "deduped": 2,
   "skippedNodes": [
-    "n1"
+    "n1",
+    "auto-scene",
+    "auto-sub-manage"
   ],
   "bannedDomains": [
     "example.com",
     "example.net",
     "example.org"
   ],
-  "blockedDetail": [],
-  "regeneratedIds": [
-    "article-auto-scene",
-    "article-auto-sub-manage"
+  "blockedDetail": [
+    {
+      "nodeId": "auto-region",
+      "blockers": [
+        {
+          "gate": "dedup",
+          "detail": "max cosine=0.729 (limit 0.7) with article-n2"
+        }
+      ]
+    },
+    {
+      "nodeId": "auto-campus-apply",
+      "blockers": [
+        {
+          "gate": "dedup",
+          "detail": "max cosine=0.740 (limit 0.7) with article-n2"
+        }
+      ]
+    }
   ],
+  "regeneratedIds": [],
   "qualityFallbacks": [
     {
-      "nodeId": "auto-scene",
-      "reason": "banned-title"
+      "nodeId": "n2",
+      "reason": "body-too-short"
+    },
+    {
+      "nodeId": "auto-region",
+      "reason": "body-too-short"
+    },
+    {
+      "nodeId": "auto-sub-apply",
+      "reason": "body-too-short"
+    },
+    {
+      "nodeId": "auto-campus-apply",
+      "reason": "body-too-short"
+    },
+    {
+      "nodeId": "auto-campus-faq",
+      "reason": "body-too-short"
     }
   ]
 }

@@ -1,11 +1,11 @@
 # 站点周报
 
-生成时间：2026-11-27T11:28:23.954Z
+生成时间：2026-11-27T15:57:45.577Z
 
 ## 达标进度
-- 判据① 联想词：{"count":232,"sources":2,"newRate":0.0043,"passed":false}
-- 判据② 信源：{"l1":64,"independentL2":0,"passed":true}
-- 判据③ 内容：{"generated":5,"gateBlocked":11,"passed":true}
+- 判据① 联想词：{"count":227,"sources":2,"newRate":0.0044,"passed":false}
+- 判据② 信源：{"l1":69,"independentL2":0,"passed":true}
+- 判据③ 内容：{"generated":4,"gateBlocked":13,"passed":true}
 - 首次填空：siteFilled=true
 
 ## 本周流程报告
@@ -18,21 +18,21 @@
 - build: 有
 
 ## 漂移告警（树/信源/规则一致性）
-告警数：0（critical 0 / warn 0 / info 0）
-- 无漂移，三者一致
+告警数：1（critical 1 / warn 0 / info 0）
+- [critical] search-source-upgraded · src-026：搜索发现源 grade=L1，应为 L3
 
 ## 规则/数据变更与回滚
-快照数：815
-- 快照：snapshots/signals/signals.json.2026-11-27T08-30-13-941Z
-- 快照：snapshots/signals/signals.json.2026-11-27T08-30-25-162Z
-- 快照：snapshots/signals/signals.json.2026-11-27T09-02-12-082Z
-- 快照：snapshots/signals/signals.json.2026-11-27T09-02-42-089Z
-- 快照：snapshots/signals/signals.json.2026-11-27T10-06-51-691Z
-- 快照：snapshots/signals/signals.json.2026-11-27T10-06-58-950Z
-- 快照：snapshots/signals/signals.json.2026-11-27T10-40-49-690Z
-- 快照：snapshots/signals/signals.json.2026-11-27T10-40-56-892Z
+快照数：856
 - 快照：snapshots/signals/signals.json.2026-11-27T11-24-33-839Z
 - 快照：snapshots/signals/signals.json.2026-11-27T11-24-40-392Z
+- 快照：snapshots/signals/signals.json.2026-11-27T15-55-12-096Z
+- 快照：snapshots/signals/signals.json.2026-11-27T15-55-18-301Z
+- 快照：snapshots/sources.json.2026-11-27T15-40-23-418Z
+- 快照：snapshots/sources.json.2026-11-27T15-41-01-145Z
+- 快照：snapshots/sources.json.2026-11-27T15-41-01-703Z
+- 快照：snapshots/sources.json.2026-11-27T15-41-27-645Z
+- 快照：snapshots/sources.json.2026-11-27T15-41-39-628Z
+- 快照：snapshots/sources.json.2026-11-27T15-42-07-417Z
 
 回滚命令示例（人工决定后执行）：
 ```bash

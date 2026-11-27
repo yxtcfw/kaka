@@ -1,8 +1,8 @@
 {
   "schema": "discovered/v1",
   "provider": "ddgs",
-  "degraded": false,
-  "reason": "",
+  "degraded": true,
+  "reason": "Error: ddgs 适配器退出码 1: {\"error\": \"duckduckgo: DDGSException: No results found. | html: DDGSException: No results found. | lite: DDGSException: No results found. | brave: DDGSException: No results found. | mojeek: DDGSException: No results found. | google: DDGSException: No results found.\"}\n",
   "queryTerms": [
     "流量卡办理",
     "联通大流量",
@@ -15,97 +15,6 @@
     "联通大流量卡",
     "电信大流量卡"
   ],
-  "candidates": [
-    {
-      "url": "https://duokaba.cn/",
-      "title": "流量卡办理_大流量卡全国通用在线办理入口 - 多卡吧",
-      "snippet": "多卡对比工具：月租、通用流量、归属地、禁发地区逐项对照，28元起最高550G，选中在线提交，0申请费、包邮配送。",
-      "provider": "ddgs",
-      "query": "流量卡办理",
-      "discoveredBy": "search",
-      "defaultGrade": "L3",
-      "foundAt": "2026-11-27"
-    },
-    {
-      "url": "https://zhuanlan.zhihu.com/p/2038104081009529248",
-      "title": "全国23省份：联通8-39月租流量卡2026年12月份最新流量套餐攻略指南【...",
-      "snippet": "全国长期稳定大流量基础卡：选 联通沙滩卡，固定 31 月租 220G 通用流量 + 100 分钟全国语音，优惠 48 个月到期可续。 全国小流量备用副卡、低月租过渡：选联通玉青卡，长期 19 元 13G 通用 + 定向 + 100 分钟全国通话。",
-      "provider": "ddgs",
-      "query": "联通大流量",
-      "discoveredBy": "search",
-      "defaultGrade": "L3",
-      "foundAt": "2026-11-27"
-    },
-    {
-      "url": "https://www.daliuliang.net/",
-      "title": "流量卡办理_移动联通电信广电套餐对比_免费申请-大流量",
-      "snippet": "3 days ago · 移动/联通/电信/广电官方套餐汇总：77款流量卡月租5元起、通用流量最高320G；另有100M-2000M宽带上门安装。免费申请、包邮 ...",
-      "provider": "ddgs",
-      "query": "联通大流量",
-      "discoveredBy": "search",
-      "defaultGrade": "L3",
-      "foundAt": "2026-11-27"
-    },
-    {
-      "url": "https://zhuanlan.zhihu.com/p/2037547288688636348",
-      "title": "2026全国流量卡合集｜实时更新！低月租大流量套餐全整理（建议收藏）",
-      "snippet": "Jun 5, 2026 · 2026年运营商新一轮竞合调整后，流量卡市场的靠谱套餐越来越依赖信息差——全国通用的高性价比款主要集中在广电及运营商官方线上渠道，而各省、地级市的专属优惠套餐反而藏着更多惊喜。作为常年实测流量卡的博主，…",
-      "provider": "ddgs",
-      "query": "低价流量卡",
-      "discoveredBy": "search",
-      "defaultGrade": "L3",
-      "foundAt": "2026-11-27"
-    },
-    {
-      "url": "https://aiqicha.baidu.com/details/ugknowledge?id=372c1f08de7dc54305b62c2d8445a44f",
-      "title": "移动手机卡副卡什么条件可以办理 - 爱企查",
-      "snippet": "Oct 13, 2026 · 👤 副卡使用者有啥要求 1. 实名一致：副卡用的人身份证信息必须和主卡登记信息完全一致，线上办理只支持二代身份证。 2. 年龄限制：副卡使用者通常需年满 16 周岁，未成年人办理需监护人陪同并带户口本等关系证明。 3. 归属地相同：副卡必须和主卡归属地一致，号码前七位也需相同，不能跨 ...",
-      "provider": "ddgs",
-      "query": "副卡办理条件",
-      "discoveredBy": "search",
-      "defaultGrade": "L3",
-      "foundAt": "2026-11-27"
-    },
-    {
-      "url": "https://aiqicha.baidu.com/details/ugknowledge?id=d4d5e2da7ba22201ccf684ba595005e1",
-      "title": "移动电话卡副卡办理流程 - 爱企查",
-      "snippet": "Oct 10, 2026 · 共享副卡咋办 - 线上：登录\"中国移动APP\"→搜索\"副卡办理\"或\"万能副卡\"→上传副卡使用人身份证→人脸识别→审核通过后邮寄或自取激活。 - 线下：带主卡机主身份证、副卡使用人身份证到营业厅→填申请表→现场审核制卡→激活使用。 - 条件：主卡需实名且状态正常、套餐支持副卡功能、副卡使用 ...",
-      "provider": "ddgs",
-      "query": "副卡办理流程",
-      "discoveredBy": "search",
-      "defaultGrade": "L3",
-      "foundAt": "2026-11-27"
-    },
-    {
-      "url": "https://zhuanlan.zhihu.com/p/677147152",
-      "title": "移动怎么开通副卡？ - 知乎移动副卡怎么办理？给家人办卡超划算，一篇说透！万能副卡 - wap.gs.10086.cn移动副卡 - 10086移动app里面怎么办理副卡? - 爱企查和多号 副号办理 - 10086",
-      "snippet": "动副卡是指与主卡绑定的副卡，可共享主卡的流量、语音、短彩信等资源。移动副卡的开通条件如下： See full list on zhuanlan.zhihu.com 线上开通： 通过中国移动官方网站或APP办理副卡开通，只需提供主卡号码、副卡用户信息即可。 线下开通： 主卡本人携带主卡手机卡和副卡用户有效身份证件到中国移动营业厅办理副卡开通。 副卡的月功能费为10元，由主卡代付。 副卡可共享主卡的流量、语音、短彩信等资源，具体以主卡所办理的套餐业务规则为准。 移动副卡的开通条件比较简单，用户只需满足主卡套餐要求、主卡状态要求和副卡实名要求即可。副卡的开通方式有线上和线下两种，用户可根据自身情况选择合适的方式办理。 See full list on zhuanlan.zhihu.com Jul 28, 2025 · 不是所有套餐都能办副卡，这是前提。主卡套餐要求：通常，你的主卡套餐月租需要在59元或以上（具体标准以当地移动营业厅为准），才有资格办理副-卡。办理流程：带上你和家人的身份证，到营业厅跟工作人员说“你好，我想办… 3、副卡不支持单独办理，需有一张甘肃移动号码作为主卡，主卡需为个人客户，主、副卡须为同一人（同一有效身份证件）。 4、5G副卡仅限5G智享套餐主卡办理。 5、主卡欠费停机、主动停机，副卡自动停机；主卡销户，副卡自动销户。 用移动副卡，让沟通近距离 1、主卡用户目前仅限办理一张副卡，副卡与主卡合账付费，12个月内不支持取消合账付费。 2、副卡入网需与主卡持卡人为同一身份证件。 3、参加活动后，12个月内，主卡主资费需为38元及以上4G套餐，不支持销户、报停、过户。 Nov 11, 2026 · 实体副卡是独立的 SIM 卡，可给家人使用，共享主卡套餐资源。 办理入口：在“中国移动”APP 首页搜索“万能副卡”或“副卡申请”，也可在“个人中心 - 业务办理”中查找 。 操作步骤：输入主卡信息，选择副卡套餐，上传副卡使用者身份证并做人脸识别，审核通过后选择邮寄或自取 。 办理条件 ... 验证主号 选择套餐/副号 实名登记 成功 资费标准： 5 元/月/号码 我已认真阅读并同意协议 《中国移动和多号服务协议》 及 《用户隐私协议》 申请新号码 申请新号码做副号，该副号 没有SIM卡实体（虚拟副号）",
-      "provider": "ddgs",
-      "query": "移动副卡办理",
-      "discoveredBy": "search",
-      "defaultGrade": "L3",
-      "foundAt": "2026-11-27"
-    },
-    {
-      "url": "https://aiqicha.baidu.com/details/ugknowledge?id=d4f755bfa7fed9f0ca75995cb765a469",
-      "title": "电信怎么办副卡教程 - 爱企查",
-      "snippet": "Nov 13, 2026 · 怎么线上申请副卡 1. APP 办理：登录中国电信 APP，点击【我的】或【查询办理】，找到【加装副卡】入口，按提示选号、上传身份证并提交订单 。 2. 官网预约：访问中国电信网上营业厅，进入副卡办理页面填写信息，提交后会有工作人员联系确认 。 3. 激活方式：收到邮寄的 SIM 卡后，通过 APP 完成 ...",
-      "provider": "ddgs",
-      "query": "电信副卡办理",
-      "discoveredBy": "search",
-      "defaultGrade": "L3",
-      "foundAt": "2026-11-27"
-    },
-    {
-      "url": "https://www.cnblogs.com/zhong-fan-ke/p/23069378",
-      "title": "广电双百卡2026年9月办理实测：五渠道对比与套餐深度解析梳理",
-      "snippet": "Sep 21, 2026 · 问：广电双百卡怎么办理？ 答：我当时是先拨了10099官方客服电话问清楚套餐在售，客服让我去中国广电APP看详情，我打开APP在首页找到选卡中心点进去自动跳转到云连八方微信小程序——这个是运营商线上授权渠道，套餐卡片展示很清楚。",
-      "provider": "ddgs",
-      "query": "广电副卡办理",
-      "discoveredBy": "search",
-      "defaultGrade": "L3",
-      "foundAt": "2026-11-27"
-    }
-  ],
-  "discoveredAt": "2026-11-27T11:25:08.860Z"
+  "candidates": [],
+  "discoveredAt": "2026-11-27T15:55:25.155Z"
 }
