@@ -17,6 +17,7 @@ import { runBuild } from './build.js';
 import { runFetchMetrics } from './fetch-metrics.js';
 import { runPrune } from './prune.js';
 import { runReport } from './report.js';
+import { runStatus } from './status.js';
 import { runDriftCheck } from './drift-check.js';
 import { runGuardCheck } from './guard-check.js';
 import { runSyncApiNav } from './sync-api-nav.js';
@@ -74,6 +75,12 @@ async function main() {
       print('report', r);
       break;
     }
+    case 'status': {
+      const r = runStatus(root, args);
+      delete r.status;
+      print('status', r);
+      break;
+    }
     case 'rollback': print('rollback', runRollback(root, args)); break;
     case 'reset': print('reset', runResetSite(root, args)); break;
     case 'pipeline': {
@@ -110,7 +117,7 @@ async function main() {
     case 'help':
     default:
       console.log('用法: node scripts/cli.js <command> [--root DIR] [--dry-run] [options]');
-      console.log('命令: validate bootstrap harvest grow-tree tree-overdue curate-tree discover fetch-body collect-sources sync-api-nav sync-product-details maintenance write fill-site nav-pages build metrics prune drift-check guard-check report rollback reset pipeline');
+      console.log('命令: validate bootstrap harvest grow-tree tree-overdue curate-tree discover fetch-body collect-sources sync-api-nav sync-product-details maintenance write fill-site nav-pages build metrics prune drift-check guard-check report status rollback reset pipeline');
       console.log('示例: npm run validate && npm run pipeline -- --apply');
   }
 }

@@ -4,6 +4,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { readJson, ROOT } from './lib/validate.js';
 import { esc, layout, slugify } from './lib/render.js';
+import { buildStatus } from './status.js';
 
 function readSafe(file, fallback) {
   try { return readJson(file); } catch { return fallback; }
@@ -297,5 +298,15 @@ ${relatedHtml}
 
   const report = { stage: 'build', pages: urls.length, urls, outDir };
   writeFile(root, 'reports/build.json', JSON.stringify(report, null, 2) + '\n');
+
+  // 运行状态：优先搬用 pipeline 写入的 reports/status.json（权威产物）；
+  // 本地直接 build 尚无该文件时，用当前数据现场生成一份，保证任何路径都产出只读状态页数据。
+  try {
+    const statusPath = path.join(root, 'reports', 'status.json');
+    const content = fs.existsSync(statusPath)
+      ? fs.readFileSync(statusPath, 'utf8')
+      : JSON.stringify(buildStatus(root), null, 2) + '\n';
+    writeFile(root, `${outDir}/status.json`, content);
+  } catch { /* status 生成失败不影响站点构建 */ }
   return report;
 }

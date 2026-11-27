@@ -87,6 +87,9 @@ jobs:
       - name: 生成周报
         run: node scripts/cli.js report
 
+      - name: 生成运行状态（供中枢站读取）
+        run: node scripts/cli.js status
+
       - name: 建树超期兜底结果
         if: always()
         run: |
