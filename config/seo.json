@@ -1,0 +1,33 @@
+{
+  "schema": "seo/v1",
+  "_comment": "通用 SEO 与文案配置。字段以 {路径} 占位符引用数据源；换主题只需替换本配置与 data/，不改渲染代码。",
+  "descriptionMaxChars": 160,
+  "pages": {
+    "home": {
+      "h1": "{site.h1}",
+      "descriptionFields": ["site.intro", "site.tagline"]
+    },
+    "nav": {
+      "descriptionFields": ["title", "cardDesc", "category"]
+    },
+    "blogIndex": {
+      "h1": "{site.blogTitle}",
+      "descriptionFields": ["site.blogTitle", "site.intro"]
+    },
+    "article": {
+      "descriptionFields": ["title", "summary"]
+    }
+  },
+  "textHygiene": {
+    "stripPatterns": [
+      "[（(]auto-[a-z0-9_-]+[）)]",
+      "\\[src-api-[a-z0-9]+\\]",
+      "src-api-[a-z0-9]+",
+      "归类词：\\s*auto-[a-z0-9_-]+\\s*",
+      "auto-[a-z0-9_-]+"
+    ],
+    "slugStripPatterns": ["(?<=^|-)auto-"],
+    "citationFallback": "参考资料",
+    "sourceTitlePreferred": true
+  }
+}

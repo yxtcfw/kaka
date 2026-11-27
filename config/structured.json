@@ -1,0 +1,17 @@
+{
+  "schema": "structured/v1",
+  "_comment": "结构化数据与社交卡片配置。换主题改 fields 映射即可；没有真实图片时 og.image 留空，绝不造占位图。",
+  "enabled": true,
+  "og": { "enabled": true, "image": "" },
+  "nav": { "product": true, "faq": true, "breadcrumb": true },
+  "article": { "article": true, "breadcrumb": true },
+  "fields": {
+    "price": "specs.nowPrice",
+    "oldPrice": "specs.oldPrice",
+    "priceUnit": "specs.priceUnitStr",
+    "title": "title",
+    "summary": "cardDesc",
+    "name": "title"
+  },
+  "faqFromIntro": true
+}

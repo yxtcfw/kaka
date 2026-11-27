@@ -6,6 +6,7 @@ import { atomicWriteJson } from './lib/util.js';
 import { makeSnapshots } from './lib/snapshot.js';
 import { loadState, saveState, recordRun } from './lib/state.js';
 import { fetchAll, dedupeProducts, reclassify } from './lib/api-nav.js';
+import { loadDataQualityRules, enforceItems } from './lib/data-quality.js';
 
 const CONFIG_REL = 'config/api-nav.json';
 const NAV_REL = 'data/navlinks.json';
@@ -72,7 +73,10 @@ export async function runSyncApiNav(root = ROOT, args = {}) {
   if (args.sleep) deps.sleep = args.sleep;
 
   const { items: raw, meta } = await fetchAll(cfg, deps);
-  const { items: fresh, duplicates } = dedupeProducts(raw, cfg);
+  const { items: deduped, duplicates } = dedupeProducts(raw, cfg);
+  // 落库前门禁：不合规新条目拒绝入库；确定性可修的（划线价/销量）先修再入。人工条目不经过此链。
+  const quality = enforceItems(deduped, loadDataQualityRules(root));
+  const fresh = quality.accepted;
   const navPath = path.join(root, NAV_REL);
   const current = readJson(navPath);
   const { items, added, skipped } = mergeNav(current.items || [], fresh);
@@ -84,6 +88,13 @@ export async function runSyncApiNav(root = ROOT, args = {}) {
     apiCount: meta.count,
     apiErrors: meta.errors,
     duplicates,
+    quality: {
+      enforced: quality.enforced,
+      accepted: quality.accepted.length,
+      rejected: quality.rejected.length,
+      fixed: quality.fixed.length,
+      rejectedDetail: quality.rejected
+    },
     added: added.length,
     skipped,
     total: items.length,

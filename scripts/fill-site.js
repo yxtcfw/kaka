@@ -31,13 +31,15 @@ function inferFields(tree, sources, manifest) {
       topics: l1,
       navCategories: l1,
       intro,
+      h1: `${rootLabel}选购指南`,
+      blogTitle: `${rootLabel}文章`,
       styleTokens: {
         primary: manifest.theme?.primary || '#2563eb',
         accent: manifest.theme?.accent || '#f59e0b',
         radius: manifest.theme?.radius || '12px',
         font: manifest.theme?.font || 'system-ui, sans-serif'
       },
-      license: '站点默认许可（待人工确认）',
+      license: '',
       byline: `${rootLabel}编辑部`
     },
     sources: {
@@ -47,8 +49,10 @@ function inferFields(tree, sources, manifest) {
       topics: 'tree.root.children[]',
       navCategories: 'tree.root.children[]',
       intro: 'sources[].bodyExcerpt（approved 首条）',
+      h1: 'tree.root.label + 选购指南（可由人工覆盖）',
+      blogTitle: 'tree.root.label + 文章（可由人工覆盖）',
       styleTokens: 'manifest.theme（主题包默认值）',
-      license: '站点默认值（待人工确认）',
+      license: '留空，待人工确认后再填，不对外展示占位文案',
       byline: 'tree.root.label'
     }
   };

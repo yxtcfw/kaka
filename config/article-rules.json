@@ -1,11 +1,27 @@
 {
   "schema": "article-rules/v1",
   "_comment": "示例/占位内容全产线排除规则。skipNodeIds 里的初始示例节点不产出文章；bannedDomains 里的示例/占位域名不得进入信源池、不得作为 nav 详情页出站口、不得被文章引用。规则进 git 可审计，改规则即可放行，无需改代码。",
-  "skipNodeIds": ["n1"],
-  "bannedDomains": ["example.com", "example.net", "example.org"],
-  "forceRegenerateNodeIds": ["auto-scene", "auto-sub-manage"],
-  "minBodyChars": 120,
-  "bannedTitlePatterns": ["^auto-"],
-  "bannedBodyPhrases": ["本卡片主题为", "银行正式版本", "持卡人协议", "以银行"],
+  "skipNodeIds": [
+    "auto-scene",
+    "auto-sub-manage",
+    "n1"
+  ],
+  "bannedDomains": [
+    "example.com",
+    "example.net",
+    "example.org"
+  ],
+  "forceRegenerateNodeIds": [],
+  "minBodyChars": 500,
+  "bannedTitlePatterns": [
+    "^auto-",
+    "[（(]auto-[a-z0-9_-]+[）)]$"
+  ],
+  "bannedBodyPhrases": [
+    "本卡片主题为",
+    "银行正式版本",
+    "持卡人协议",
+    "以银行"
+  ],
   "_comment2": "forceRegenerateNodeIds 中的节点在下一轮创作时丢弃旧文章重生成；质量门槛拦截模板标题/无关领域措辞，命中时走确定性安全回退，不写入低质正文。首页上屏门槛另见 rules/home-articles.json。"
 }

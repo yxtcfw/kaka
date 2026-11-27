@@ -1,0 +1,10 @@
+{
+  "stage": "data-quality",
+  "enabled": true,
+  "checked": 63,
+  "passed": 63,
+  "failed": 0,
+  "fixable": 0,
+  "needsHuman": 0,
+  "rows": []
+}

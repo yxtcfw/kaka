@@ -1,0 +1,31 @@
+{
+  "schema": "rules/data-quality/v1",
+  "enabled": true,
+  "enforceOnSync": true,
+  "reportOnValidate": true,
+  "fields": {
+    "title": "title",
+    "generalFlow": "specs.tyLiuliang",
+    "directionalFlow": "specs.dxLiuliang",
+    "planText": "specs.taocan",
+    "price": "specs.nowPrice",
+    "oldPrice": "specs.oldPrice",
+    "priceUnit": "specs.priceUnitStr",
+    "sales": "specs.sales"
+  },
+  "checks": {
+    "titleFlowMatchesGeneral": true,
+    "planDetailMatchesSummary": true,
+    "priceUnitHonest": true,
+    "oldPriceHigherThanNow": true,
+    "salesExplainable": true,
+    "relevantSkuOnly": true
+  },
+  "thresholds": {
+    "salesMax": 100000,
+    "salesLabel": "平台累计办理量"
+  },
+  "excludedTitlePatterns": ["视频会员", "会员年卡", "权益年卡"],
+  "yearUnitPatterns": ["年费", "一年费用", "包年"],
+  "_comment": "数据可信门禁。字段路径配置化，换垂直主题只改 fields/checks，不改代码。enforceOnSync=true 时新入库条目必须先过闸；reportOnValidate 只报告不阻断存量。确定性修正仅限：划线价倒挂隐藏划线价、销量超阈值隐藏；标题口径矛盾只标记 unresolved，绝不猜数字。"
+}

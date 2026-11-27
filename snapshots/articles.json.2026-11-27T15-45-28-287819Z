@@ -1,0 +1,105 @@
+{
+  "schema": "articles/v1",
+  "articles": [
+    {
+      "id": "article-n2",
+      "title": "流量卡办理避坑",
+      "nodeId": "n2",
+      "body": "办理前仔细阅读套餐说明，确认流量额度、有效期、限速规则及适用范围，避免因理解偏差产生额外费用。\n留意是否存在合约期、违约金、自动续费或超量计费等条款，优先选择条款透明、可随时注销的产品。\n通过运营商官方渠道或授权代理办理，保留办理凭证与录音，遇到纠纷可依据凭证维权。\n\n参考信源：广电飞花卡3.0【29元192G】 · 官方详情（lingqu.haokalingqu.cn）。具体数值以官方实时页面为准。",
+      "sourceId": "src-api-5260",
+      "citations": [
+        {
+          "sourceId": "src-api-5260"
+        }
+      ],
+      "links": [
+        {
+          "href": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=3bc1c6eead648fab",
+          "rel": "sponsored nofollow noopener",
+          "kind": "outbound"
+        }
+      ],
+      "generatedAt": "2026-11-27"
+    },
+    {
+      "id": "article-auto-region",
+      "title": "按办理地区查找专属流量卡",
+      "nodeId": "auto-region",
+      "body": "不同省份和城市提供专属流量卡，针对本地网络覆盖和资费偏好进行设计，可在官方渠道查询对应资费，并可根据个人使用频率灵活选购。\n选择时应关注通话时长、数据量以及是否包含本地通话，不同套餐的资费结构差异明显，可通过对比后决定最佳方案，同时考虑套餐的续费方式和优惠活动。\n可通过运营商官网、营业厅或授权渠道办理，办理流程简便，开卡后即可使用，具体资费以当地政策为准，部分地区还提供线上激活服务，省去现场排队时间。\n\n参考信源：重庆专享联通卡【19元150G+200分钟】 · 官方详情（lingqu.haokalingqu.cn）。具体数值以官方实时页面为准。",
+      "sourceId": "src-api-5261",
+      "citations": [
+        {
+          "sourceId": "src-api-5261"
+        }
+      ],
+      "links": [
+        {
+          "href": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=eac010d020e8a500",
+          "rel": "sponsored nofollow noopener",
+          "kind": "outbound"
+        }
+      ],
+      "generatedAt": "2026-11-27"
+    },
+    {
+      "id": "article-auto-sub-apply",
+      "title": "副卡办理条件、流程与生效时间",
+      "nodeId": "auto-sub-apply",
+      "body": "副卡办理通常要求主卡处于正常使用状态，并已订购支持副卡功能的套餐，具体申请资格以运营商当前规定为准。\n可通过官方APP、线下营业厅或客服热线提交申请，需完成实名核验并选择副卡套餐，提交订单后等待审核结果。\n副卡生效时间不固定，取决于审核进度与配送或激活方式，建议以运营商发送的成功短信为准，避免盲目等待。\n\n参考信源：联通重庆专属卡【19元200G+300分钟】 · 官方详情（lingqu.haokalingqu.cn）。具体数值以官方实时页面为准。",
+      "sourceId": "src-api-5367",
+      "citations": [
+        {
+          "sourceId": "src-api-5367"
+        }
+      ],
+      "links": [
+        {
+          "href": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=2e09eae404942f22",
+          "rel": "sponsored nofollow noopener",
+          "kind": "outbound"
+        }
+      ],
+      "generatedAt": "2026-11-27"
+    },
+    {
+      "id": "article-auto-scene",
+      "title": "场景卡种（副卡办理、副卡资费与管理、校园卡办理）",
+      "nodeId": "auto-scene",
+      "body": "场景卡种（副卡办理、副卡资费与管理、校园卡办理）（auto-scene）。围绕「场景卡种（副卡办理、副卡资费与管理、校园卡办理）」整理：场景卡种（副卡办理、副卡资费与管理、校园卡办理）的办理要点、场景卡种（副卡办理、副卡资费与管理、校园卡办理）的资费口径、场景卡种（副卡办理、副卡资费与管理、校园卡办理）的适用限制。资料来源：广电飞甜卡【29元230G】 · 官方详情（lingqu.haokalingqu.cn）。涉及场景卡种（副卡办理、副卡资费与管理、校园卡办理）的数值以运营商官方实时页面为准，未写明的条款不作推断。归类词：auto-scene。\n\n参考信源：广电飞甜卡【29元230G】 · 官方详情（lingqu.haokalingqu.cn）。具体数值以官方实时页面为准。",
+      "sourceId": "src-api-4779",
+      "citations": [
+        {
+          "sourceId": "src-api-4779"
+        }
+      ],
+      "links": [
+        {
+          "href": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=1ca5b53f89089b1b",
+          "rel": "sponsored nofollow noopener",
+          "kind": "outbound"
+        }
+      ],
+      "generatedAt": "2026-11-27"
+    },
+    {
+      "id": "article-auto-sub-manage",
+      "title": "副卡资费规则、注销退订与主卡关系",
+      "nodeId": "auto-sub-manage",
+      "body": "副卡资费与管理安排可据现有资料梳理，适合配合主卡视角理解费用边界，但不替代正式规则确认。\n注销或退订需要按规则路径处理，确认状态后避免继续产生管理费用，必要时保留处理记录。\n副卡通常与主卡关联，资费与管理可能随主卡状态变化，办理时需一并确认主卡关系是否有效。\n整理资费、注销与主卡关系时，可结合卡片资料判断适用场景，再向权威渠道核对规则。\n\n参考信源：广电福建专属卡【19元130G+200分钟】 · 官方详情（lingqu.haokalingqu.cn）。具体数值以官方实时页面为准。",
+      "sourceId": "src-api-5141",
+      "citations": [
+        {
+          "sourceId": "src-api-5141"
+        }
+      ],
+      "links": [
+        {
+          "href": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=1d1b7539ef2b2eb6",
+          "rel": "sponsored nofollow noopener",
+          "kind": "outbound"
+        }
+      ],
+      "generatedAt": "2026-11-27"
+    }
+  ]
+}

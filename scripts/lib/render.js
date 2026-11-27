@@ -8,9 +8,13 @@ export function slugify(s) {
   return String(s).toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]+/g, '-').replace(/^-|-$/g, '') || 'item';
 }
 
-export function layout(site, manifest, title, body) {
+// seo 可选：{ canonical, description, schemas, og }。缺省时保持站点根 canonical + WebSite（兼容旧调用）。
+// 页面级差异全部由调用方按 config/*.json 生成后传入，本模块不认识任何垂直领域字段。
+export function layout(site, manifest, title, body, seo = {}) {
   const domain = manifest.domain;
-  const canonical = `https://${domain}/`;
+  const siteUrl = `https://${domain}/`;
+  const canonical = seo.canonical || siteUrl;
+  const description = seo.description || site.intro || site.tagline || title;
   const siteName = site.siteName || title;
   const brandChar = String(siteName).trim().charAt(0) || '站';
   const cats = Array.isArray(site.navCategories) ? site.navCategories : [];
@@ -25,21 +29,23 @@ export function layout(site, manifest, title, body) {
   // 搜索引擎站点验证：与根目录 BingSiteAuth.xml 双保险；token 只从配置读取并转义。
   const bingToken = String(manifest.verification?.bing || '');
   const bingMeta = bingToken ? `\n<meta name="msvalidate.01" content="${esc(bingToken)}">` : '';
+  // 结构化数据：调用方传入 schemas 数组时用它，否则回退 WebSite；og 标签同理，缺省不输出。
+  const schemas = Array.isArray(seo.schemas) && seo.schemas.length
+    ? seo.schemas
+    : [{ '@context': 'https://schema.org', '@type': 'WebSite', name: siteName, url: siteUrl }];
+  const ld = schemas.length === 1 ? schemas[0] : { '@context': 'https://schema.org', '@graph': schemas };
+  const ldScript = `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
+  const ogMeta = seo.og ? `\n${seo.og}` : '';
   return `<!doctype html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
-<meta name="description" content="${esc(site.intro || site.tagline || title).slice(0, 160)}">
+<meta name="description" content="${esc(description).slice(0, 160)}">
 <link rel="canonical" href="${esc(canonical)}">${bingMeta}
-<link rel="stylesheet" href="/assets/site.css">
-<script type="application/ld+json">${JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: siteName,
-    url: canonical
-  }).replace(/</g, '\\u003c')}</script>
+<link rel="stylesheet" href="/assets/site.css">${ogMeta}
+${ldScript}
 </head>
 <body>
 <header class="site-header"><div class="wrap header-inner">
@@ -63,7 +69,7 @@ ${body}
 <div class="footer-grid">
 <div class="footer-col"><h4>关于本站</h4><p>${esc(siteName)}</p><p>${esc(introBrief)}</p></div>
 <div class="footer-col"><h4>站点导航</h4><a href="/">首页</a><a href="/blog/">文章</a><a href="/sitemap.xml">网站地图</a></div>
-<div class="footer-col"><h4>说明</h4><p>${esc(site.byline || '')}</p><p>${esc(site.license || '')}</p><p>数值以官方实时页面为准</p></div>
+<div class="footer-col"><h4>说明</h4><p>${esc(site.byline || '')}</p><p>${esc(site.license || '')}</p><p>数值以官方实时页面为准</p>${Array.isArray(site.complianceLinks) ? site.complianceLinks.map((l) => `<a href="${esc(l.path)}">${esc(l.label)}</a>`).join('') : ''}</div>
 </div>
 <div class="footer-bottom">${esc(site.byline || '')} · ${esc(site.license || '')}</div>
 </div></footer>
@@ -128,6 +134,44 @@ ${body}
   });
   var initial = new URLSearchParams(window.location.search).get('q');
   if (initial) { input.value = initial; apply(initial); }
+})();
+// 筛选：按 data-isp / data-band 交集过滤卡片，按钮可取消；与搜索词叠加。纯渐进增强。
+(function () {
+  var bar = document.querySelector('.filters');
+  if (!bar || !document.querySelectorAll('.card').length) return;
+  var active = {};
+  function run() {
+    var terms = String((document.querySelector('.search input') || {}).value || '').trim().toLowerCase().split(/\s+/).filter(Boolean);
+    document.querySelectorAll('.card').forEach(function (card) {
+      var hay = ((card.getAttribute('data-search') || '') + ' ' + card.textContent).toLowerCase();
+      var hit = terms.every(function (t) { return hay.indexOf(t) !== -1; });
+      Object.keys(active).forEach(function (field) {
+        if (active[field] && card.getAttribute('data-' + field) !== active[field]) hit = false;
+      });
+      card.hidden = !hit;
+    });
+    document.querySelectorAll('main.wrap section[id]').forEach(function (sec) {
+      sec.hidden = !sec.querySelector('.card:not([hidden])');
+    });
+  }
+  bar.addEventListener('click', function (e) {
+    var btn = e.target.closest('button');
+    if (!btn) return;
+    if (btn.hasAttribute('data-filter-reset')) {
+      active = {};
+      bar.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
+    } else {
+      var field = btn.getAttribute('data-filter-field');
+      var value = btn.getAttribute('data-filter-value');
+      var on = active[field] !== value;
+      bar.querySelectorAll('button[data-filter-field]').forEach(function (b) {
+        if (b.getAttribute('data-filter-field') === field) b.setAttribute('aria-pressed', 'false');
+      });
+      active[field] = on ? value : '';
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    run();
+  });
 })();
 </script>
 </body>

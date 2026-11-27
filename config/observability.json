@@ -1,0 +1,13 @@
+{
+  "schema": "observability/v1",
+  "enabled": false,
+  "_comment": "统计埋点默认关闭：未指定第三方服务前不注入任何脚本、不伪造数据。填入 provider 与 siteId 后才输出；脚本域名必须由人工核实。",
+  "provider": "",
+  "siteId": "",
+  "scriptSrc": "",
+  "cachePolicy": {
+    "html": "public, max-age=600",
+    "assets": "public, max-age=31536000, immutable",
+    "note": "Cloudflare 侧规则建议：HTML 短缓存便于更新，静态资源长缓存需配内容指纹；本配置只记录建议，不修改账号设置。"
+  }
+}

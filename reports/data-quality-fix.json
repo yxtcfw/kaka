@@ -1,0 +1,893 @@
+{
+  "stage": "data-quality-fix",
+  "checked": 64,
+  "modifiedItems": 50,
+  "fixCount": 66,
+  "changed": true,
+  "needsHuman": [
+    {
+      "navId": "api-5076",
+      "title": "江西广电专享卡【28元350G+200分钟】",
+      "reasons": [
+        {
+          "code": "title-flow-needs-human",
+          "detail": "江西广电专享卡【28元350G+200分钟】：标题把定向计入总量，需人工定稿"
+        }
+      ]
+    },
+    {
+      "navId": "api-4954",
+      "title": "电信飞享卡【39.5元310G+200分钟】",
+      "reasons": [
+        {
+          "code": "plan-summary-needs-human",
+          "detail": "电信飞享卡【39.5元310G+200分钟】：明细与汇总字段矛盾"
+        }
+      ]
+    },
+    {
+      "navId": "api-4953",
+      "title": "电信飞秋卡【39.5元190G+200分钟】",
+      "reasons": [
+        {
+          "code": "plan-summary-needs-human",
+          "detail": "电信飞秋卡【39.5元190G+200分钟】：明细与汇总字段矛盾"
+        }
+      ]
+    },
+    {
+      "navId": "api-4419",
+      "title": "湖北移动省内专属卡【39元139G】【仅发十堰 宜昌】",
+      "reasons": [
+        {
+          "code": "title-flow-needs-human",
+          "detail": "湖北移动省内专属卡【39元139G】【仅发十堰 宜昌】：标题把定向计入总量，需人工定稿"
+        }
+      ]
+    },
+    {
+      "navId": "api-4281",
+      "title": "电信梦泰卡【38元190G+300分钟】【仅发山东】",
+      "reasons": [
+        {
+          "code": "plan-summary-needs-human",
+          "detail": "电信梦泰卡【38元190G+300分钟】【仅发山东】：明细与汇总字段矛盾"
+        }
+      ]
+    },
+    {
+      "navId": "api-4125",
+      "title": "电信飞泰卡2.0【38元190G+300分钟】【仅发山东】",
+      "reasons": [
+        {
+          "code": "plan-summary-needs-human",
+          "detail": "电信飞泰卡2.0【38元190G+300分钟】【仅发山东】：明细与汇总字段矛盾"
+        }
+      ]
+    },
+    {
+      "navId": "api-4092",
+      "title": "电信飞泰卡【38元190G+300分钟】【仅发山东】",
+      "reasons": [
+        {
+          "code": "plan-summary-needs-human",
+          "detail": "电信飞泰卡【38元190G+300分钟】【仅发山东】：明细与汇总字段矛盾"
+        }
+      ]
+    },
+    {
+      "navId": "api-3867",
+      "title": "山东移动120元视频会员年卡",
+      "reasons": [
+        {
+          "code": "sku-needs-human",
+          "detail": "山东移动120元视频会员年卡：应移出本主题列表（需人工确认后删除）"
+        }
+      ]
+    },
+    {
+      "navId": "api-5410",
+      "title": "广电陕西专属卡【29元200G】",
+      "reasons": [
+        {
+          "code": "title-flow-needs-human",
+          "detail": "广电陕西专属卡【29元200G】：明细与汇总不一致，需人工定稿"
+        },
+        {
+          "code": "plan-summary-needs-human",
+          "detail": "广电陕西专属卡【29元200G】：明细与汇总字段矛盾"
+        }
+      ]
+    },
+    {
+      "navId": "api-5826",
+      "title": "电信飞耳卡【29元240G+400分钟】仅限郑州",
+      "reasons": [
+        {
+          "code": "general-flow-missing",
+          "detail": "电信飞耳卡【29元240G+400分钟】仅限郑州：缺通用流量字段"
+        }
+      ]
+    },
+    {
+      "navId": "api-5825",
+      "title": "湖北省内移动专属卡【39元145G】",
+      "reasons": [
+        {
+          "code": "general-flow-missing",
+          "detail": "湖北省内移动专属卡【39元145G】：缺通用流量字段"
+        }
+      ]
+    },
+    {
+      "navId": "api-5655",
+      "title": "云南联通专享卡【43元173G+200分钟】 仅限昆明",
+      "reasons": [
+        {
+          "code": "title-flow-needs-human",
+          "detail": "云南联通专享卡【43元173G+200分钟】 仅限昆明：标题把定向计入总量，需人工定稿"
+        }
+      ]
+    },
+    {
+      "navId": "api-5450",
+      "title": "广电飞羽卡【28元350G+200分钟】",
+      "reasons": [
+        {
+          "code": "title-flow-needs-human",
+          "detail": "广电飞羽卡【28元350G+200分钟】：标题把定向计入总量，需人工定稿"
+        }
+      ]
+    },
+    {
+      "navId": "api-5413",
+      "title": "广电陕西专属卡【28元150G+200分钟】",
+      "reasons": [
+        {
+          "code": "title-flow-needs-human",
+          "detail": "广电陕西专属卡【28元150G+200分钟】：标题把定向计入总量，需人工定稿"
+        }
+      ]
+    },
+    {
+      "navId": "api-4135",
+      "title": "联通360元包年卡【每月300G+300分钟】【仅发山东】",
+      "reasons": [
+        {
+          "code": "year-plan-title-needs-human",
+          "detail": "联通360元包年卡【每月300G+300分钟】【仅发山东】：年费卡标题含月均口径，需人工确认表述"
+        }
+      ]
+    }
+  ],
+  "remainingViolations": [
+    {
+      "navId": "api-5076",
+      "title": "江西广电专享卡【28元350G+200分钟】",
+      "codes": [
+        "title-flow-mismatch"
+      ]
+    },
+    {
+      "navId": "api-4954",
+      "title": "电信飞享卡【39.5元310G+200分钟】",
+      "codes": [
+        "plan-summary-mismatch"
+      ]
+    },
+    {
+      "navId": "api-4953",
+      "title": "电信飞秋卡【39.5元190G+200分钟】",
+      "codes": [
+        "plan-summary-mismatch"
+      ]
+    },
+    {
+      "navId": "api-4419",
+      "title": "湖北移动省内专属卡【39元139G】【仅发十堰 宜昌】",
+      "codes": [
+        "title-flow-mismatch"
+      ]
+    },
+    {
+      "navId": "api-4281",
+      "title": "电信梦泰卡【38元190G+300分钟】【仅发山东】",
+      "codes": [
+        "plan-summary-mismatch"
+      ]
+    },
+    {
+      "navId": "api-4125",
+      "title": "电信飞泰卡2.0【38元190G+300分钟】【仅发山东】",
+      "codes": [
+        "plan-summary-mismatch"
+      ]
+    },
+    {
+      "navId": "api-4092",
+      "title": "电信飞泰卡【38元190G+300分钟】【仅发山东】",
+      "codes": [
+        "plan-summary-mismatch"
+      ]
+    },
+    {
+      "navId": "api-3867",
+      "title": "山东移动120元视频会员年卡",
+      "codes": [
+        "irrelevant-sku"
+      ]
+    },
+    {
+      "navId": "api-5410",
+      "title": "广电陕西专属卡【29元200G】",
+      "codes": [
+        "title-flow-mismatch",
+        "plan-summary-mismatch"
+      ]
+    },
+    {
+      "navId": "api-5655",
+      "title": "云南联通专享卡【43元173G+200分钟】 仅限昆明",
+      "codes": [
+        "title-flow-mismatch"
+      ]
+    },
+    {
+      "navId": "api-5450",
+      "title": "广电飞羽卡【28元350G+200分钟】",
+      "codes": [
+        "title-flow-mismatch"
+      ]
+    },
+    {
+      "navId": "api-5413",
+      "title": "广电陕西专属卡【28元150G+200分钟】",
+      "codes": [
+        "title-flow-mismatch"
+      ]
+    },
+    {
+      "navId": "api-4135",
+      "title": "联通360元包年卡【每月300G+300分钟】【仅发山东】",
+      "codes": [
+        "price-unit-year"
+      ]
+    }
+  ],
+  "beforeFixable": 50,
+  "afterFixable": 0,
+  "modified": [
+    {
+      "navId": "api-5260",
+      "title": "广电飞花卡3.0【29元192G】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        },
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4779",
+      "title": "广电飞甜卡【29元230G】",
+      "fixes": [
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5408",
+      "title": "广电飞橙卡【41元200G】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5370",
+      "title": "广东专属广电卡【41元200G】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5191",
+      "title": "联通飞特卡【39元200G+300分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        },
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5130",
+      "title": "联通飞岩卡【39元150G+200分钟+4年会员】仅发湖南",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5076",
+      "title": "江西广电专享卡【28元350G+200分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        },
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5061",
+      "title": "联通飞超卡【39元235G+200分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5060",
+      "title": "联通飞限卡【39元235G+200分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        },
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5040",
+      "title": "电信安徽专属卡【39元160G+100分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4996",
+      "title": "联通重庆专属卡【49元200G+300分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4954",
+      "title": "电信飞享卡【39.5元310G+200分钟】",
+      "fixes": [
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4935",
+      "title": "江苏电信专享卡【39元110G+100分钟】",
+      "fixes": [
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4933",
+      "title": "电信飞跃卡【39元200G+200分钟】【仅发石家庄】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4821",
+      "title": "湖北省内联通专享卡 【39元180G+200分钟】",
+      "fixes": [
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4822",
+      "title": "湖北省内联通专享卡 【29元180G+200分钟】",
+      "fixes": [
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4814",
+      "title": "联通重庆专属卡【39元200G+300分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4633",
+      "title": "广电飞桂卡【29元200G】",
+      "fixes": [
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4419",
+      "title": "湖北移动省内专属卡【39元139G】【仅发十堰 宜昌】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4292",
+      "title": "联通四川省内专属卡2.0【39元240G+50分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        },
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4278",
+      "title": "移动梦秋卡【30元180G】",
+      "fixes": [
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4281",
+      "title": "电信梦泰卡【38元190G+300分钟】【仅发山东】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4127",
+      "title": "移动专属卡【30元180G】",
+      "fixes": [
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4125",
+      "title": "电信飞泰卡2.0【38元190G+300分钟】【仅发山东】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        },
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4092",
+      "title": "电信飞泰卡【38元190G+300分钟】【仅发山东】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4011",
+      "title": "广西专享广电卡【29元192G】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        },
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-3941",
+      "title": "广电飞桔卡【29元200G】",
+      "fixes": [
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-3867",
+      "title": "山东移动120元视频会员年卡",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-3691",
+      "title": "联通四川省内专属卡【39元240G+50分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        },
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-3763",
+      "title": "联通湖北专属卡【39元200G+200分钟+会员】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        },
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-3684",
+      "title": "广电飞润卡【39元60G】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        },
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5819",
+      "title": "四川省内移动专享卡【39.9元255G+200分钟】仅发成都",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5687",
+      "title": "山东移动夜间通勤流量加包【20元100G/月】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5686",
+      "title": "山东移动周末流量加包【30元100G/月】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5685",
+      "title": "山东移动流量加包【5元5G/月】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5684",
+      "title": "山东移动流量加包【10元7G/月】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5634",
+      "title": "山东移动流量加包【15元15G/月】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5552",
+      "title": "联通飞板卡【39元235G+200分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        },
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5551",
+      "title": "联通飞超卡3.0【39元235G+200分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        },
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5472",
+      "title": "四川联通省内专属卡2.0【29元280G+200分钟+会员】",
+      "fixes": [
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5471",
+      "title": "广电飞橙卡2.0【41元200G】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        },
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5470",
+      "title": "联通飞攸卡2.0【29元150G+300分钟】",
+      "fixes": [
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5469",
+      "title": "联通飞超卡2.0【39元235G+200分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        },
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5450",
+      "title": "广电飞羽卡【28元350G+200分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        },
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5413",
+      "title": "广电陕西专属卡【28元150G+200分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-5411",
+      "title": "广电陕西专属卡【29元100G+100分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4494",
+      "title": "移动飞坤卡【39元155G+100分钟】仅发合肥",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-4135",
+      "title": "联通360元包年卡【每月300G+300分钟】【仅发山东】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        },
+        {
+          "code": "hide-sales",
+          "field": "specs.sales",
+          "reason": "销量口径不可解释，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-6029",
+      "title": "联通飞特卡2.0【39元200G+300分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    },
+    {
+      "navId": "api-6037",
+      "title": "联通飞筑卡【29元150G+200分钟】",
+      "fixes": [
+        {
+          "code": "hide-old-price",
+          "field": "specs.oldPrice",
+          "reason": "划线原价不高于现价，按规则隐藏"
+        }
+      ]
+    }
+  ],
+  "dryRun": false,
+  "snapshot": "snapshots/navlinks.json.2026-11-27T15-16-42-469Z"
+}

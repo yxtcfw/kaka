@@ -1,8 +1,8 @@
 {
   "schema": "rules/home-articles/v1",
   "maxItems": 4,
-  "minBodyChars": 200,
-  "bannedTitlePatterns": ["^auto-"],
+  "minBodyChars": 600,
+  "bannedTitlePatterns": ["^auto-", "[（(]auto-[a-z0-9_-]+[）)]$"],
   "bannedBodyPhrases": ["本卡片主题为", "银行正式版本", "持卡人协议", "以银行"],
   "groups": {
     "资费套餐": ["资费", "价格", "月租", "流量", "套餐"],

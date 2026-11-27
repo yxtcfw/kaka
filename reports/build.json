@@ -1,6 +1,6 @@
 {
   "stage": "build",
-  "pages": 71,
+  "pages": 70,
   "urls": [
     "https://kaka.yxtcfw.cn/",
     "https://kaka.yxtcfw.cn/nav/api-5260.html",
@@ -38,7 +38,6 @@
     "https://kaka.yxtcfw.cn/nav/api-4092.html",
     "https://kaka.yxtcfw.cn/nav/api-4011.html",
     "https://kaka.yxtcfw.cn/nav/api-3941.html",
-    "https://kaka.yxtcfw.cn/nav/api-3867.html",
     "https://kaka.yxtcfw.cn/nav/api-3691.html",
     "https://kaka.yxtcfw.cn/nav/api-3763.html",
     "https://kaka.yxtcfw.cn/nav/api-3684.html",
@@ -69,10 +68,10 @@
     "https://kaka.yxtcfw.cn/nav/api-6037.html",
     "https://kaka.yxtcfw.cn/blog/",
     "https://kaka.yxtcfw.cn/blog/article-n2.html",
-    "https://kaka.yxtcfw.cn/blog/article-auto-region.html",
-    "https://kaka.yxtcfw.cn/blog/article-auto-sub-apply.html",
-    "https://kaka.yxtcfw.cn/blog/article-auto-scene.html",
-    "https://kaka.yxtcfw.cn/blog/article-auto-sub-manage.html"
+    "https://kaka.yxtcfw.cn/blog/article-region.html",
+    "https://kaka.yxtcfw.cn/blog/article-sub-apply.html",
+    "https://kaka.yxtcfw.cn/forbidden-regions.html",
+    "https://kaka.yxtcfw.cn/age-limits.html"
   ],
   "outDir": "_site"
 }

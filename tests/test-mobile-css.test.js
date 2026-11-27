@@ -53,7 +53,8 @@ test('移动端：分类栏双按钮绑定双向平滑滚动与各自显隐', ()
   for (const cls of ['catbar-prev', 'catbar-next']) {
     assert.match(render, new RegExp('class="' + cls + '"[^>]*aria-label'), `${cls} 须带无障碍标签`);
   }
-  assert.equal((render.match(/addEventListener\('click'/g) || []).length, 2, '两个按钮各绑定一次点击');
+  const catbarBlock = render.slice(render.indexOf("var nav = document.querySelector('.catbar')"), render.indexOf('// 站内搜索'));
+  assert.equal((catbarBlock.match(/addEventListener\('click'/g) || []).length, 2, '分类栏两个按钮各绑定一次点击');
   assert.equal((render.match(/\.scrollBy\(/g) || []).length, 2, '两个方向各有滚动调用');
   assert.match(render, /left:\s*-step\(\)/, '左按钮须反向滚动');
   assert.match(render, /left:\s*step\(\)/, '右按钮须正向滚动');

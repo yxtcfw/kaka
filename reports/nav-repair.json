@@ -1,0 +1,117 @@
+{
+  "stage": "nav-repair",
+  "dryRun": false,
+  "actions": [
+    {
+      "navId": "api-5076",
+      "action": "noop",
+      "reason": "标题350G为通用+定向合计，明细320G通用+30G定向",
+      "before": {}
+    },
+    {
+      "navId": "api-4954",
+      "action": "noop",
+      "reason": "310G为10G全国+180G省内+120G本地通用合计；优惠价39.5元（首充100元享5折）",
+      "before": {}
+    },
+    {
+      "navId": "api-4953",
+      "action": "noop",
+      "reason": "190G为10G全国+180G省内通用合计；优惠价39.5元",
+      "before": {}
+    },
+    {
+      "navId": "api-4419",
+      "action": "noop",
+      "reason": "139G为109G通用+30G定向合计",
+      "before": {}
+    },
+    {
+      "navId": "api-4281",
+      "action": "noop",
+      "reason": "190G为10G全国+180G省内通用合计",
+      "before": {}
+    },
+    {
+      "navId": "api-4125",
+      "action": "noop",
+      "reason": "190G为10G全国+180G省内通用合计",
+      "before": {}
+    },
+    {
+      "navId": "api-4092",
+      "action": "noop",
+      "reason": "190G为10G全国+180G省内通用合计",
+      "before": {}
+    },
+    {
+      "navId": "api-5410",
+      "action": "noop",
+      "reason": "200G通用为基础60G+首充赠送140G，原明细只填了基础值",
+      "before": {}
+    },
+    {
+      "navId": "api-5826",
+      "action": "patch",
+      "reason": "缺结构化规格；240G为40G全国通用+200G河南省内通用",
+      "before": {
+        "specs.taocan": "29元240G通用流量（40G全国通用+200G河南省内通用）+400分钟通话",
+        "specs.nowPrice": "29",
+        "specs.tyLiuliang": "240",
+        "specs.tonghua": "400",
+        "specs.priceUnitStr": "月租费用",
+        "specs.age": "18-30"
+      }
+    },
+    {
+      "navId": "api-5825",
+      "action": "patch",
+      "reason": "缺结构化规格；145G为115G通用+30G定向",
+      "before": {
+        "specs.taocan": "39元115G通用流量+30G定向流量",
+        "specs.nowPrice": "39",
+        "specs.tyLiuliang": "115",
+        "specs.dxLiuliang": "30",
+        "specs.priceUnitStr": "月租费用",
+        "specs.age": "18-60"
+      }
+    },
+    {
+      "navId": "api-5655",
+      "action": "noop",
+      "reason": "173G为88G通用+85G定向；43元优惠仅2-6个月，第7个月起63元",
+      "before": {}
+    },
+    {
+      "navId": "api-5450",
+      "action": "noop",
+      "reason": "350G为320G通用+30G定向合计",
+      "before": {}
+    },
+    {
+      "navId": "api-5413",
+      "action": "noop",
+      "reason": "150G为120G通用+30G定向合计",
+      "before": {}
+    },
+    {
+      "navId": "api-4135",
+      "action": "noop",
+      "reason": "360元为首年一次性费用而非月租；到期后28元/月",
+      "before": {}
+    }
+  ],
+  "unknown": [
+    "api-3867"
+  ],
+  "patched": 2,
+  "removed": 0,
+  "totals": {
+    "navItems": 63,
+    "detailPages": 63
+  },
+  "snapshots": [
+    "/home/yx/WorkBuddy/2026-11-22-15-32-38/vertical-site-template/snapshots/navlinks.json.2026-11-27T15-44-22-029Z",
+    "/home/yx/WorkBuddy/2026-11-22-15-32-38/vertical-site-template/snapshots/nav-details.json.2026-11-27T15-44-22-033Z"
+  ]
+}

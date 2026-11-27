@@ -4,6 +4,8 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { readJson, ROOT } from './lib/validate.js';
 import { esc, layout, slugify } from './lib/render.js';
+import { loadSeoConfig, renderText, cleanText, cleanSlug, makeDescription, citationLabel } from './lib/seo.js';
+import { loadStructuredConfig, navSchemas, articleSchemas, ogTags } from './lib/structured-data.js';
 import { buildStatus } from './status.js';
 
 function readSafe(file, fallback) {
@@ -92,12 +94,44 @@ function renderOfficial(text) {
 
 export function runBuild(root = ROOT, args = {}) {
   const outDir = args.out || '_site';
+  // 陈旧页面清理：静态构建不自动清目录，删除入口/文章后旧 HTML 会残留并被 sitemap 漏收。
+  // 默认关闭，只有配置显式开启才删除，避免影响主题自带的静态 HTML。
+  const sitemapCfg = readSafe(path.join(root, 'config/sitemap.json'), {
+    lastmodFields: ['updatedAt', 'generatedAt', 'fetchedAt', 'checkedAt'],
+    includeLastmod: true,
+    cleanStaleHtml: false
+  });
+  if (sitemapCfg.cleanStaleHtml === true && !args.dryRun) {
+    const walkHtml = (dir) => {
+      if (!fs.existsSync(dir)) return;
+      for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+        const p = path.join(dir, ent.name);
+        if (ent.isDirectory()) walkHtml(p);
+        else if (ent.isFile() && ent.name.endsWith('.html')) fs.unlinkSync(p);
+      }
+    };
+    walkHtml(path.join(root, outDir));
+  }
   const manifest = readJson(path.join(root, 'config/manifest.json'));
   const site = readJson(path.join(root, 'data/site.json'));
+  // 页脚合规入口：配置里声明的链接挂到 site，由 layout 渲染；无配置则不显示。
+  site.complianceLinks = readSafe(path.join(root, 'config/compliance.json'), { footerLinks: [] }).footerLinks || [];
   const nav = readJson(path.join(root, 'data/navlinks.json'));
   const navDetails = readSafe(path.join(root, 'data/nav-details.json'), { pages: [] });
   const articles = readSafe(path.join(root, 'data/articles.json'), { articles: [] }).articles;
   const tree = readSafe(path.join(root, 'data/tree.json'), { nodes: [] });
+  const sources = readSafe(path.join(root, 'data/sources.json'), { sources: [] }).sources;
+  const seoCfg = loadSeoConfig(root);
+  const hygiene = seoCfg.textHygiene;
+  const structCfg = loadStructuredConfig(root);
+  const presentCfg = readSafe(path.join(root, 'config/presentation.json'), { countLabel: '个入口', filters: [] });
+  const priceBands = presentCfg.priceBands || [];
+  const priceBandOf = (specs) => {
+    const p = Number(specs?.nowPrice);
+    if (!Number.isFinite(p)) return '';
+    const band = priceBands.find((b) => (b.min == null || p >= Number(b.min)) && (b.max == null || p < Number(b.max)));
+    return band?.label || '';
+  };
   const homeRules = readSafe(path.join(root, 'rules/home-articles.json'), {
     maxItems: 4, minBodyChars: 200, bannedTitlePatterns: [], bannedBodyPhrases: [],
     groups: {}, fallbackGroup: '选购专题'
@@ -125,10 +159,24 @@ export function runBuild(root = ROOT, args = {}) {
   };
   const articleSummary = (a) => String(a.cardDesc || '').trim()
     || String(a.body || '').split(/[。\n]/)[0].slice(0, 60);
-  const articleLink = (a) => `<a href="/blog/${slugify(a.id)}.html">${esc(a.title)}</a>`;
+  // 列表摘要同样过清洗规则，避免正文里的内部标识符从摘要重新漏上屏。
+  const articleSummaryClean = (a) => cleanText(articleSummary(a), hygiene);
+  const articleLink = (a) => `<a href="/blog/${cleanSlug(a.id, hygiene)}.html">${esc(cleanText(a.title, hygiene))}</a>`;
 
   const base = `https://${manifest.domain}`;
   const urls = [];
+  // lastmod：从数据自带日期读取，缺日期不写（不造时间点）。换主题只改字段路径配置。
+  const lastmodOf = (...objs) => {
+    if (sitemapCfg.includeLastmod === false) return '';
+    for (const obj of objs) {
+      for (const key of sitemapCfg.lastmodFields || []) {
+        const v = obj?.[key];
+        if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v)) return v.slice(0, 10);
+      }
+    }
+    return '';
+  };
+  const urlDates = new Map();
 
   // CSS：注入 styleTokens 到 :root
   const cssSrc = fs.readFileSync(path.join(root, 'templates/assets/site.css'), 'utf8');
@@ -174,7 +222,8 @@ export function runBuild(root = ROOT, args = {}) {
         : '';
       // 搜索索引：标题/描述/分类/运营商/全部客观参数；营销话术不落盘故不进索引。
       const searchText = [n.title, n.cardDesc, n.description, n.category, n.isp, ...Object.values(specs)].filter(Boolean).join(' ');
-      return `<div class="card" data-search="${esc(searchText)}">
+      const filterAttrs = ` data-isp="${esc(n.isp || '')}" data-band="${esc(priceBandOf(specs))}"`;
+      return `<div class="card" data-search="${esc(searchText)}"${filterAttrs}>
 <div class="card-head"><span class="card-icon" aria-hidden="true">${esc(initial)}</span><h3>${anchor}</h3></div>
 ${price}
 ${specTags ? `<div class="specs">${specTags}</div>` : ''}
@@ -183,7 +232,7 @@ ${specTags ? `<div class="specs">${specTags}</div>` : ''}
 </div>`;
     }).join('');
     return `<section id="${esc(slugify(cat))}">
-<div class="section-head"><h2>${esc(cat)}</h2><span class="more">${items.length} 个入口</span></div>
+<div class="section-head"><h2>${esc(cat)}</h2><span class="more">${items.length} ${esc(presentCfg.countLabel || '个入口')}</span></div>
 <div class="grid">${cards}</div>
 </section>`;
   }).join('\n');
@@ -195,12 +244,33 @@ ${specTags ? `<div class="specs">${specTags}</div>` : ''}
   const latestHtml = latest.length
     ? `<section class="article-section">
 <div class="section-head"><h2>最新文章</h2><a class="more" href="/blog/">查看全部 ${articles.length} 篇 →</a></div>
-<div class="post-list">${latest.map((a) => `<div class="post-item"><h3>${articleLink(a)}</h3><p>${esc(articleSummary(a))}</p><div class="meta">${esc(a.generatedAt || '')} · ${esc(articleGroup(a))}</div></div>`).join('')}</div>
+<div class="post-list">${latest.map((a) => `<div class="post-item"><h3>${articleLink(a)}</h3><p>${esc(articleSummaryClean(a))}</p><div class="meta">${esc(a.generatedAt || '')} · ${esc(articleGroup(a))}</div></div>`).join('')}</div>
 </section>`
     : '';
-  const homeBody = `<div class="intro"><p>${esc(site.intro || '资料整理与选购参考。')}</p></div>${latestHtml}${homeSections || '<p class="empty">暂无导航条目</p>'}`;
-  writeFile(root, `${outDir}/index.html`, layout(site, manifest, site.siteName || manifest.vertical || '首页', homeBody));
+  // 筛选条：纯前端渐进增强；无 JS 时卡片照常显示，筛选控件只是不可用，不影响可读性。
+  const filterHtml = (presentCfg.filters || []).map((f) => {
+    const values = (f.values && f.values.length)
+      ? f.values
+      : [...new Set(nav.items.map((n) => f.field === 'isp' ? n.isp : (f.field === 'category' ? n.category : priceBandOf(n.specs))).filter(Boolean))];
+    if (!values.length) return '';
+    const options = values.map((v) => `<button type="button" data-filter-field="${esc(f.field)}" data-filter-value="${esc(v)}">${esc(v)}</button>`).join('');
+    return `<div class="filter-group"><span>${esc(f.label)}</span>${options}</div>`;
+  }).filter(Boolean).join('');
+  const filtersBar = filterHtml ? `<div class="filters" role="group" aria-label="筛选"><button type="button" data-filter-reset>全部</button>${filterHtml}</div>` : '';
+
+  // h1 文案来自配置模板（{site.h1}），换主题只改 data/site.json，不改渲染代码。
+  const homeH1 = cleanText(renderText(seoCfg.pages.home?.h1 || '{site.h1}', { site }), hygiene)
+    || site.siteName || manifest.vertical || '首页';
+  const homeBody = `<h1>${esc(homeH1)}</h1><div class="intro"><p>${esc(site.intro || '资料整理与选购参考。')}</p></div>${filtersBar}${latestHtml}${homeSections || '<p class="empty">暂无导航条目</p>'}`;
+  const homeDesc = makeDescription(seoCfg, seoCfg.pages.home, { site }, site.intro || site.tagline);
+  writeFile(root, `${outDir}/index.html`, layout(site, manifest, site.siteName || manifest.vertical || '首页', homeBody, {
+    canonical: `${base}/`,
+    description: homeDesc,
+    og: ogTags(structCfg, site, `${base}/`, site.siteName || '', homeDesc)
+  }));
   urls.push(`${base}/`);
+  const homeDate = lastmodOf(site);
+  if (homeDate) urlDates.set(`${base}/`, homeDate);
 
   // nav 详情页（只有过闸且有正文的）
   // 同 blog： Eleventy 坑——不清输出目录。详情清空时必须主动删旧产物，否则示例页残留线上。
@@ -210,12 +280,13 @@ ${specTags ? `<div class="specs">${specTags}</div>` : ''}
   }
   for (const p of navDetails.pages) {
     const navItem = nav.items.find((n) => `nav-${n.navId}` === p.bundleId || n.navId === p.navId);
+    const navTitle = cleanText(p.title || navItem?.title || '详情', hygiene);
     // 新数据为结构化段落数组；老数据为字符串，交给批次 A 的拆段函数兜底。
     const segments = Array.isArray(p.intro) && p.intro.length ? p.intro : splitIntroParagraphs(p.intro);
     const introHtml = segments.map((seg) => {
-      const heading = seg && seg.title ? `<h3>${esc(seg.title)}</h3>` : '';
-      return `${heading}<p class="intro-para">${esc((seg && seg.text) || '')}</p>`;
-    }).join('') || `<p class="intro-para">${esc((navItem?.cardDesc) || '')}</p>`;
+      const heading = seg && seg.title ? `<h3>${esc(cleanText(seg.title, hygiene))}</h3>` : '';
+      return `${heading}<p class="intro-para">${esc(cleanText((seg && seg.text) || '', hygiene))}</p>`;
+    }).join('') || `<p class="intro-para">${esc(cleanText(navItem?.cardDesc || '', hygiene))}</p>`;
     const toc = `<div class="toc"><strong>目录</strong> · <a href="#intro">套餐介绍</a> · <a href="#official">官方资料</a> · <a href="#checked">办理与说明</a></div>`;
     // 唯一出站口前置到首屏（id=apply 供文末站内锚点回跳），rel 固定合规值。
     const outbound = `<a class="outbound" id="apply" href="${esc(p.outbound)}" target="_blank" rel="sponsored nofollow noopener">前往办理 ↗</a>`;
@@ -227,22 +298,37 @@ ${specTags ? `<div class="specs">${specTags}</div>` : ''}
     });
     const relatedGuides = (matchedGuides.length ? matchedGuides : articles).slice(0, 2);
     const relatedHtml = relatedGuides.length
-      ? `<section class="related"><div class="section-head"><h2>相关攻略</h2></div><div class="post-list">${relatedGuides.map((a) => `<div class="post-item"><h3>${articleLink(a)}</h3><p>${esc(articleSummary(a))}</p></div>`).join('')}</div></section>`
+      ? `<section class="related"><div class="section-head"><h2>相关攻略</h2></div><div class="post-list">${relatedGuides.map((a) => `<div class="post-item"><h3>${articleLink(a)}</h3><p>${esc(articleSummaryClean(a))}</p></div>`).join('')}</div></section>`
       : '';
     const body = `${toc}
 <article class="post" id="intro">
-<h1>${esc(p.title || navItem?.title || '详情')}</h1>
+<h1>${esc(navTitle)}</h1>
 <p class="meta">依据官方详情信源整理 · ${esc(site.byline || '')}</p>
 ${outbound}
 <section id="intro-text">${introHtml}</section>
 <section id="official"><h2>官方资料</h2>${renderOfficial(p.sourceBody)}</section>
 <section id="checked"><h2>办理与说明</h2><p>数值以官方实时页面为准；本站不编造数字，不展示营销话术。</p><p class="back-to-apply"><a href="#apply">↑ 返回办理入口</a></p></section>
 ${relatedHtml}
-<div class="citations">信源：${esc((p.sourceIds || navItem?.sourceIds || []).join(', '))}</div>
+<div class="citations">信源：${esc((p.sourceIds || navItem?.sourceIds || [])
+      .map((id) => citationLabel(id, sources, hygiene)).join('、') || (hygiene.citationFallback || '参考资料'))}</div>
 </article>`;
-    const rel = `${outDir}/nav/${slugify(p.navId)}.html`;
-    writeFile(root, rel, layout(site, manifest, p.title || navItem?.title || '详情', body));
-    urls.push(`${base}/nav/${slugify(p.navId)}.html`);
+    const navSlug = cleanSlug(p.navId, hygiene);
+    const navUrl = `${base}/nav/${navSlug}.html`;
+    const navDesc = makeDescription(seoCfg, seoCfg.pages.nav, {
+      title: navTitle, cardDesc: navItem?.cardDesc, category: navItem?.category
+    }, navItem?.cardDesc || navTitle);
+    writeFile(root, `${outDir}/nav/${navSlug}.html`, layout(site, manifest, navTitle, body, {
+      canonical: navUrl,
+      description: navDesc,
+      og: ogTags(structCfg, site, navUrl, navTitle, navDesc),
+      schemas: [
+        { '@context': 'https://schema.org', '@type': 'WebSite', name: site.siteName || manifest.vertical || '', url: `${base}/` },
+        ...navSchemas(structCfg, base, navUrl, navItem, p, hygiene)
+      ]
+    }));
+    urls.push(navUrl);
+    const navDate = lastmodOf(p, navItem);
+    if (navDate) urlDates.set(navUrl, navDate);
   }
 
   // blog 文章列表 + 详情
@@ -253,19 +339,30 @@ ${relatedHtml}
   }
   if (articles.length) {
     fs.mkdirSync(blogDir, { recursive: true });
+    // slug 清洗会改变文件名；先清掉旧 .html（含旧 auto- 前缀文件），避免残留产物被直接访问。
+    for (const name of fs.readdirSync(blogDir)) {
+      if (name.endsWith('.html')) fs.rmSync(path.join(blogDir, name), { force: true });
+    }
     const groupNames = [...new Set([...Object.keys(homeRules.groups || {}), homeRules.fallbackGroup || '选购专题'])];
     const groupsHtml = groupNames.map((group) => {
       const list = articles.filter((a) => articleGroup(a) === group);
       const items = list.length
-        ? list.map((a) => `<div class="post-item"><h3>${articleLink(a)}</h3><p>${esc(articleSummary(a))}</p><div class="meta">${esc(a.generatedAt || '')}</div></div>`).join('')
+        ? list.map((a) => `<div class="post-item"><h3>${articleLink(a)}</h3><p>${esc(articleSummaryClean(a))}</p><div class="meta">${esc(a.generatedAt || '')}</div></div>`).join('')
         : '<p class="empty">该分类暂无文章，后续更新后自动展示。</p>';
       return `<section id="${esc(slugify(group))}">
 <div class="section-head"><h2>${esc(group)}</h2><span class="more">${list.length} 篇</span></div>
 <div class="post-list">${items}</div>
 </section>`;
     }).join('\n');
-    writeFile(root, `${outDir}/blog/index.html`, layout(site, manifest, '文章', `<div class="intro"><p>按主题整理的选购与办理资料，共 ${articles.length} 篇。</p></div>${groupsHtml}`));
-    urls.push(`${base}/blog/`);
+    const blogH1 = cleanText(renderText(seoCfg.pages.blogIndex?.h1 || '{site.blogTitle}', { site }), hygiene) || '文章';
+    const blogUrl = `${base}/blog/`;
+    const blogDesc = makeDescription(seoCfg, seoCfg.pages.blogIndex, { site }, site.intro || '文章');
+    writeFile(root, `${outDir}/blog/index.html`, layout(site, manifest, '文章', `<h1>${esc(blogH1)}</h1><div class="intro"><p>按主题整理的选购与办理资料，共 ${articles.length} 篇。</p></div>${groupsHtml}`, {
+      canonical: blogUrl,
+      description: blogDesc,
+      og: ogTags(structCfg, site, blogUrl, blogH1, blogDesc)
+    }));
+    urls.push(blogUrl);
     for (const a of articles) {
       const group = articleGroup(a);
       const groupWords = homeRules.groups?.[group] || [];
@@ -281,18 +378,42 @@ ${relatedHtml}
       const relatedHtml = related
         ? `<section class="related"><div class="section-head"><h2>相关办理入口</h2></div><div class="related-links">${related}</div></section>`
         : '';
+      const articleTitle = cleanText(a.title, hygiene);
+      const articleSummaryText = cleanText(articleSummary(a), hygiene);
+      const articleSlug = cleanSlug(a.id, hygiene);
+      const articleUrl = `${base}/blog/${articleSlug}.html`;
+      // 空行分段：正文数据可含多段，渲染层只做通用切分，不认识任何主题字段。
+      const bodyHtml = String(a.body || '').split(/\n\s*\n/)
+        .map((para) => cleanText(para, hygiene)).filter(Boolean)
+        .map((para) => `<p class="body-text">${esc(para)}</p>`).join('\n');
       const body = `<nav class="breadcrumb"><a href="/">首页</a> · <a href="/blog/">文章</a> · ${esc(group)}</nav>
-<article class="post"><h1>${esc(a.title)}</h1><p class="meta">${esc(a.generatedAt || '')} · ${esc(site.byline || '')}</p><p class="body-text">${esc(a.body || '')}</p>
+<article class="post"><h1>${esc(articleTitle)}</h1><p class="meta">${esc(a.generatedAt || '')} · ${esc(site.byline || '')}</p>${bodyHtml}
 <a class="outbound" href="${esc(a.links?.[0]?.href || '#')}" target="_blank" rel="sponsored nofollow noopener">参考来源 ↗</a></article>
 ${relatedHtml}
 <p class="back-to-apply"><a href="/blog/">← 返回文章列表</a></p>`;
-      writeFile(root, `${outDir}/blog/${slugify(a.id)}.html`, layout(site, manifest, a.title, body));
-      urls.push(`${base}/blog/${slugify(a.id)}.html`);
+      const articleDesc = makeDescription(seoCfg, seoCfg.pages.article, {
+        title: articleTitle, summary: articleSummaryText
+      }, articleSummaryText || articleTitle);
+      writeFile(root, `${outDir}/blog/${articleSlug}.html`, layout(site, manifest, articleTitle, body, {
+        canonical: articleUrl,
+        description: articleDesc,
+        og: ogTags(structCfg, site, articleUrl, articleTitle, articleDesc),
+        schemas: [
+          { '@context': 'https://schema.org', '@type': 'WebSite', name: site.siteName || manifest.vertical || '', url: `${base}/` },
+          ...articleSchemas(structCfg, base, articleUrl, { ...a, title: articleTitle }, group, hygiene)
+        ]
+      }));
+      urls.push(articleUrl);
+      const articleDate = lastmodOf(a);
+      if (articleDate) urlDates.set(articleUrl, articleDate);
     }
   }
 
   // sitemap：显式枚举，不依赖 collections
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${esc(u)}</loc></url>`).join('\n')}\n</urlset>\n`;
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => {
+    const date = urlDates.get(u);
+    return `  <url><loc>${esc(u)}</loc>${date ? `<lastmod>${esc(date)}</lastmod>` : ''}</url>`;
+  }).join('\n')}\n</urlset>\n`;
   writeFile(root, `${outDir}/sitemap.xml`, xml);
   writeFile(root, `${outDir}/robots.txt`, `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml\n`);
 

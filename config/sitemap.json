@@ -1,0 +1,7 @@
+{
+  "schema": "sitemap/v1",
+  "includeLastmod": true,
+  "cleanStaleHtml": true,
+  "lastmodFields": ["updatedAt", "generatedAt", "fetchedAt", "checkedAt"],
+  "_comment": "sitemap 字段配置。lastmod 只取数据里真实存在的日期字段，按序取第一个；缺失就不写，不伪造更新时间。"
+}

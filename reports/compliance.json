@@ -1,0 +1,38 @@
+{
+  "stage": "compliance",
+  "generated": 4,
+  "pages": [
+    {
+      "key": "privacy",
+      "slug": "privacy",
+      "url": "https://kaka.yxtcfw.cn/privacy.html"
+    },
+    {
+      "key": "terms",
+      "slug": "terms",
+      "url": "https://kaka.yxtcfw.cn/terms.html"
+    },
+    {
+      "key": "channel",
+      "slug": "channel",
+      "url": "https://kaka.yxtcfw.cn/channel.html"
+    },
+    {
+      "key": "safety",
+      "slug": "safety",
+      "url": "https://kaka.yxtcfw.cn/safety.html"
+    }
+  ],
+  "urls": [
+    "https://kaka.yxtcfw.cn/privacy.html",
+    "https://kaka.yxtcfw.cn/terms.html",
+    "https://kaka.yxtcfw.cn/channel.html",
+    "https://kaka.yxtcfw.cn/safety.html"
+  ],
+  "pendingHuman": [
+    "ICP 备案号与备案主体（GitHub Pages 无备案资格，需决定托管迁移）",
+    "运营主体名称、营业执照与运营商授权证明（如有）",
+    "客服联系方式与反馈渠道"
+  ],
+  "dryRun": false
+}

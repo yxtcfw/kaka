@@ -9,8 +9,8 @@ function seedArticles(root) {
   writeJson(root, 'data/articles.json', {
     schema: 'articles/v1',
     articles: [
-      { id: 'article-good-1', title: '流量卡办理避坑', nodeId: 'n2', body: '办理前先确认实名与首充要求，再对比官方渠道的套餐说明。'.repeat(10), cardDesc: '办理前先确认实名与首充。', generatedAt: '2026-11-27', links: [] },
-      { id: 'article-good-2', title: '资费套餐怎么选', nodeId: 'n1', body: '对比月租、通用流量与通话时长时，以官方实时页面为准。'.repeat(10), cardDesc: '对比月租与通用流量。', generatedAt: '2026-11-26', links: [] },
+      { id: 'article-good-1', title: '流量卡办理避坑', nodeId: 'n2', body: '办理前先确认实名与首充要求，再对比官方渠道的套餐说明。'.repeat(25), cardDesc: '办理前先确认实名与首充。', generatedAt: '2026-11-27', links: [] },
+      { id: 'article-good-2', title: '资费套餐怎么选', nodeId: 'n1', body: '对比月租、通用流量与通话时长时，以官方实时页面为准。'.repeat(25), cardDesc: '对比月租与通用流量。', generatedAt: '2026-11-26', links: [] },
       { id: 'article-bad', title: 'auto-scene', nodeId: 'auto-scene', body: '本卡片主题为 auto-scene，资料不足。'.repeat(10), generatedAt: '2026-11-28', links: [] }
     ]
   });

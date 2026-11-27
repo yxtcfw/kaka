@@ -77,6 +77,14 @@ section { margin: 0 0 40px; scroll-margin-top: var(--anchor-offset); }
 .subnav a { background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; font-size: .75rem; color: var(--muted); }
 .subnav a:hover { color: var(--primary); border-color: var(--primary); background: var(--soft); text-decoration: none; }
 
+/* 筛选条：默认可聚焦按钮，aria-pressed 表示选中态 */
+.filters { display: flex; flex-wrap: wrap; gap: 10px 16px; margin: 0 0 20px; padding: 14px 16px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); }
+.filter-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.filter-group > span { font-size: .78rem; color: var(--muted); margin-right: 2px; }
+.filters button { font: inherit; font-size: .76rem; line-height: 1.5; padding: 3px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg); color: var(--muted); cursor: pointer; }
+.filters button:hover, .filters button[aria-pressed="true"] { color: var(--primary); border-color: var(--primary); background: var(--soft); }
+.filters button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
 /* 卡片网格：4 / 3 / 2 / 1 列响应式 */
 .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--grid-gap); }
 @media (max-width: 1100px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
@@ -128,7 +136,8 @@ article.post { background: var(--card); border: 1px solid var(--border); border-
 article.post h1 { margin: 0 0 8px; font-size: 1.6rem; }
 article.post .meta { color: var(--muted); font-size: .8rem; margin-bottom: 16px; }
 article.post p { font-size: .95rem; }
-article.post .body-text { white-space: pre-line; }
+article.post .body-text { white-space: pre-line; line-height: 1.9; }
+article.post .body-text + .body-text { margin-top: 14px; }
 article.post section { margin: 22px 0; padding-top: 16px; border-top: 1px solid var(--border); }
 article.post section h2 { font-size: 1.1rem; margin: 0 0 8px; border: 0; padding: 0; }
 article.post section h3 { font-size: .95rem; margin: 16px 0 6px; color: var(--primary); font-weight: 650; }
