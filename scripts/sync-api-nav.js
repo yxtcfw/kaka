@@ -65,6 +65,7 @@ export async function runSyncApiNav(root = ROOT, args = {}) {
     return { stage: 'sync-api-nav', skipped: true, reason: 'config enabled=false' };
   }
   if (args.reclassify) return runReclassify(root, args);
+  if (args.refreshFields) return runRefreshFields(root, args);
   const deps = {};
   if (args.httpFn) deps.httpFn = args.httpFn;
   if (args.fetchFn) deps.fetchFn = args.fetchFn;
@@ -97,6 +98,48 @@ export async function runSyncApiNav(root = ROOT, args = {}) {
     recordRun(state, { stage: 'sync-api-nav', provider: 'lot-ml-api', summary: `+${added.length} 商品nav` });
     saveState(state, root);
     report.snapshot = 'snapshots/pre-sync-api-nav';
+  }
+  return report;
+}
+
+// 客观字段回填模式：只更新已有 API 条目的 specs/cardDesc，不新增条目、不改人工数据与人工字段。
+export async function runRefreshFields(root = ROOT, args = {}) {
+  const cfg = loadCfg(root);
+  const deps = {};
+  if (args.httpFn) deps.httpFn = args.httpFn;
+  if (args.fetchFn) deps.fetchFn = args.fetchFn;
+  if (args.sleep) deps.sleep = args.sleep;
+  const { items: raw, meta } = await fetchAll(cfg, deps);
+  const { items: fresh } = dedupeProducts(raw, cfg);
+  const byPid = new Map();
+  for (const it of fresh) if (it.productId != null) byPid.set(String(it.productId), it);
+
+  const navPath = path.join(root, NAV_REL);
+  const current = readJson(navPath);
+  let changed = 0;
+  let stale = 0;
+  const items = (current.items || []).map((it) => {
+    if (it.productId == null) return it; // 人工条目永不改
+    const src = byPid.get(String(it.productId));
+    if (!src) { stale++; return it; }
+    const next = { ...it, specs: src.specs, cardDesc: src.cardDesc };
+    if (JSON.stringify(next) === JSON.stringify(it)) return it;
+    changed++;
+    return next;
+  });
+
+  const report = {
+    stage: 'refresh-api-fields', fetched: meta.fetched, apiCount: meta.count,
+    apiErrors: meta.errors, matched: byPid.size, changed, stale,
+    dryRun: !!args.dryRun
+  };
+  if (!args.dryRun && changed > 0) {
+    makeSnapshots(root, 'pre-refresh-api-fields');
+    atomicWriteJson(navPath, { ...current, items });
+    const state = loadState(root);
+    recordRun(state, { stage: 'refresh-api-fields', provider: 'lot-ml-api', summary: `回填 ${changed} 条规格字段` });
+    saveState(state, root);
+    report.snapshot = 'snapshots/pre-refresh-api-fields';
   }
   return report;
 }

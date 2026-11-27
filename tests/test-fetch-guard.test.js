@@ -21,6 +21,27 @@ function virtualDeps(extra = {}) {
   };
 }
 
+test('guard.request: 原生 Response 的 text() 会被 await，不再字符串化函数', async () => {
+  const v = virtualDeps({
+    fetchFn: async () => new Response('{"ok":true}', { status: 200, headers: { 'Content-Type': 'application/json' } })
+  });
+  const guard = createFetchGuard({ schema: 'rules/collect-policy/v1', enabled: true }, v);
+  const r = await guard.request('https://example.com/api');
+  assert.equal(r.text, '{"ok":true}');
+});
+
+test('discover: 真 provider 失败时降级 mock 并写清 reason', async () => {
+  const root = makeRoot();
+  try {
+    const manifest = readJson(root, 'config/manifest.json');
+    manifest.providers.search = 'ddgs';
+    writeJson(root, 'config/manifest.json', manifest);
+    const r = await runDiscover(root, { adapterFn: async () => { throw new Error('backend down'); } });
+    assert.equal(r.degraded, true);
+    assert.match(r.reason, /backend down/);
+  } finally { cleanup(root); }
+});
+
 test('robots: 最长前缀匹配与 Allow 优先', () => {
   const txt = 'User-agent: *\nDisallow: /private\nAllow: /private/ok\nCrawl-delay: 2\n';
   assert.equal(robotsAllowed(txt, 'https://x.com/private/x', 'bot').allowed, false);

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { makeRoot, readJson, writeJson } from './helper.js';
-import { runSyncApiNav, runReclassify } from '../scripts/sync-api-nav.js';
+import { runSyncApiNav, runReclassify, runRefreshFields } from '../scripts/sync-api-nav.js';
 import { fetchAll, mapProduct, descFromProduct, dedupeProducts, buildUrl, reclassify } from '../scripts/lib/api-nav.js';
 
 const cfg = {
@@ -51,6 +51,10 @@ test('mapProduct 客观参数进 nav，shareUrl 落 promoUrl/url，营销话术�
   assert.equal(m.hasContent, false);
   assert.ok(!('words' in m) && !('keywords' in m));
   assert.equal(m._marketing.words, '菜鸟上门激活');
+  assert.equal(m.specs.nowPrice, '29');
+  assert.equal(m.specs.tyLiuliang, '192');
+  assert.equal(m.specs.tonghua, undefined); // 0 值不上屏
+  assert.ok(!('words' in m.specs) && !('keywords' in m.specs));
 });
 
 test('dedupeProducts 按 productID 去重', () => {
@@ -128,6 +132,43 @@ test('sync-api-nav dryRun 不写盘', async () => {
   assert.equal(r.dryRun, true);
   const nav = JSON.parse(fs.readFileSync(path.join(root, 'data/navlinks.json'), 'utf8'));
   assert.equal(nav.items.length, 2); // 未写
+});
+
+test('refresh-api-fields：只回填已有 API 条目规格，不动人工条目，幂等', async () => {
+  const root = makeRoot();
+  const httpFn = async (url) => {
+    const p = Number(new URL(url).searchParams.get('page'));
+    const data = p === 1
+      ? [product({ productID: 10, shareUrl: 'https://x.cn/p10', age1: 18, age2: 60, sales: 123, priceUnitStr: '月租费用' })]
+      : [];
+    return { status: 200, text: JSON.stringify({ code: 0, count: 1, data }) };
+  };
+  await runSyncApiNav(root, { httpFn, sleep: async () => {} }); // 先建 API 条目
+  let nav = JSON.parse(fs.readFileSync(path.join(root, 'data/navlinks.json'), 'utf8'));
+  // 模拟历史条目（同步时未落 specs）：手工删掉后再回填
+  delete nav.items.find((i) => i.productId === 10).specs;
+  fs.writeFileSync(path.join(root, 'data/navlinks.json'), JSON.stringify(nav, null, 2));
+  assert.equal(nav.items.find((i) => i.productId === 10).specs, undefined);
+
+  const r = await runRefreshFields(root, { httpFn, sleep: async () => {} });
+  assert.equal(r.changed, 1);
+  assert.equal(r.stale, 0);
+  assert.ok(r.snapshot);
+  nav = JSON.parse(fs.readFileSync(path.join(root, 'data/navlinks.json'), 'utf8'));
+  const api = nav.items.find((i) => i.productId === 10);
+  assert.equal(api.specs.nowPrice, '29');
+  assert.equal(api.specs.age, '18-60');
+  assert.equal(api.specs.sales, '123');
+  assert.equal(api.specs.priceUnitStr, '月租费用');
+  assert.equal(api.specs.tonghua, undefined);
+  assert.ok(!('words' in api.specs));
+  const manual = nav.items.find((i) => i.navId === 'nav-001');
+  assert.equal(manual.url, 'https://example.com/plan');
+  assert.equal(manual.specs, undefined);
+  assert.equal(nav.items.length, 3); // 不新增
+
+  const r2 = await runRefreshFields(root, { httpFn, sleep: async () => {} });
+  assert.equal(r2.changed, 0); // 幂等
 });
 
 const reCfg = {

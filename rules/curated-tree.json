@@ -1,0 +1,25 @@
+{
+  "schema": "rules/curated-tree/v1",
+  "note": "助手直接建树规则：按 329 条真实联想词的搜索意图做互斥分组。顺序即优先级，先匹配先生效；命不中的词进 fallback。由 scripts/curate-tree.js 消费，云端无模型 key 也能确定性重建。",
+  "maxKeywordsPerNode": 60,
+  "parents": [
+    { "id": "auto-e2b9b1cd", "label": "运营商对比", "topic": "按运营商查找流量卡资费与办理", "parent": "n0" },
+    { "id": "auto-scene", "label": "场景卡种", "topic": "副卡与校园卡等特定场景流量卡", "parent": "n0" }
+  ],
+  "nodes": [
+    { "id": "auto-region", "parent": "n0", "label": "地区专属卡", "topic": "按办理地区查找专属流量卡", "pattern": "广东|湖南|福建|北京|上海|浙江|江苏|四川|河南|河北|山东|湖北|安徽|重庆|专属卡|省内" },
+    { "id": "auto-sub-apply", "parent": "auto-scene", "label": "副卡办理", "topic": "副卡办理条件、流程与生效时间", "pattern": "副卡.*(办理|流程|步骤|条件|开通|业务|多久|生效)|(办理|开通|流程|条件).*副卡" },
+    { "id": "auto-sub-manage", "parent": "auto-scene", "label": "副卡资费与管理", "topic": "副卡资费规则、注销退订与主卡关系", "pattern": "副卡.*(注销|退订|主卡|知道吗|当月)|副卡" },
+    { "id": "auto-campus-apply", "parent": "auto-scene", "label": "校园卡办理", "topic": "校园流量卡的办理条件与首充要求", "pattern": "(校园|学生|青春卡).*(办理|申请|入口|流程|条件|首充|多少钱|要钱|线上|换成)|(办理|申请).*校园" },
+    { "id": "auto-campus-faq", "parent": "auto-scene", "label": "校园卡使用", "topic": "校园流量卡使用范围与常见问题", "pattern": "校园|学生|青春卡|电话卡怎么换成流量卡" },
+    { "id": "n2", "parent": "n0", "label": "办理攻略", "topic": "流量卡通用办理入口与流程", "pattern": "^(大?流量卡|低价(大?流量卡)?|副卡)(办理|申请|官网|网站|入口|链接|营业厅|平台|中心|怎么办|流程|条件|要钱|要多久|需要首充|注意事项)" },
+    { "id": "auto-cm", "parent": "auto-e2b9b1cd", "label": "移动流量卡", "topic": "中国移动流量卡资费与办理", "pattern": "移动" },
+    { "id": "auto-cu", "parent": "auto-e2b9b1cd", "label": "联通流量卡", "topic": "中国联通流量卡资费与办理", "pattern": "联通" },
+    { "id": "auto-ct", "parent": "auto-e2b9b1cd", "label": "电信流量卡", "topic": "中国电信流量卡资费与办理", "pattern": "电信" },
+    { "id": "auto-cr", "parent": "auto-e2b9b1cd", "label": "广电流量卡", "topic": "中国广电流量卡资费与办理", "pattern": "广电" },
+    { "id": "n1", "parent": "n0", "label": "资费套餐", "topic": "大流量卡资费对比与流量规格", "pattern": "资费|价格|多少钱|月租|[0-9]+元|低价|便宜|划算|收费|费用|[0-9]+G|通用流量|大流量|不限量|GB|通话|分钟" },
+    { "id": "n2", "parent": "n0", "label": "办理攻略", "topic": "流量卡通用办理入口与流程", "pattern": "办理|申请|入口|官网|网站|链接|营业厅|渠道|开户|激活|实名|流程|条件|注销|多久|首充|怎么办|在哪里办|步骤|核验|认证|身份证", "aliasOf": "n2" }
+  ],
+  "fallback": "n1",
+  "_comment": "规则顺序即优先级。n2 出现两次：先抓无运营商限定的通用办理词，再抓剩余办理词，aliasOf 指向同一节点。parent 指定挂载位置；parents 是纯容器节点（无关键词）。受 maxNodes=24 / maxDepth=3 约束。"
+}

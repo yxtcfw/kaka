@@ -33,10 +33,14 @@ export async function runFetchBody(root = ROOT, args = {}) {
   }
 
   const results = [];
+  const fetchFailures = [];
   for (const c of candidates) {
     let body = '';
     try { body = (await fetchBody(c, bodyProvider, { root, guard })).body; }
-    catch { body = ''; }
+    catch (e) {
+      body = '';
+      if (fetchFailures.length < 5) fetchFailures.push({ url: c.url, reason: `${e.name || 'Error'}: ${e.message || e}` });
+    }
     const graded = gradeCandidate(c, body, gradeRules);
     const id = nextSourceId(sources);
     const record = {
@@ -69,7 +73,7 @@ export async function runFetchBody(root = ROOT, args = {}) {
   const report = {
     stage: 'fetch-body', provider, fetched: results.length,
     approved: results.filter((r) => r.status === 'approved').length,
-    bannedFiltered: dropped.length,
+    bannedFiltered: dropped.length, fetchFailures,
     l1, independentL2: l2Domains.size, sourcesPassed: state.sources.passed, guard: guardStats
   };
 

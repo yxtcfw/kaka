@@ -1,0 +1,29 @@
+{
+  "schema": "manifest/v1",
+  "domain": "kaka.yxtcfw.cn",
+  "vertical": "流量卡",
+  "siteName": null,
+  "tagline": null,
+  "hosting": "github-actions",
+  "theme": {
+    "primary": "#2563eb",
+    "accent": "#f59e0b",
+    "radius": "12px",
+    "font": "system-ui, sans-serif"
+  },
+  "thresholds": {
+    "signalsMin": 300,
+    "signalsSourcesMin": 2,
+    "signalsNewRateMax": 0.1,
+    "sourceL1Min": 1,
+    "sourceL2IndependentMin": 2,
+    "gateBlocksMin": 1
+  },
+  "providers": {
+    "suggest": "baidu-suggest",
+    "search": "ddgs",
+    "llm": "openrouter",
+    "metrics": "site-estimate"
+  },
+  "_comment": "站点配置。domain 已人工指定为 kaka.yxtcfw.cn；vertical 由 bootstrap 从种子词推断；null 字段留给首次构建 fill-site 补齐。密钥永不写此文件。"
+}

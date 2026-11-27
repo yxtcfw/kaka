@@ -21,6 +21,7 @@
           "sourceIds": { "type": "array", "items": { "type": "string" } },
           "productId": { "type": "any" },
           "isp": { "type": "any" },
+          "specs": { "type": "object" },
           "rel": { "type": "string" }
         }
       }

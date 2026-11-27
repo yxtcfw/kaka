@@ -1,0 +1,5 @@
+{
+  "schema": "sources/v1",
+  "sources": [],
+  "_comment": "信源池。grade=L1/L2/L3；搜索发现的候选默认 L3，不得自动升 L1/L2。status=rejected 不可被引用。正文默认只存摘要，按许可决定。"
+}

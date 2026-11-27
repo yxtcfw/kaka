@@ -1,0 +1,22 @@
+{
+  "stage": "harvest",
+  "provider": "baidu-suggest",
+  "count": 326,
+  "sources": 2,
+  "newRate": 0,
+  "passed": true,
+  "degraded": true,
+  "reason": "Error: suggest 响应缺少 s 数组",
+  "guard": {
+    "enabled": false,
+    "reason": "degraded: Error: suggest 响应缺少 s 数组"
+  },
+  "threshold": {
+    "signalsMin": 300,
+    "signalsSourcesMin": 2,
+    "signalsNewRateMax": 0.1,
+    "sourceL1Min": 1,
+    "sourceL2IndependentMin": 2,
+    "gateBlocksMin": 1
+  }
+}

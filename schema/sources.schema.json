@@ -18,6 +18,9 @@
           "status": { "type": "string", "enum": ["candidate", "approved", "rejected"] },
           "bodyKind": { "type": "string", "enum": ["fulltext", "excerpt", "none"] },
           "bodyExcerpt": { "type": "string" },
+          "bodyChars": { "type": "number" },
+          "bodyHash": { "type": "string" },
+          "collectedFrom": { "type": "string" },
           "discoveredBy": { "type": "string", "enum": ["seed", "search", "manual", "collect"] },
           "fetchedAt": { "type": "string" }
         }

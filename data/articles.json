@@ -1,4 +1,25 @@
 {
   "schema": "articles/v1",
-  "articles": []
+  "articles": [
+    {
+      "id": "article-n2",
+      "title": "流量卡办理避坑",
+      "nodeId": "n2",
+      "body": "流量卡办理避坑：以下内容依据已登记信源整理，具体数值以官方实时页面为准。\n\n参考信源：广电飞花卡3.0【29元192G】 · 官方详情（lingqu.haokalingqu.cn）。具体数值以官方实时页面为准。",
+      "sourceId": "src-api-5260",
+      "citations": [
+        {
+          "sourceId": "src-api-5260"
+        }
+      ],
+      "links": [
+        {
+          "href": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=3bc1c6eead648fab",
+          "rel": "sponsored nofollow noopener",
+          "kind": "outbound"
+        }
+      ],
+      "generatedAt": "2026-11-27"
+    }
+  ]
 }

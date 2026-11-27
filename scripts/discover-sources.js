@@ -23,6 +23,7 @@ export async function runDiscover(root = ROOT, args = {}) {
 
   let candidates = [];
   let degraded = false;
+  let reason = '';
   let guard = null;
   try {
     // 真 provider 必须经 fetch-guard 发请求；mock 链路不创建 guard（零网络、零等待）。
@@ -34,8 +35,9 @@ export async function runDiscover(root = ROOT, args = {}) {
     }
     candidates = await searchCandidates(picked, provider, picked.length, { ...args, root, guard });
   } catch (e) {
-    // 真 provider 无 key / guard 拒绝 → 降级 mock，报告里显式标注（不静默伪造）
+    // 真 provider 失败 → 降级 mock，失败原因上屏，不静默伪造。
     degraded = true;
+    reason = `${e.name || 'Error'}: ${e.message || e}`;
     guard = null;
     candidates = await searchCandidates(picked, 'mock', picked.length);
   }
@@ -57,8 +59,8 @@ export async function runDiscover(root = ROOT, args = {}) {
     fresh.push({ ...c, discoveredBy: 'search', defaultGrade: 'L3', foundAt: new Date().toISOString().slice(0, 10) });
   }
 
-  const doc = { schema: 'discovered/v1', provider, degraded, queryTerms: picked, candidates: fresh, discoveredAt: new Date().toISOString() };
-  const report = { stage: 'discover', provider, degraded, queries: picked.length, candidates: fresh.length, bannedFiltered: dropped.length, guard: guardStats };
+  const doc = { schema: 'discovered/v1', provider, degraded, reason, queryTerms: picked, candidates: fresh, discoveredAt: new Date().toISOString() };
+  const report = { stage: 'discover', provider, degraded, reason, queries: picked.length, candidates: fresh.length, bannedFiltered: dropped.length, guard: guardStats };
 
   if (!args.dryRun) {
     writeJson(path.join(root, 'data/discovered.json'), doc);

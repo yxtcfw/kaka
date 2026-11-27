@@ -98,6 +98,21 @@ export function mapProduct(p, cfg = {}) {
   const category = categoryMap[isp] || cfg.defaultCategory || '资费套餐';
   const title = String(p.name || '').trim() || `${isp} ${p.taocan || ''}`.trim() || '运营商套餐';
   const cardDesc = descFromProduct(p, Number(cfg.cardDescMax || 60));
+  // 客观参数结构化落盘，供卡片上屏；营销话术/内部技术字段永不入内。0 值的流量/通话不上屏。
+  const specs = {};
+  const add = (k, v) => { const s = String(v ?? '').trim(); if (s) specs[k] = s; };
+  const addNonZero = (k, v) => { if (String(v ?? '').trim() !== '0') add(k, v); };
+  add('taocan', p.taocan);
+  add('nowPrice', p.nowPrice);
+  add('oldPrice', p.oldPrice);
+  addNonZero('tyLiuliang', p.tyLiuliang);
+  addNonZero('dxLiuliang', p.dxLiuliang);
+  addNonZero('tonghua', p.tonghua);
+  add('priceUnitStr', p.priceUnitStr);
+  add('isSelectNum', p.isSelectNum);
+  add('isPhotos', p.isPhotos);
+  if (p.age1 != null || p.age2 != null) specs.age = [p.age1, p.age2].filter((x) => x != null).join('-');
+  if (p.sales != null) specs.sales = String(p.sales);
   return {
     navId: `api-${pid ?? shareUrl.length}`,
     productId: pid ?? null,
@@ -108,6 +123,7 @@ export function mapProduct(p, cfg = {}) {
     category,
     description: `API 同步：${isp || '运营商'}产品目录客观参数（非营销话术）`,
     cardDesc,
+    specs,
     hasContent: cfg.hasContent === true,
     sourceIds: [],
     rel: cfg.rel || 'sponsored nofollow noopener',

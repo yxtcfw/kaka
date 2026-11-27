@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { makeRoot, cleanup, readJson, writeJson } from './helper.js';
+import { makeRoot, cleanup, readJson, writeJson, REPO } from './helper.js';
 import path from 'node:path';
 import { runHarvest } from '../scripts/harvest.js';
 import { runGrowTree } from '../scripts/grow-tree.js';
@@ -10,14 +10,14 @@ import { runFetchBody } from '../scripts/fetch-body.js';
 import { runWriteContent } from '../scripts/write-content.js';
 import { runFillSite } from '../scripts/fill-site.js';
 import { runBuildNavPages } from '../scripts/build-nav-pages.js';
-import { runBuild } from '../scripts/build.js';
+import { runBuild, splitIntroParagraphs } from '../scripts/build.js';
 import { sourcesPassed, signalsPassed, contentPassed } from '../scripts/lib/state.js';
 
-test('harvest: 两轮采集收敛，判据①达标', () => {
+test('harvest: 两轮采集收敛，判据①达标', async () => {
   const root = makeRoot();
   try {
-    const r1 = runHarvest(root, {});
-    const r2 = runHarvest(root, {});
+    const r1 = await runHarvest(root, {});
+    const r2 = await runHarvest(root, {});
     assert.ok(r1.count >= 300, `词量 ${r1.count}`);
     assert.ok(r1.sources >= 2, `源数 ${r1.sources}`);
     assert.equal(r1.passed, false);
@@ -30,11 +30,11 @@ test('harvest: 两轮采集收敛，判据①达标', () => {
   } finally { cleanup(root); }
 });
 
-test('harvest dry-run 零写盘', () => {
+test('harvest dry-run 零写盘', async () => {
   const root = makeRoot();
   try {
     const before = readJson(root, 'state.json');
-    runHarvest(root, { dryRun: true });
+    await runHarvest(root, { dryRun: true });
     assert.deepEqual(readJson(root, 'state.json'), before);
     assert.equal(fs.existsSync(path.join(root, 'data/signals.json')), false);
   } finally { cleanup(root); }
@@ -44,11 +44,57 @@ test('grow-tree: 幂等且按映射扩展关键词，不改节点数', async () 
   const root = makeRoot();
   try {
     runHarvest(root, {}); runHarvest(root, {});
+    // 新节奏门槛：测试 fixture 词量小，显式达标并放低阈值以保留原测试意图。
+    const st = readJson(root, 'state.json');
+    st.signals = { count: 300, sources: 2, newRate: 0.05, passed: true };
+    writeJson(root, 'state.json', st);
+    writeJson(root, 'rules/tree-cadence.json', { schema: 'rules/tree-cadence/v1', growThreshold: { minUncoveredTerms: 0, minUnmappedTerms: 0, requireSignalsPassed: true } });
     const r = await runGrowTree(root, {});
+    assert.equal(r.skipped, false);
     assert.equal(r.idempotent, true);
     assert.ok(r.keywordsAdded > 0);
     const beforeCount = readJson(root, 'data/tree.json').nodes.length;
     assert.equal(beforeCount, r.nodes);
+  } finally { cleanup(root); }
+});
+
+test('pipeline: 周期维护在详情信源之后、页面创作之前', () => {
+  const src = fs.readFileSync(path.join(REPO, 'scripts/cli.js'), 'utf8');
+  const iDetails = src.indexOf('runSyncProductDetails(root, o)');
+  const iMaint = src.indexOf('runMaintenance(root, o)');
+  const iFill = src.indexOf('runFillSite(root, o)');
+  assert.ok(iDetails > 0 && iMaint > iDetails && iFill > iMaint);
+});
+
+test('grow-tree: 自动新增节点带 origin 标记，重复运行不新增重复节点', async () => {
+  const root = makeRoot();
+  try {
+    await runHarvest(root, {});
+    const st = readJson(root, 'state.json');
+    st.signals = { count: 300, sources: 2, newRate: 0.05, passed: true };
+    writeJson(root, 'state.json', st);
+    writeJson(root, 'rules/tree-cadence.json', { schema: 'rules/tree-cadence/v1', growThreshold: { minUncoveredTerms: 0, minUnmappedTerms: 0, requireSignalsPassed: true } });
+    writeJson(root, 'rules/signals-tree.json', {
+      schema: 'rules/signals-tree/v1',
+      minTermsPerNode: 8, maxNodes: 24, maxDepth: 3, maxNewNodesPerRun: 2,
+      mapping: { '资费|月租|流量|套餐': 'n1', '办理|开卡|实名|首充|攻略': 'n2' },
+      autoNodePatterns: { '副卡专题': '副卡' },
+      stopWords: [], minTermLength: 2, maxTermLength: 20
+    });
+    const r1 = await runGrowTree(root, {});
+    assert.ok(r1.nodesAdded >= 1, '未命中词应触发自动新节点');
+    const doc = readJson(root, 'data/tree.json');
+    const autos = doc.nodes.filter((n) => n.origin === 'auto');
+    assert.ok(autos.length >= 1);
+    for (const n of autos) {
+      assert.ok(n.id.startsWith('auto-'));
+      assert.ok(n.parent === doc.root.id || doc.nodes.some((x) => x.id === n.parent));
+      assert.ok(n.keywords.length > 0);
+      assert.ok(doc.root.children.includes(n.id) || doc.nodes.some((x) => x.children.includes(n.id)));
+    }
+    const r2 = await runGrowTree(root, {});
+    assert.equal(r2.nodesAdded, 0, '重复运行不得新增重复节点');
+    assert.equal(readJson(root, 'data/tree.json').nodes.length, doc.nodes.length);
   } finally { cleanup(root); }
 });
 
@@ -290,5 +336,142 @@ test('build: nav 详情清空时主动删除旧 _site/nav 产物', async () => {
     assert.equal(fs.existsSync(path.join(root, '_site/nav')), false, '旧详情目录必须被清除，避免示例页残留线上');
     const sitemap = fs.readFileSync(path.join(root, '_site/sitemap.xml'), 'utf8');
     assert.ok(!sitemap.includes('/nav/'), 'sitemap 不应再列出已清空的详情页');
+  } finally { cleanup(root); }
+});
+
+test('build: 卡片展示 API 客观规格并带 data-search 索引', async () => {
+  const root = makeRoot();
+  try {
+    runFillSite(root, {});
+    const nav = readJson(root, 'data/navlinks.json');
+    Object.assign(nav.items[0], {
+      productId: 1, isp: '广电',
+      specs: {
+        taocan: '29元192G套餐', nowPrice: '29', oldPrice: '39', tyLiuliang: '192',
+        tonghua: '100', priceUnitStr: '月租费用', isSelectNum: '无需选号',
+        isPhotos: '无需照片', age: '18-65', sales: '12345'
+      }
+    });
+    writeJson(root, 'data/navlinks.json', nav);
+    runBuild(root, {});
+    const html = fs.readFileSync(path.join(root, '_site/index.html'), 'utf8');
+    assert.match(html, /class="price">¥29/, '现价须上屏');
+    assert.match(html, /<del>¥39<\/del>/, '与现价不同的原价须划线');
+    assert.match(html, /通用192G/, '通用流量须上屏');
+    assert.match(html, /通话100分钟/, '通话时长须上屏');
+    assert.match(html, /无需选号/, '选号要求须上屏');
+    assert.match(html, /销量12345/, '销量须上屏');
+    assert.match(html, /data-search="[^"]*广电[^"]*192[^"]*"/, '搜索索引须含运营商与规格');
+  } finally { cleanup(root); }
+});
+
+test('老字符串介绍兜底：禁发地区单列，不得并入「谁能办理」', () => {
+  const raw = '测试卡：19元/月，150G通用流量，京东配送，快递激活。年龄18-24周岁，合约24个月，仅限重庆地区。信息转录自官方详情，具体资费以官方实时页面为准。';
+  const segs = splitIntroParagraphs(raw);
+  assert.deepEqual(segs.map((s) => s.title), ['套餐包含什么', '怎么办理', '谁能办理', '禁发地区', '']);
+  assert.ok(!segs.find((s) => s.title === '谁能办理').text.includes('重庆'), '地区不得出现在办理条件里');
+  assert.match(segs.find((s) => s.title === '禁发地区').text, /以下地区不办理：.*重庆/);
+});
+
+test('pipeline 编排：API 商品采集先于详情信源采集，再进入详情页创作', () => {
+  const cli = fs.readFileSync(path.join(REPO, 'scripts/cli.js'), 'utf8');
+  const p = cli.indexOf("case 'pipeline'");
+  const end = cli.indexOf("case 'help'", p);
+  const seg = cli.slice(p, end);
+  const api = seg.indexOf('runSyncApiNav');
+  const details = seg.indexOf('runSyncProductDetails');
+  const navPages = seg.indexOf('runBuildNavPages');
+  assert.ok(api >= 0 && details >= 0 && navPages >= 0, '三段都须在 pipeline 内');
+  assert.ok(api < details, 'API 商品采集须先于详情信源采集');
+  assert.ok(details < navPages, '详情信源采集须先于详情页创作');
+});
+
+test('已有详情页跳过：二次运行不重建、原页保留、skipped 计数正确', async () => {
+  const root = makeRoot();
+  try {
+    writeJson(root, 'config/article-rules.json', { schema: 'article-rules/v1', skipNodeIds: [], bannedDomains: [] });
+    const sources = readJson(root, 'data/sources.json');
+    const official = '套餐资费：原套餐29元包192G通用流量\n配送方式：菜鸟\n激活方式：快递激活\n年龄要求：18-65周岁\n合约期限：12个月\n通用流量：192G\n月租费用：29元/月\n禁发地区：广东省,西藏自治区';
+    sources.sources[0].sourceId = 'src-api-5260';
+    sources.sources[0].title = '广电飞花卡 · 官方详情';
+    sources.sources[0].grade = 'L1';
+    sources.sources[0].status = 'approved';
+    sources.sources[0].bodyKind = 'fulltext';
+    sources.sources[0].bodyExcerpt = official;
+    sources.sources[0].discoveredBy = 'collect';
+    writeJson(root, 'data/sources.json', sources);
+    const nav = readJson(root, 'data/navlinks.json');
+    Object.assign(nav.items[0], {
+      navId: 'api-5260', productId: 5260,
+      url: 'https://lingqu.haokalingqu.cn/pdetails?tk=a&pro=b',
+      promoUrl: 'https://lingqu.haokalingqu.cn/pdetails?tk=a&pro=b',
+      sourceIds: ['src-api-5260'], hasContent: false
+    });
+    nav.items.splice(1);
+    writeJson(root, 'data/navlinks.json', nav);
+
+    const first = await runBuildNavPages(root, {});
+    assert.equal(first.built, 1, '首轮须新建 1 页');
+    assert.equal(first.skipped, 0, '首轮无跳过');
+    const before = readJson(root, 'data/nav-details.json').pages[0];
+
+    // 篡改信源正文：若有重建，intro 会变化；跳过语义下原页必须逐字保留。
+    const s2 = readJson(root, 'data/sources.json');
+    s2.sources[0].bodyExcerpt = '月租费用：99元/月\n通用流量：1G\n年龄要求：99周岁';
+    writeJson(root, 'data/sources.json', s2);
+    const second = await runBuildNavPages(root, {});
+    assert.equal(second.built, 0, '次轮不应新建');
+    assert.equal(second.skipped, 1, '次轮须跳过已有页');
+    const after = readJson(root, 'data/nav-details.json').pages[0];
+    assert.deepEqual(after, before, '已有页须逐字保留，不得因信源变更被重写');
+    assert.equal(readJson(root, 'data/navlinks.json').items[0].hasContent, true, '跳过的页仍须 hasContent=true');
+  } finally { cleanup(root); }
+});
+
+test('nav 详情页：官方原文完整上屏，客观介绍与唯一出站口并存，首页卡片改链站内页', async () => {
+  const root = makeRoot();
+  try {
+    // 本用例验证创作/渲染链路，fixture 域名放行；域名排除语义由专门用例覆盖。
+    writeJson(root, 'config/article-rules.json', { schema: 'article-rules/v1', skipNodeIds: [], bannedDomains: [] });
+    const sources = readJson(root, 'data/sources.json');
+    const official = '套餐资费：原套餐29元包192G通用流量\n优惠说明：首充100元后次月起长期29元\n配送方式：菜鸟\n激活方式：快递激活\n年龄要求：18-65周岁\n合约期限：12个月\n通用流量：192G\n月租费用：29元/月\n禁发地区：广东省,西藏自治区';
+    sources.sources[0].sourceId = 'src-api-5260';
+    sources.sources[0].title = '广电飞花卡 · 官方详情';
+    sources.sources[0].grade = 'L1';
+    sources.sources[0].bodyKind = 'fulltext';
+    sources.sources[0].bodyExcerpt = official;
+    sources.sources[0].discoveredBy = 'collect';
+    writeJson(root, 'data/sources.json', sources);
+    const nav = readJson(root, 'data/navlinks.json');
+    Object.assign(nav.items[0], {
+      navId: 'api-5260', productId: 5260,
+      url: 'https://lingqu.haokalingqu.cn/pdetails?tk=a&pro=b',
+      promoUrl: 'https://lingqu.haokalingqu.cn/pdetails?tk=a&pro=b',
+      sourceIds: ['src-api-5260'], hasContent: false
+    });
+    nav.items.splice(1);
+    writeJson(root, 'data/navlinks.json', nav);
+
+    const r = await runBuildNavPages(root, {});
+    assert.equal(r.built, 1, '官方详情信源应让 nav 过闸建页');
+    const page = readJson(root, 'data/nav-details.json').pages[0];
+    assert.equal(page.sourceBody, official, '页面须留存官方原文');
+    assert.ok(Array.isArray(page.intro) && page.intro.length > 0, '介绍须为结构化段落数组');
+    assert.ok(page.intro.some((s) => s.title === '套餐包含什么'), '段落须带主题小标题');
+    assert.deepEqual(page.sourceIds, ['src-api-5260']);
+
+    runBuild(root, {});
+    const html = fs.readFileSync(path.join(root, '_site/nav/api-5260.html'), 'utf8');
+    assert.ok(html.includes('原套餐29元包192G通用流量'), '官方资费原文须上屏');
+    assert.match(html, /<dt>禁发地区<\/dt><dd>广东省,西藏自治区<\/dd>/, '禁发地区须完整上屏');
+    assert.ok(!html.includes('客观介绍'), '不显示「客观介绍」标题，直接呈现介绍');
+    assert.ok(html.includes('class="intro-para"'), '结构化介绍须上屏');
+    assert.ok(html.includes('class="spec-row"'), '官方资料须分组渲染');
+    assert.equal((html.match(/class="outbound"/g) || []).length, 1, '全页只能有一个出站口');
+    assert.match(html, /id="apply"[^>]*rel="sponsored nofollow noopener"/, '唯一出站口须前置且 rel 合规');
+    assert.ok(html.indexOf('id="apply"') < html.indexOf('<section id="intro-text"'), '出站口须在介绍之前');
+    assert.match(html, /<a href="#apply">↑ 返回办理入口<\/a>/, '文末须有站内回跳锚点（非出站口）');
+    const home = fs.readFileSync(path.join(root, '_site/index.html'), 'utf8');
+    assert.ok(home.includes('href="/nav/api-5260.html"'), '有详情的卡片须改链站内页');
   } finally { cleanup(root); }
 });

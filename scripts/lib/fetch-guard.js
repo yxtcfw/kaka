@@ -285,9 +285,12 @@ export function createFetchGuard(policy = DEFAULT_POLICY, deps = {}) {
           stats.errors += 1;
           throw new GuardError(`http-${status}`, url);
         }
+        // 原生 fetch 返回 Response：text 是方法，必须 await；测试注入的 fetchFn 常直接给字符串，二者兼容。
+        const text = typeof resp?.text === 'function'
+          ? String(await resp.text())
+          : String(resp?.text ?? resp?.body ?? '');
         return {
-          ok: true, status, url,
-          text: String(resp?.text ?? resp?.body ?? ''),
+          ok: true, status, url, text,
           headers: resp?.headers || {},
           attempts: attempt + 1,
           robots: r

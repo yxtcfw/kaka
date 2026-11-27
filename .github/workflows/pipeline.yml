@@ -1,8 +1,9 @@
 name: pipeline
 
-# 采集→建树→信源→创作→构建 全链（达标驱动）。
+# 采集→信源→创作→构建 全链（达标驱动）；建树已移至 tree-weekly.yml（每周一次）。
 # 运行节奏：push + 定时（cron）+ 手动。push 触发使每次代码更新即云端自检；
 # 回仓数据提交带 [skip ci]，不会造成循环。cron 作兜底（公开仓 60 天无提交会停 cron）。
+# 兜底：本链末尾检查建树是否超过 rules/tree-cadence.json 的 overdueDays，超期才补跑一次。
 on:
   push:
     branches: [main]
@@ -60,6 +61,15 @@ jobs:
 
       - name: 生成周报
         run: node scripts/cli.js report
+
+      - name: 建树超期兜底结果
+        if: always()
+        run: |
+          if [ -f reports/tree-overdue.json ]; then
+            node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync('reports/tree-overdue.json','utf8'));console.log('tree-overdue:',r.action,r.alert||'no-alert')"
+          else
+            echo "tree-overdue: report not generated"
+          fi
 
       # 注意：GITHUB_TOKEN 提交默认不触发其他 workflow。
       # 这里显式提交数据回仓；构建验收靠 workflow_run 链式（见 build-check workflow），不能指望 push 事件。

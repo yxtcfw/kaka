@@ -1,0 +1,11 @@
+{
+  "schema": "rules/tree-cadence/v1",
+  "weeklyCron": "0 3 * * 1",
+  "overdueDays": 10,
+  "growThreshold": {
+    "minUncoveredTerms": 50,
+    "minUnmappedTerms": 20,
+    "requireSignalsPassed": true
+  },
+  "_comment": "建树节奏：每日 pipeline 不调 AI；每周任务与超期兜底共用此门槛。未达阈值时只出报告，零模型调用、零写盘；--force 可绕过（人工 dispatch）。overdueDays 是兜底触发天数，宽于每周一次以容忍调度失败。"
+}

@@ -14,6 +14,81 @@ function writeFile(root, rel, content) {
   fs.writeFileSync(abs, content, 'utf8');
 }
 
+// 展示层：把生成端的一段式客观介绍拆成可扫描的自然段。只重排原文字，不新增数值。
+// 若正文已含换行（真实模型分段输出），则原样保留，不做二次拆解。
+export function splitIntroParagraphs(intro) {
+  const raw = String(intro || '').trim();
+  if (!raw) return [];
+  if (raw.includes('\n')) {
+    return raw.split(/\n+/).map((s) => s.trim()).filter(Boolean).map((text) => ({ title: '', text }));
+  }
+  const sentences = raw.replace(/。/g, '。\n').split('\n').map((s) => s.trim()).filter(Boolean);
+  let note = '';
+  if (sentences.length && /^信息转录|^具体资费|^数值以/.test(sentences[sentences.length - 1])) {
+    note = sentences.pop();
+  }
+  const pieces = [];
+  for (const s of sentences) {
+    for (const piece of s.replace(/。$/, '').split('，')) {
+      const p = piece.trim().replace(/^(办理条件|办理方式)：/, '');
+      if (p) pieces.push(p);
+    }
+  }
+  if (!pieces.length) return note ? [{ title: '', text: note }] : [{ title: '', text: raw }];
+  const overview = [], handle = [], conditions = [], areas = [];
+  for (const p of pieces) {
+    if (/配送|激活|上门|快递|交付/.test(p)) handle.push(p);
+    else if (/省|市|地区|自治区|县|仅发|仅限/.test(p)) areas.push(p);
+    else if (/年龄|合约|周岁|个月/.test(p)) conditions.push(p);
+    else overview.push(p);
+  }
+  const para = (arr) => arr.join('，') + '。';
+  const out = [];
+  if (overview.length) out.push({ title: '套餐包含什么', text: para(overview) });
+  if (handle.length) out.push({ title: '怎么办理', text: `办理方式：${para(handle)}` });
+  if (conditions.length) out.push({ title: '谁能办理', text: `办理条件：${para(conditions)}` });
+  // 地区片段是不可办理范围，单列成段，不得并入「谁能办理」。
+  if (areas.length) out.push({ title: '禁发地区', text: `以下地区不办理：${para(areas)}` });
+  if (note) out.push({ title: '', text: note });
+  return out;
+}
+
+// 展示层：把官方资料的「标签：值」平铺文本解析成字段，按主题分组渲染为定义列表。
+// 白名单外的行（如「综上：…」）一律并入上一个已知字段，保证原文一字不丢。
+const OFFICIAL_LABELS = new Set([
+  '套餐名称', '套餐资费', '优惠说明', '配送方式', '激活方式', '首充要求', '年龄要求',
+  '合约期限', '禁发地区', '适用范围', '活动流量', '销户方式', '网络制式', '产品名称',
+  '资费套餐', '通用流量', '定向流量', '通话时长', '月租费用'
+]);
+const OFFICIAL_GROUPS = [
+  { title: '套餐与资费', labels: ['套餐名称', '产品名称', '套餐资费', '资费套餐', '月租费用', '通用流量', '定向流量', '通话时长', '活动流量', '优惠说明', '首充要求'] },
+  { title: '使用与办理', labels: ['配送方式', '激活方式', '销户方式', '网络制式'] },
+  { title: '限制与须知', labels: ['年龄要求', '合约期限', '禁发地区', '适用范围'] }
+];
+export function parseOfficialFields(text) {
+  const fields = [];
+  for (const line of String(text || '').split(/\r?\n/)) {
+    const m = /^([^：]{1,12})：(.*)$/.exec(line);
+    if (m && OFFICIAL_LABELS.has(m[1])) fields.push({ label: m[1], value: [m[2]] });
+    else if (fields.length) fields[fields.length - 1].value.push(line);
+  }
+  return fields.map((f) => ({ label: f.label, value: f.value.join('\n').trim() })).filter((f) => f.value);
+}
+function renderOfficial(text) {
+  const fields = parseOfficialFields(text);
+  if (!fields.length) return `<p class="body-text">${esc(text || '')}</p>`;
+  const rowsHtml = (rows) => rows.map((f) => `<div class="spec-row"><dt>${esc(f.label)}</dt><dd>${esc(f.value)}</dd></div>`).join('');
+  const used = new Set();
+  const groups = OFFICIAL_GROUPS.map((g) => {
+    const rows = fields.filter((f) => g.labels.includes(f.label));
+    rows.forEach((f) => used.add(f));
+    return rows.length ? `<div class="spec-group"><h3>${g.title}</h3><dl class="spec-list">${rowsHtml(rows)}</dl></div>` : '';
+  }).filter(Boolean);
+  const rest = fields.filter((f) => !used.has(f));
+  if (rest.length) groups.push(`<div class="spec-group"><h3>其他信息</h3><dl class="spec-list">${rowsHtml(rest)}</dl></div>`);
+  return groups.join('');
+}
+
 export function runBuild(root = ROOT, args = {}) {
   const outDir = args.out || '_site';
   const manifest = readJson(path.join(root, 'config/manifest.json'));
@@ -32,6 +107,10 @@ export function runBuild(root = ROOT, args = {}) {
   // 注入放到末尾，覆盖 site.css 的 :root 默认值，保证人工 styleTokens 生效。
   writeFile(root, `${outDir}/assets/site.css`, cssSrc + '\n' + cssVars);
 
+  // 搜索引擎站点验证文件：仓库根目录原样复制到站点根，发布后位于 /BingSiteAuth.xml。
+  const bingAuth = path.join(root, 'BingSiteAuth.xml');
+  if (fs.existsSync(bingAuth)) writeFile(root, `${outDir}/BingSiteAuth.xml`, fs.readFileSync(bingAuth, 'utf8'));
+
   // 首页：nav 列表（按分类分组），有正文的详情页入口，无正文的列表直跳
   const byCat = new Map();
   for (const n of nav.items) {
@@ -48,8 +127,27 @@ export function runBuild(root = ROOT, args = {}) {
         ? `<a href="/nav/${slugify(n.navId)}.html">${esc(n.title)}</a>`
         : `<a href="${esc(out)}" target="_blank" rel="sponsored nofollow noopener">${esc(n.title)} ↗</a>`;
       const initial = String(n.title || '站').trim().charAt(0) || '站';
-      return `<div class="card">
+      const specs = n.specs || {};
+      const tag = (label, value) => value ? `<span class="tag">${esc(label)}${esc(value)}</span>` : '';
+      const specTags = [
+        tag('', specs.taocan),
+        tag('通用', specs.tyLiuliang && `${specs.tyLiuliang}G`),
+        tag('定向', specs.dxLiuliang && `${specs.dxLiuliang}G`),
+        tag('通话', specs.tonghua && `${specs.tonghua}分钟`),
+        tag('', specs.isSelectNum),
+        tag('', specs.isPhotos),
+        tag('', specs.age && `${specs.age}岁`),
+        tag('销量', specs.sales)
+      ].filter(Boolean).join('');
+      const price = specs.nowPrice
+        ? `<div class="price">¥${esc(specs.nowPrice)}${specs.priceUnitStr ? `<small> ${esc(specs.priceUnitStr)}</small>` : ''}${specs.oldPrice && specs.oldPrice !== specs.nowPrice ? `<del>¥${esc(specs.oldPrice)}</del>` : ''}</div>`
+        : '';
+      // 搜索索引：标题/描述/分类/运营商/全部客观参数；营销话术不落盘故不进索引。
+      const searchText = [n.title, n.cardDesc, n.description, n.category, n.isp, ...Object.values(specs)].filter(Boolean).join(' ');
+      return `<div class="card" data-search="${esc(searchText)}">
 <div class="card-head"><span class="card-icon" aria-hidden="true">${esc(initial)}</span><h3>${anchor}</h3></div>
+${price}
+${specTags ? `<div class="specs">${specTags}</div>` : ''}
 <p>${esc(n.cardDesc || n.description || '')}</p>
 <div class="out"><span>${esc(n.category)}</span></div>
 </div>`;
@@ -71,16 +169,24 @@ export function runBuild(root = ROOT, args = {}) {
   }
   for (const p of navDetails.pages) {
     const navItem = nav.items.find((n) => `nav-${n.navId}` === p.bundleId || n.navId === p.navId);
-    const toc = `<div class="toc"><strong>目录</strong> · <a href="#intro">简介</a> · <a href="#checked">核对过的入口</a> · <a href="#note">说明</a></div>`;
+    // 新数据为结构化段落数组；老数据为字符串，交给批次 A 的拆段函数兜底。
+    const segments = Array.isArray(p.intro) && p.intro.length ? p.intro : splitIntroParagraphs(p.intro);
+    const introHtml = segments.map((seg) => {
+      const heading = seg && seg.title ? `<h3>${esc(seg.title)}</h3>` : '';
+      return `${heading}<p class="intro-para">${esc((seg && seg.text) || '')}</p>`;
+    }).join('') || `<p class="intro-para">${esc((navItem?.cardDesc) || '')}</p>`;
+    const toc = `<div class="toc"><strong>目录</strong> · <a href="#intro">套餐介绍</a> · <a href="#official">官方资料</a> · <a href="#checked">办理与说明</a></div>`;
+    // 唯一出站口前置到首屏（id=apply 供文末站内锚点回跳），rel 固定合规值。
+    const outbound = `<a class="outbound" id="apply" href="${esc(p.outbound)}" target="_blank" rel="sponsored nofollow noopener">前往办理 ↗</a>`;
     const body = `${toc}
 <article class="post" id="intro">
 <h1>${esc(p.title || navItem?.title || '详情')}</h1>
-<p class="meta">依据已登记信源整理 · ${esc(site.byline || '')}</p>
-<p>${esc((navItem?.cardDesc) || '')}</p>
-<section id="checked"><h2>核对过的入口</h2><p>本页出站口已核对，点击前往原始页面。</p></section>
-<section id="note"><h2>说明</h2><p>数值以官方实时页面为准；本站不编造数字。</p></section>
-<a class="outbound" href="${esc(p.outbound)}" target="_blank" rel="sponsored nofollow noopener">前往查看 ↗</a>
-<div class="citations">信源：${esc((navItem?.sourceIds || []).join(', '))}</div>
+<p class="meta">依据官方详情信源整理 · ${esc(site.byline || '')}</p>
+${outbound}
+<section id="intro-text">${introHtml}</section>
+<section id="official"><h2>官方资料</h2>${renderOfficial(p.sourceBody)}</section>
+<section id="checked"><h2>办理与说明</h2><p>数值以官方实时页面为准；本站不编造数字，不展示营销话术。</p><p class="back-to-apply"><a href="#apply">↑ 返回办理入口</a></p></section>
+<div class="citations">信源：${esc((p.sourceIds || navItem?.sourceIds || []).join(', '))}</div>
 </article>`;
     const rel = `${outDir}/nav/${slugify(p.navId)}.html`;
     writeFile(root, rel, layout(site, manifest, p.title || navItem?.title || '详情', body));

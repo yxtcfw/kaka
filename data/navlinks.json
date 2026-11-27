@@ -11,9 +11,22 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 29元192G高速流量，通用192G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5260"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "29元192G高速流量",
+        "nowPrice": "29",
+        "oldPrice": "29",
+        "tyLiuliang": "192",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "3226548"
+      }
     },
     {
       "navId": "api-4779",
@@ -25,9 +38,22 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 29元200G参加活动免费领取30G，通用230G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4779"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "29元200G参加活动免费领取30G",
+        "nowPrice": "29",
+        "oldPrice": "39",
+        "tyLiuliang": "230",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "2281494"
+      }
     },
     {
       "navId": "api-5261",
@@ -39,9 +65,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 19元150G+200分钟，通用150G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5261"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "19元150G+200分钟",
+        "nowPrice": "19",
+        "oldPrice": "29",
+        "tyLiuliang": "150",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-24",
+        "sales": "48951"
+      }
     },
     {
       "navId": "api-5367",
@@ -53,9 +93,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 19元200G+300分钟，通用200G·通话300分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5367"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "19元200G+300分钟",
+        "nowPrice": "19",
+        "oldPrice": "39",
+        "tyLiuliang": "200",
+        "tonghua": "300",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "66045"
+      }
     },
     {
       "navId": "api-5141",
@@ -67,9 +121,23 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 19元130G通用+200分钟，通用130G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5141"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "19元130G通用+200分钟",
+        "nowPrice": "19",
+        "oldPrice": "29",
+        "tyLiuliang": "130",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "93906"
+      }
     },
     {
       "navId": "api-5408",
@@ -81,9 +149,22 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 41元200G通用，通用200G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5408"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "41元200G通用",
+        "nowPrice": "41",
+        "oldPrice": "39",
+        "tyLiuliang": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "98346"
+      }
     },
     {
       "navId": "api-5370",
@@ -95,9 +176,22 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 41元200G通用，通用200G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5370"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "41元200G通用",
+        "nowPrice": "41",
+        "oldPrice": "39",
+        "tyLiuliang": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "75147"
+      }
     },
     {
       "navId": "api-5262",
@@ -109,9 +203,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 29元280G通用流量+200分钟通话，通用280G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5262"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "29元280G通用流量+200分钟通话",
+        "nowPrice": "29",
+        "oldPrice": "39",
+        "tyLiuliang": "280",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-30",
+        "sales": "38739"
+      }
     },
     {
       "navId": "api-5191",
@@ -123,9 +231,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 39元200G通用+300分钟通话，通用200G·通话300分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5191"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元200G通用+300分钟通话",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "200",
+        "tonghua": "300",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "566544"
+      }
     },
     {
       "navId": "api-5152",
@@ -137,9 +259,23 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 29元180G通用+250分钟，通用180G·通话250分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5152"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "29元180G通用+250分钟",
+        "nowPrice": "29",
+        "oldPrice": "39",
+        "tyLiuliang": "180",
+        "tonghua": "250",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "91797"
+      }
     },
     {
       "navId": "api-5131",
@@ -151,9 +287,22 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 29元200G通用流量，通用200G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5131"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "29元200G通用流量",
+        "nowPrice": "29",
+        "oldPrice": "39",
+        "tyLiuliang": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "17760"
+      }
     },
     {
       "navId": "api-5130",
@@ -165,9 +314,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 39元150G+200分钟+4年会员，通用150G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5130"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元150G+200分钟+4年会员",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "150",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "需传照片",
+        "age": "18-28",
+        "sales": "39405"
+      }
     },
     {
       "navId": "api-5077",
@@ -179,9 +342,22 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 29元200G通用流量，通用200G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5077"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "29元200G通用流量",
+        "nowPrice": "29",
+        "oldPrice": "39",
+        "tyLiuliang": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "13320"
+      }
     },
     {
       "navId": "api-5076",
@@ -193,9 +369,24 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 28元350G+200分钟，通用320G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5076"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "28元350G+200分钟",
+        "nowPrice": "28",
+        "oldPrice": "28",
+        "tyLiuliang": "320",
+        "dxLiuliang": "30",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-35",
+        "sales": "206682"
+      }
     },
     {
       "navId": "api-5061",
@@ -207,9 +398,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 39元235G+200分钟，通用235G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5061"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元235G+200分钟",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "235",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "87357"
+      }
     },
     {
       "navId": "api-5060",
@@ -221,9 +426,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 39元235G+200分钟，通用235G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5060"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元235G+200分钟",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "235",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-30",
+        "sales": "458319"
+      }
     },
     {
       "navId": "api-5040",
@@ -235,9 +454,23 @@
       "category": "电信套餐",
       "description": "API 同步：电信产品目录客观参数（非营销话术）",
       "cardDesc": "电信 39元160G+100分钟，通用160G·通话100分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5040"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元160G+100分钟",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "160",
+        "tonghua": "100",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "需传照片",
+        "age": "18-28",
+        "sales": "58830"
+      }
     },
     {
       "navId": "api-4996",
@@ -249,9 +482,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 49元200G+300分钟，通用200G·通话300分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4996"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "49元200G+300分钟",
+        "nowPrice": "49",
+        "oldPrice": "49",
+        "tyLiuliang": "200",
+        "tonghua": "300",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "6549"
+      }
     },
     {
       "navId": "api-4954",
@@ -263,9 +510,23 @@
       "category": "电信套餐",
       "description": "API 同步：电信产品目录客观参数（非营销话术）",
       "cardDesc": "电信 39.5元10G通用流量+180G省内通用流量+120G本地流量+200分钟通话，通用310G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4954"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39.5元10G通用流量+180G省内通用流量+120G本地流量+200分钟通话",
+        "nowPrice": "40",
+        "oldPrice": "79",
+        "tyLiuliang": "310",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "305916"
+      }
     },
     {
       "navId": "api-4953",
@@ -277,9 +538,23 @@
       "category": "电信套餐",
       "description": "API 同步：电信产品目录客观参数（非营销话术）",
       "cardDesc": "电信 39.5元包10G通用流量+180G省内通用流量+200分钟通话，通用190G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4953"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39.5元包10G通用流量+180G省内通用流量+200分钟通话",
+        "nowPrice": "40",
+        "oldPrice": "79",
+        "tyLiuliang": "190",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "99012"
+      }
     },
     {
       "navId": "api-4935",
@@ -291,9 +566,23 @@
       "category": "电信套餐",
       "description": "API 同步：电信产品目录客观参数（非营销话术）",
       "cardDesc": "电信 39元110G+100分钟，通用110G·通话100分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4935"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元110G+100分钟",
+        "nowPrice": "39",
+        "oldPrice": "59",
+        "tyLiuliang": "110",
+        "tonghua": "100",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "262626"
+      }
     },
     {
       "navId": "api-4933",
@@ -305,9 +594,23 @@
       "category": "电信套餐",
       "description": "API 同步：电信产品目录客观参数（非营销话术）",
       "cardDesc": "电信 39元200G通用+200分钟，通用200G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4933"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元200G通用+200分钟",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "200",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "45843"
+      }
     },
     {
       "navId": "api-4821",
@@ -319,9 +622,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 39元180G+200分钟，通用180G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4821"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元180G+200分钟",
+        "nowPrice": "39",
+        "oldPrice": "49",
+        "tyLiuliang": "180",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "553113"
+      }
     },
     {
       "navId": "api-4822",
@@ -333,9 +650,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 29元180G+200分钟，通用180G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4822"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "29元180G+200分钟",
+        "nowPrice": "29",
+        "oldPrice": "49",
+        "tyLiuliang": "180",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "1178598"
+      }
     },
     {
       "navId": "api-4814",
@@ -347,9 +678,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 39元200G+300分钟，通用200G·通话300分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4814"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元200G+300分钟",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "200",
+        "tonghua": "300",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "78144"
+      }
     },
     {
       "navId": "api-4633",
@@ -361,9 +706,22 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 29元200G，通用200G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4633"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "29元200G",
+        "nowPrice": "29",
+        "oldPrice": "39",
+        "tyLiuliang": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "1176822"
+      }
     },
     {
       "navId": "api-4419",
@@ -375,9 +733,23 @@
       "category": "移动套餐",
       "description": "API 同步：移动产品目录客观参数（非营销话术）",
       "cardDesc": "移动 39元139G，通用109G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4419"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元139G",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "109",
+        "dxLiuliang": "30",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "9657"
+      }
     },
     {
       "navId": "api-4292",
@@ -389,9 +761,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 39元240G+50分钟，通用240G·通话50分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4292"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元240G+50分钟",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "240",
+        "tonghua": "50",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "321345"
+      }
     },
     {
       "navId": "api-4278",
@@ -403,9 +789,22 @@
       "category": "移动套餐",
       "description": "API 同步：移动产品目录客观参数（非营销话术）",
       "cardDesc": "移动 30元50全国通用+130G省内通用，通用180G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4278"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "30元50全国通用+130G省内通用",
+        "nowPrice": "30",
+        "oldPrice": "40",
+        "tyLiuliang": "180",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-66",
+        "sales": "247086"
+      }
     },
     {
       "navId": "api-4281",
@@ -417,9 +816,23 @@
       "category": "电信套餐",
       "description": "API 同步：电信产品目录客观参数（非营销话术）",
       "cardDesc": "电信 38元包10G通用流量+180G省内通用流量+300分钟通话，通用190G·通话300分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4281"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "38元包10G通用流量+180G省内通用流量+300分钟通话",
+        "nowPrice": "38",
+        "oldPrice": "38",
+        "tyLiuliang": "190",
+        "tonghua": "300",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-28",
+        "sales": "71262"
+      }
     },
     {
       "navId": "api-4127",
@@ -431,9 +844,22 @@
       "category": "移动套餐",
       "description": "API 同步：移动产品目录客观参数（非营销话术）",
       "cardDesc": "移动 30元50全国通用+130G省内通用，通用180G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4127"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "30元50全国通用+130G省内通用",
+        "nowPrice": "30",
+        "oldPrice": "40",
+        "tyLiuliang": "180",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-66",
+        "sales": "2308023"
+      }
     },
     {
       "navId": "api-4125",
@@ -445,9 +871,23 @@
       "category": "电信套餐",
       "description": "API 同步：电信产品目录客观参数（非营销话术）",
       "cardDesc": "电信 38元包10G通用流量+180G省内通用流量+300分钟通话，通用190G·通话300分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4125"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "38元包10G通用流量+180G省内通用流量+300分钟通话",
+        "nowPrice": "38",
+        "oldPrice": "38",
+        "tyLiuliang": "190",
+        "tonghua": "300",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-28",
+        "sales": "1099344"
+      }
     },
     {
       "navId": "api-4092",
@@ -459,9 +899,23 @@
       "category": "电信套餐",
       "description": "API 同步：电信产品目录客观参数（非营销话术）",
       "cardDesc": "电信 38元包10G通用流量+180G省内通用流量+300分钟通话，通用190G·通话300分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4092"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "38元包10G通用流量+180G省内通用流量+300分钟通话",
+        "nowPrice": "38",
+        "oldPrice": "38",
+        "tyLiuliang": "190",
+        "tonghua": "300",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-28",
+        "sales": "23532"
+      }
     },
     {
       "navId": "api-4011",
@@ -473,9 +927,22 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 29元192G通用流量，通用192G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4011"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "29元192G通用流量",
+        "nowPrice": "29",
+        "oldPrice": "29",
+        "tyLiuliang": "192",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "162171"
+      }
     },
     {
       "navId": "api-3941",
@@ -487,9 +954,22 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 29元200G，通用200G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-3941"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "29元200G",
+        "nowPrice": "29",
+        "oldPrice": "39",
+        "tyLiuliang": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "4263843"
+      }
     },
     {
       "navId": "api-3867",
@@ -501,9 +981,21 @@
       "category": "移动套餐",
       "description": "API 同步：移动产品目录客观参数（非营销话术）",
       "cardDesc": "移动 山东移动120元视频会员年卡，通用0G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-3867"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "山东移动120元视频会员年卡",
+        "nowPrice": "120",
+        "oldPrice": "120",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "4662"
+      }
     },
     {
       "navId": "api-3691",
@@ -515,9 +1007,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 39元240G+50分钟，通用240G·通话50分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-3691"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元240G+50分钟",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "240",
+        "tonghua": "50",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "293928"
+      }
     },
     {
       "navId": "api-3763",
@@ -529,9 +1035,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 39元200G+200分钟+会员，通用200G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-3763"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元200G+200分钟+会员",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "200",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "331779"
+      }
     },
     {
       "navId": "api-3684",
@@ -543,9 +1063,22 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 39元60G，通用60G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-3684"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元60G",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "60",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "1485069"
+      }
     },
     {
       "navId": "api-5410",
@@ -557,9 +1090,22 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 29元200G通用流量，通用60G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5410"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "29元200G通用流量",
+        "nowPrice": "29",
+        "oldPrice": "39",
+        "tyLiuliang": "60",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "12210"
+      }
     },
     {
       "navId": "api-5826",
@@ -571,8 +1117,10 @@
       "category": "电信套餐",
       "description": "API 同步：电信产品目录客观参数（非营销话术）",
       "cardDesc": "电信 29元40G全国通用+200G河南省内+400分钟，通用240G·通话400分钟",
-      "hasContent": false,
-      "sourceIds": [],
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5826"
+      ],
       "rel": "sponsored nofollow noopener"
     },
     {
@@ -585,8 +1133,10 @@
       "category": "移动套餐",
       "description": "API 同步：移动产品目录客观参数（非营销话术）",
       "cardDesc": "移动 39元115G通用流量+30G定向流量，通用115G",
-      "hasContent": false,
-      "sourceIds": [],
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5825"
+      ],
       "rel": "sponsored nofollow noopener"
     },
     {
@@ -599,9 +1149,23 @@
       "category": "移动套餐",
       "description": "API 同步：移动产品目录客观参数（非营销话术）",
       "cardDesc": "移动 39.9元255G+200分钟，通用255G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5819"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39.9元255G+200分钟",
+        "nowPrice": "40",
+        "oldPrice": "40",
+        "tyLiuliang": "255",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "29415"
+      }
     },
     {
       "navId": "api-5818",
@@ -613,9 +1177,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 29元280G通用+200分钟，通用280G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5818"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "29元280G通用+200分钟",
+        "nowPrice": "29",
+        "oldPrice": "39",
+        "tyLiuliang": "280",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-30",
+        "sales": "36075"
+      }
     },
     {
       "navId": "api-5687",
@@ -627,9 +1205,22 @@
       "category": "移动套餐",
       "description": "API 同步：移动产品目录客观参数（非营销话术）",
       "cardDesc": "移动 20元100G/月，通用100G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5687"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "20元100G/月",
+        "nowPrice": "20",
+        "oldPrice": "20",
+        "tyLiuliang": "100",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "3885"
+      }
     },
     {
       "navId": "api-5686",
@@ -641,9 +1232,22 @@
       "category": "移动套餐",
       "description": "API 同步：移动产品目录客观参数（非营销话术）",
       "cardDesc": "移动 30元100G/月，通用100G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5686"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "30元100G/月",
+        "nowPrice": "30",
+        "oldPrice": "30",
+        "tyLiuliang": "100",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "5439"
+      }
     },
     {
       "navId": "api-5685",
@@ -655,9 +1259,22 @@
       "category": "移动套餐",
       "description": "API 同步：移动产品目录客观参数（非营销话术）",
       "cardDesc": "移动 5元5G/月，通用5G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5685"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "5元5G/月",
+        "nowPrice": "5",
+        "oldPrice": "5",
+        "tyLiuliang": "5",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "1443"
+      }
     },
     {
       "navId": "api-5684",
@@ -669,9 +1286,22 @@
       "category": "移动套餐",
       "description": "API 同步：移动产品目录客观参数（非营销话术）",
       "cardDesc": "移动 10元7G/月，通用7G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5684"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "10元7G/月",
+        "nowPrice": "10",
+        "oldPrice": "10",
+        "tyLiuliang": "7",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "111"
+      }
     },
     {
       "navId": "api-5655",
@@ -683,9 +1313,24 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 43元88G通用+20G头条+50G闲时+15G腾讯+200分钟，通用88G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5655"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "43元88G通用+20G头条+50G闲时+15G腾讯+200分钟",
+        "nowPrice": "43",
+        "oldPrice": "59",
+        "tyLiuliang": "88",
+        "dxLiuliang": "85",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "4218"
+      }
     },
     {
       "navId": "api-5634",
@@ -697,9 +1342,22 @@
       "category": "移动套餐",
       "description": "API 同步：移动产品目录客观参数（非营销话术）",
       "cardDesc": "移动 15元15G/月，通用15G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5634"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "15元15G/月",
+        "nowPrice": "15",
+        "oldPrice": "15",
+        "tyLiuliang": "15",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "1776"
+      }
     },
     {
       "navId": "api-5552",
@@ -711,9 +1369,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 39元235G+200分钟，通用235G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5552"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元235G+200分钟",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "235",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-30",
+        "sales": "258075"
+      }
     },
     {
       "navId": "api-5551",
@@ -725,9 +1397,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 39元235G+200分钟，通用235G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5551"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元235G+200分钟",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "235",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "221556"
+      }
     },
     {
       "navId": "api-5472",
@@ -739,9 +1425,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 29元280G+200分钟+会员，通用280G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5472"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "29元280G+200分钟+会员",
+        "nowPrice": "29",
+        "oldPrice": "39",
+        "tyLiuliang": "280",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-30",
+        "sales": "219669"
+      }
     },
     {
       "navId": "api-5471",
@@ -753,9 +1453,22 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 41元200G通用，通用200G",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5471"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "41元200G通用",
+        "nowPrice": "41",
+        "oldPrice": "39",
+        "tyLiuliang": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "262848"
+      }
     },
     {
       "navId": "api-5470",
@@ -767,9 +1480,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 29元150G+300分钟，通用150G·通话300分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5470"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "29元150G+300分钟",
+        "nowPrice": "29",
+        "oldPrice": "49",
+        "tyLiuliang": "150",
+        "tonghua": "300",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-30",
+        "sales": "250638"
+      }
     },
     {
       "navId": "api-5469",
@@ -781,9 +1508,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 39元235G+200分钟，通用235G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5469"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "39元235G+200分钟",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "235",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "105228"
+      }
     },
     {
       "navId": "api-5450",
@@ -795,9 +1536,24 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 28元350G+200分钟，通用320G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5450"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "28元350G+200分钟",
+        "nowPrice": "28",
+        "oldPrice": "28",
+        "tyLiuliang": "320",
+        "dxLiuliang": "30",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-35",
+        "sales": "129093"
+      }
     },
     {
       "navId": "api-5421",
@@ -809,9 +1565,23 @@
       "category": "联通套餐",
       "description": "API 同步：联通产品目录客观参数（非营销话术）",
       "cardDesc": "联通 29元280G+200分钟+会员，通用280G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5421"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "29元280G+200分钟+会员",
+        "nowPrice": "29",
+        "oldPrice": "39",
+        "tyLiuliang": "280",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-30",
+        "sales": "89466"
+      }
     },
     {
       "navId": "api-5413",
@@ -823,9 +1593,24 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 28元150G+200分钟，通用120G·通话200分钟",
-      "hasContent": false,
-      "sourceIds": [],
-      "rel": "sponsored nofollow noopener"
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5413"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "28元150G+200分钟",
+        "nowPrice": "28",
+        "oldPrice": "28",
+        "tyLiuliang": "120",
+        "dxLiuliang": "30",
+        "tonghua": "200",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-35",
+        "sales": "18093"
+      }
     },
     {
       "navId": "api-5411",
@@ -837,8 +1622,106 @@
       "category": "广电套餐",
       "description": "API 同步：广电产品目录客观参数（非营销话术）",
       "cardDesc": "广电 29元100G+100分钟，通用100G·通话100分钟",
-      "hasContent": false,
-      "sourceIds": [],
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-5411"
+      ],
+      "rel": "sponsored nofollow noopener",
+      "specs": {
+        "taocan": "29元100G+100分钟",
+        "nowPrice": "29",
+        "oldPrice": "29",
+        "tyLiuliang": "100",
+        "tonghua": "100",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-65",
+        "sales": "6993"
+      }
+    },
+    {
+      "navId": "api-4494",
+      "productId": 4494,
+      "isp": "移动",
+      "title": "移动飞坤卡【39元155G+100分钟】仅发合肥",
+      "url": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=af745b83c05eb218",
+      "promoUrl": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=af745b83c05eb218",
+      "category": "移动套餐",
+      "description": "API 同步：移动产品目录客观参数（非营销话术）",
+      "cardDesc": "移动 39元/月=155G+100分钟，通用155G·通话100分钟",
+      "specs": {
+        "taocan": "39元/月=155G+100分钟",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "155",
+        "tonghua": "100",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-27",
+        "sales": "82251"
+      },
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4494"
+      ],
+      "rel": "sponsored nofollow noopener"
+    },
+    {
+      "navId": "api-4135",
+      "productId": 4135,
+      "isp": "联通",
+      "title": "联通360元包年卡【每月300G+300分钟】【仅发山东】",
+      "url": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=110b93aecda2b1a6",
+      "promoUrl": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=110b93aecda2b1a6",
+      "category": "联通套餐",
+      "description": "API 同步：联通产品目录客观参数（非营销话术）",
+      "cardDesc": "联通 月均30元260G省内通用+40G全国通用+300分钟，通用300G·通话300分钟",
+      "specs": {
+        "taocan": "月均30元260G省内通用+40G全国通用+300分钟",
+        "nowPrice": "360",
+        "oldPrice": "48",
+        "tyLiuliang": "300",
+        "tonghua": "300",
+        "priceUnitStr": "一年费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "需传照片",
+        "age": "18-28",
+        "sales": "261960"
+      },
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-4135"
+      ],
+      "rel": "sponsored nofollow noopener"
+    },
+    {
+      "navId": "api-6029",
+      "productId": 6029,
+      "isp": "联通",
+      "title": "联通飞特卡2.0【39元200G+300分钟】",
+      "url": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=25334952a70968a1",
+      "promoUrl": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=25334952a70968a1",
+      "category": "联通套餐",
+      "description": "API 同步：联通产品目录客观参数（非营销话术）",
+      "cardDesc": "联通 39元200G通用+300分钟通话，通用200G·通话300分钟",
+      "specs": {
+        "taocan": "39元200G通用+300分钟通话",
+        "nowPrice": "39",
+        "oldPrice": "39",
+        "tyLiuliang": "200",
+        "tonghua": "300",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-60",
+        "sales": "49284"
+      },
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-6029"
+      ],
       "rel": "sponsored nofollow noopener"
     }
   ],

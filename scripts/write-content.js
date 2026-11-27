@@ -36,6 +36,7 @@ export async function runWriteContent(root = ROOT, args = {}) {
 
   const limit = Number(args.limit || Math.min(nodes.length, 5));
   const generated = [], blocked = [];
+  const usedModels = new Set();
   let gateBlockedCount = 0;
 
   for (const node of nodes.slice(0, limit)) {
@@ -51,6 +52,7 @@ export async function runWriteContent(root = ROOT, args = {}) {
       links: [{ href: cite.url, rel: 'sponsored nofollow noopener', kind: 'outbound' }],
       byline: ''
     }, args.llmOpts || {});
+    if (bundle._meta?.model) usedModels.add(bundle._meta.model);
     bundle.body = `${bundle.body}\n\n参考信源：${cite.title}（${cite.domain}）。具体数值以官方实时页面为准。`;
     const gate = runGates(bundle, { root, sources, corpus });
     if (gate.ok) {
@@ -74,7 +76,7 @@ export async function runWriteContent(root = ROOT, args = {}) {
   };
 
   const skippedNodes = tree.nodes.filter((n) => skipNodeIds.has(n.id)).map((n) => n.id);
-  const report = { stage: 'write-content', provider, generated: generated.length, blocked: blocked.length, gateBlockedCount, contentPassed: state.content.passed, deduped: articles.length + generated.length - mergedArticles.length, skippedNodes, bannedDomains: [...bannedDomains], blockedDetail: blocked };
+  const report = { stage: 'write-content', provider, generated: generated.length, blocked: blocked.length, gateBlockedCount, contentPassed: state.content.passed, models: [...usedModels], deduped: articles.length + generated.length - mergedArticles.length, skippedNodes, bannedDomains: [...bannedDomains], blockedDetail: blocked };
 
   if (!args.dryRun) {
     makeSnapshots(root, `before-writecontent-${Date.now()}`);

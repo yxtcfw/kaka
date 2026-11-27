@@ -3,8 +3,10 @@
   "provider": "ddgs",
   "fetched": 0,
   "approved": 0,
-  "l1": 1,
-  "independentL2": 1,
+  "bannedFiltered": 0,
+  "fetchFailures": [],
+  "l1": 63,
+  "independentL2": 0,
   "sourcesPassed": true,
   "guard": {
     "enabled": false,

@@ -11,6 +11,7 @@ import { loadState, saveState, recordRun, contentPassed } from './lib/state.js';
 import { makeSnapshots } from './lib/snapshot.js';
 import { atomicWriteJson, extractNumbers } from './lib/util.js';
 import { loadExclusions, isBannedDomain } from './lib/exclusions.js';
+import { objectiveIntro, introToText } from './lib/product-detail.js';
 
 // bodyKind 判定：nav 关联的 sourceIds 中存在 approved + 有正文摘录的源才算有正文。
 function hasBody(sourceIds, sources) {
@@ -32,9 +33,22 @@ export async function runBuildNavPages(root = ROOT, args = {}) {
   let corpus = [];
   try { corpus = readJson(path.join(root, 'data/articles.json')).articles || []; } catch { /* ignore */ }
 
+  // 已有详情页集合：首批在 local 创作，云端每次运行只补没有详情页的 nav，已有的整页跳过。
+  // 判定「有效」= 有 intro（结构化段落数组或老字符串）+ 有 sourceBody，避免空壳页被当作已有。
+  let existingPages = [];
+  try { existingPages = readJson(path.join(root, 'data/nav-details.json')).pages || []; } catch { /* 首次运行无 nav-details，全部视为新建 */ }
+  const existing = new Map();
+  for (const p of existingPages) {
+    const hasIntro = Array.isArray(p.intro) ? p.intro.length > 0 : !!(p.intro && String(p.intro).trim());
+    if (p.navId && hasIntro && p.sourceBody) existing.set(p.navId, p);
+  }
+
   const pages = [];
   const downgraded = [];
+  let createdCount = 0;
+  let skippedCount = 0;
   let blockedCount = 0;
+  const usedModels = new Set();
 
   let bannedNavCount = 0;
   for (const nav of navDoc.items) {
@@ -43,6 +57,14 @@ export async function runBuildNavPages(root = ROOT, args = {}) {
       nav.hasContent = false;
       bannedNavCount += 1;
       downgraded.push({ navId: nav.navId, reason: 'banned-domain', detail: '示例/占位域名不生成详情页' });
+      continue;
+    }
+    // 已有有效详情页：保留原页、标记 hasContent、不调模型不重建，写回时原页不丢。
+    const prior = existing.get(nav.navId);
+    if (prior) {
+      nav.hasContent = true;
+      pages.push(prior);
+      skippedCount += 1;
       continue;
     }
     const withBody = hasBody(nav.sourceIds || [], sources);
@@ -63,19 +85,32 @@ export async function runBuildNavPages(root = ROOT, args = {}) {
       return s && s.status === 'approved';
     });
 
+    // 官方详情全文：作为正文主体，同时截取摘要交给模型做客观创作依据。
+    const sourceBody = citeIds.map((id) => byId.get(id)?.bodyExcerpt).filter(Boolean).join('\n\n');
     const bundle = await composeBundle(provider, {
       id: `nav-${nav.navId}`,
       kind: 'nav-detail',
       title: nav.title,
       sourceIds: citeIds,
       cardDesc: nav.cardDesc || nav.description || '',
-      toc: ['简介', '核对过的入口', '说明'],
+      toc: ['官方资料', '办理与说明'],
+      sourceDigest: sourceBody.slice(0, 2000),
       links,
       byline: ''
     }, args.llmOpts || {});
-    // 正文事实锚定真实信源：模型只写组织语，信源摘录始终作为正文主体。
-    const sourceBody = citeIds.map((id) => byId.get(id)?.bodyExcerpt).filter(Boolean).join('\n\n');
-    bundle.body = sourceBody ? `${bundle.body}\n\n${sourceBody}` : bundle.body;
+    if (bundle._meta?.model) usedModels.add(bundle._meta.model);
+    // 无模型 key（mock 降级）时，用官方字段确定性生成结构化介绍；仍不编造数值。
+    if (bundle._meta?.provider === 'mock' || bundle._meta?.provider === 'mock-fallback') {
+      const segments = objectiveIntro(nav.title, sourceBody);
+      if (segments.length) {
+        bundle.intro = segments;
+        bundle.body = introToText(segments);
+      }
+    }
+    // 页面结构：新数据存结构化段落数组；老数据（字符串）保留兼容，渲染层可拆解。
+    const intro = Array.isArray(bundle.intro) && bundle.intro.length ? bundle.intro : bundle.body;
+    // 正文事实锚定真实信源：模型只写组织语，官方原文完整保留作为正文主体。
+    bundle.body = sourceBody ? `${introToText(intro)}\n\n${sourceBody}` : introToText(intro);
 
     // 数字归属：从真实信源正文抽数字，逐条绑定 citationId（事实闸要求每个数字指回 citation）。
     // 若 nav 显式带 detailClaims（人工/上游预制主张），以其为准并保留其 citationIds——
@@ -95,7 +130,12 @@ export async function runBuildNavPages(root = ROOT, args = {}) {
 
     if (gate.ok) {
       nav.hasContent = true;
-      pages.push({ navId: nav.navId, bundleId: bundle.id, title: nav.title, outbound, gates: gate.results.map((r) => r.gate) });
+      createdCount += 1;
+      pages.push({
+        navId: nav.navId, bundleId: bundle.id, title: nav.title, outbound,
+        intro, sourceBody, sourceIds: citeIds,
+        gates: gate.results.map((r) => r.gate)
+      });
     } else {
       // 不过闸：降级列表直跳，判据写报告，不阻断整站
       nav.hasContent = false;
@@ -106,19 +146,19 @@ export async function runBuildNavPages(root = ROOT, args = {}) {
 
   const state = loadState(root);
   state.content.gateBlocked = (state.content.gateBlocked || 0) + blockedCount;
-  state.navPages = { built: pages.length, downgraded: downgraded.length };
+  state.navPages = { built: createdCount, skipped: skippedCount, downgraded: downgraded.length };
   state.content.passed = contentPassed({ ...state, content: { ...state.content, generated: state.content.generated || pages.length } }, manifest);
 
   const report = {
-    stage: 'build-nav-pages', provider, built: pages.length,
-    downgraded: downgraded.length, blockedCount, bannedNavCount, pages, downgradedDetail: downgraded
+    stage: 'build-nav-pages', provider, built: createdCount, skipped: skippedCount, total: pages.length,
+    models: [...usedModels], downgraded: downgraded.length, blockedCount, bannedNavCount, pages, downgradedDetail: downgraded
   };
 
   if (!args.dryRun) {
     makeSnapshots(root, `before-navpages-${Date.now()}`);
     atomicWriteJson(path.join(root, 'data/navlinks.json'), navDoc);
     atomicWriteJson(path.join(root, 'data/nav-details.json'), { schema: 'nav-details/v1', pages });
-    recordRun(state, { stage: 'build-nav-pages', provider, summary: `详情 ${pages.length}, 降级 ${downgraded.length}, 门禁拦截 ${blockedCount}`, inputs: navDoc.items.map((n) => n.navId) });
+    recordRun(state, { stage: 'build-nav-pages', provider, summary: `新建 ${createdCount}, 跳过已有 ${skippedCount}, 降级 ${downgraded.length}, 门禁拦截 ${blockedCount}`, inputs: navDoc.items.map((n) => n.navId) });
     saveState(state, root);
     writeJson(path.join(root, 'reports', 'build-nav-pages.json'), report);
   }

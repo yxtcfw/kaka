@@ -16,6 +16,9 @@ export function layout(site, manifest, title, body) {
   const cats = Array.isArray(site.navCategories) ? site.navCategories : [];
   const catNav = cats.map((c) => `<a href="/#${esc(slugify(c))}">${esc(String(c))}</a>`).join('');
   const introBrief = String(site.intro || site.tagline || '').slice(0, 90);
+  // 搜索引擎站点验证：与根目录 BingSiteAuth.xml 双保险；token 只从配置读取并转义。
+  const bingToken = String(manifest.verification?.bing || '');
+  const bingMeta = bingToken ? `\n<meta name="msvalidate.01" content="${esc(bingToken)}">` : '';
   return `<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -23,7 +26,7 @@ export function layout(site, manifest, title, body) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(site.intro || site.tagline || title).slice(0, 160)}">
-<link rel="canonical" href="${esc(canonical)}">
+<link rel="canonical" href="${esc(canonical)}">${bingMeta}
 <link rel="stylesheet" href="/assets/site.css">
 <script type="application/ld+json">${JSON.stringify({
     '@context': 'https://schema.org',
@@ -45,7 +48,7 @@ export function layout(site, manifest, title, body) {
 </div>
 <nav class="catbar"><div class="wrap">
 <a href="/">首页</a>${catNav}
-</div></nav>
+</div><button class="catbar-prev" type="button" aria-label="查看前面的分类" hidden>‹</button><button class="catbar-next" type="button" aria-label="查看更多分类" hidden>›</button></nav>
 </header>
 <main class="wrap">
 ${body}
@@ -58,6 +61,69 @@ ${body}
 </div>
 <div class="footer-bottom">${esc(site.byline || '')} · ${esc(site.license || '')}</div>
 </div></footer>
+<script>
+(function () {
+  var nav = document.querySelector('.catbar');
+  var box = nav && nav.querySelector('.wrap');
+  var prev = nav && nav.querySelector('.catbar-prev');
+  var next = nav && nav.querySelector('.catbar-next');
+  if (!box || !prev || !next) return;
+  function step() { return Math.max(160, box.clientWidth * 0.8); }
+  function sync() {
+    var max = box.scrollWidth - box.clientWidth;
+    prev.hidden = box.scrollLeft <= 2;
+    next.hidden = max <= 2 || box.scrollLeft >= max - 2;
+  }
+  prev.addEventListener('click', function () {
+    box.scrollBy({ left: -step(), behavior: 'smooth' });
+  });
+  next.addEventListener('click', function () {
+    box.scrollBy({ left: step(), behavior: 'smooth' });
+  });
+  box.addEventListener('scroll', sync, { passive: true });
+  window.addEventListener('resize', sync);
+  sync();
+})();
+// 站内搜索：实时过滤卡片（标题/描述/分类/运营商/客观规格），隐藏空分类，支持 ?q= 初始加载。
+(function () {
+  var form = document.querySelector('.search');
+  var input = form && form.querySelector('input[name="q"]');
+  var main = document.querySelector('main.wrap');
+  var cards = document.querySelectorAll('.card');
+  if (!input || !main || !cards.length) return;
+  var sections = main.querySelectorAll('section[id]');
+  var notice = document.createElement('div');
+  notice.className = 'search-empty';
+  notice.hidden = true;
+  notice.textContent = '没有找到匹配的入口，试试其他关键词。';
+  main.appendChild(notice);
+  function apply(value) {
+    var terms = String(value || '').trim().toLowerCase().split(/\s+/).filter(Boolean);
+    var shown = 0;
+    cards.forEach(function (card) {
+      var hay = ((card.getAttribute('data-search') || '') + ' ' + card.textContent).toLowerCase();
+      var ok = terms.every(function (t) { return hay.indexOf(t) !== -1; });
+      card.hidden = !ok;
+      if (ok) shown++;
+    });
+    sections.forEach(function (sec) {
+      sec.hidden = terms.length > 0 && !sec.querySelector('.card:not([hidden])');
+    });
+    notice.hidden = shown > 0 || terms.length === 0;
+  }
+  input.addEventListener('input', function () { apply(input.value); });
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    apply(input.value);
+    var u = new URL(window.location.href);
+    if (input.value.trim()) u.searchParams.set('q', input.value.trim());
+    else u.searchParams.delete('q');
+    try { history.replaceState(null, '', u.toString()); } catch (_) { /* srcdoc/file:// 等受限环境忽略 URL 同步 */ }
+  });
+  var initial = new URLSearchParams(window.location.search).get('q');
+  if (initial) { input.value = initial; apply(initial); }
+})();
+</script>
 </body>
 </html>`;
 }

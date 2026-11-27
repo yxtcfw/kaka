@@ -2,6 +2,8 @@
   "schema": "api-nav/v1",
   "enabled": true,
   "endpoint": "https://h5api.lot-ml.com/api/ProductEn/Index2",
+  "detailEndpoint": "https://h5api.lot-ml.com/api/H5OrderEn/Index",
+  "detailRateMs": 120,
   "id": "c8570adcb7030e9b",
   "query": {
     "title": "",

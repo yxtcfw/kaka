@@ -1,0 +1,18 @@
+{
+  "stage": "maintenance",
+  "now": "2026-11-27",
+  "removedSources": [],
+  "changedSources": [],
+  "protectedSources": 63,
+  "removedCandidates": 0,
+  "removedNodes": [],
+  "keywordDrops": [],
+  "recheck": {
+    "enabled": false,
+    "reason": "search-degraded",
+    "checked": 0,
+    "changed": 0,
+    "dead": 0
+  },
+  "dryRun": false
+}

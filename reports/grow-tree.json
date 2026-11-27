@@ -3,11 +3,9 @@
   "provider": "openrouter",
   "llm": {
     "provider": "openrouter",
-    "available": true,
-    "keys": 1,
-    "fingerprint": [
-      "1f448143"
-    ]
+    "available": false,
+    "keys": 0,
+    "fingerprint": []
   },
   "idempotent": true,
   "canary": [
@@ -15,17 +13,39 @@
       "nodeId": "n1",
       "sampleTerms": [
         "流量卡办理",
-        "流量卡资费",
-        "流量卡攻略",
-        "流量卡对比",
-        "流量卡怎么选"
+        "流量卡办理官网",
+        "流量卡办理入口联通",
+        "流量卡办理网站",
+        "流量卡办理入口移动"
       ],
-      "wouldAdd": 261
+      "wouldAdd": 250
+    },
+    {
+      "nodeId": "auto(proposed)",
+      "label": "运营商对比",
+      "parent": "n0",
+      "sampleTerms": [
+        "移动副卡查询",
+        "移动副卡费用5元变10元",
+        "联通副卡",
+        "联通福气卡",
+        "联通卡服务密码"
+      ],
+      "wouldAdd": 12
     }
   ],
-  "keywordsAdded": 0,
-  "nodes": 2,
-  "terms": 326,
+  "keywordsAdded": 4,
+  "nodesAdded": 0,
+  "rejectedNodes": [
+    {
+      "label": "运营商对比",
+      "reason": "duplicate-id"
+    }
+  ],
+  "degraded": false,
+  "reason": "mock 规则建议：按映射归类，未命中词按规则提出新节点。",
+  "nodes": 13,
+  "terms": 329,
   "signalsPassed": true,
   "approvalRequired": false
 }

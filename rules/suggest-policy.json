@@ -1,0 +1,18 @@
+{
+  "schema": "rules/collect-policy/v1",
+  "enabled": true,
+  "userAgent": "vertical-site-template/1.0 (+bot; contact: webmaster@example.com)",
+  "userAgentToken": "vertical-site-template",
+  "timeoutMs": 10000,
+  "rpm": 60,
+  "minIntervalMs": 300,
+  "jitterMs": 150,
+  "maxRetries": 2,
+  "backoffBaseMs": 1000,
+  "backoffMaxMs": 10000,
+  "concurrency": 2,
+  "respectRobots": true,
+  "crawlDelayFallbackMs": 300,
+  "retryStatuses": [429, 500, 502, 503, 504],
+  "_comment": "联想词接口专用限速：响应是极小 JSONP，频率高于正文抓取；仍走 fetch-guard，失败显式降级。"
+}

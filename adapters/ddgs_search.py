@@ -6,7 +6,7 @@ Termux 安装：
   pip install ddgs        # 旧包名 duckduckgo-search 也兼容
 
 用法：
-  python3 adapters/ddgs_search.py "流量卡资费" 5
+  python3 adapters/ddgs_search.py "流量卡资费" 5 duckduckgo
 
 输出：JSON 数组 [{"url", "title", "snippet", "provider"}] 到 stdout；
 失败时输出 {"error": "..."} 并以非零码退出，由 Node 侧显式降级，不静默伪造。
@@ -32,8 +32,9 @@ def main():
             from duckduckgo_search import DDGS
 
         rows = []
+        backend = sys.argv[3] if len(sys.argv) > 3 else "duckduckgo"
         with DDGS() as ddg:
-            for item in ddg.text(query, max_results=max_results):
+            for item in ddg.text(query, max_results=max_results, backend=backend):
                 url = item.get("href") or item.get("url") or ""
                 if not url:
                     continue

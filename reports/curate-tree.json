@@ -1,0 +1,23 @@
+{
+  "stage": "curate-tree",
+  "provider": "assistant-curated",
+  "terms": 329,
+  "covered": 329,
+  "nodes": 13,
+  "addedNodes": [],
+  "rejected": [],
+  "maxKeywords": 60,
+  "buckets": {
+    "auto-region": 12,
+    "auto-sub-apply": 60,
+    "auto-sub-manage": 26,
+    "auto-campus-apply": 27,
+    "auto-campus-faq": 37,
+    "n2": 33,
+    "auto-cm": 41,
+    "auto-cu": 37,
+    "auto-ct": 20,
+    "auto-cr": 10,
+    "n1": 26
+  }
+}
