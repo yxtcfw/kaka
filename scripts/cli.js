@@ -29,6 +29,7 @@ import { runDriftCheck } from './drift-check.js';
 import { runGuardCheck } from './guard-check.js';
 import { runSyncApiNav } from './sync-api-nav.js';
 import { runSyncProductDetails } from './sync-product-details.js';
+import { runSyncSourceFulltext } from './sync-source-fulltext.js';
 import { runMaintenance } from './maintenance.js';
 import { runRollback } from './rollback.js';
 import { runResetSite } from './reset-site.js';
@@ -134,6 +135,7 @@ async function main() {
     case 'guard-check': print('guard-check', await runGuardCheck(root, args)); break;
     case 'sync-api-nav': print('sync-api-nav', await runSyncApiNav(root, args)); break;
     case 'sync-product-details': print('sync-product-details', await runSyncProductDetails(root, args)); break;
+    case 'sync-source-fulltext': print('sync-source-fulltext', runSyncSourceFulltext(root, args)); break;
     case 'maintenance': print('maintenance', await runMaintenance(root, args)); break;
     case 'report': {
       const r = runReport(root, args);
@@ -183,7 +185,7 @@ async function main() {
     case 'help':
     default:
       console.log('用法: node scripts/cli.js <command> [--root DIR] [--dry-run] [options]');
-      console.log('命令: validate data-quality data-quality-fix import-official nav-repair bootstrap harvest grow-tree tree-overdue curate-tree discover fetch-body collect-sources sync-api-nav sync-product-details maintenance write fill-site nav-pages build metrics prune drift-check guard-check report status rollback reset pipeline');
+      console.log('命令: validate data-quality data-quality-fix import-official nav-repair bootstrap harvest grow-tree tree-overdue curate-tree discover fetch-body collect-sources sync-api-nav sync-product-details sync-source-fulltext maintenance write fill-site nav-pages build metrics prune drift-check guard-check report status rollback reset pipeline');
       console.log('示例: npm run validate && npm run pipeline -- --apply');
   }
 }

@@ -126,6 +126,8 @@ export function runBuild(root = ROOT, args = {}) {
   const structCfg = loadStructuredConfig(root);
   const presentCfg = readSafe(path.join(root, 'config/presentation.json'), { countLabel: '个入口', filters: [] });
   const priceBands = presentCfg.priceBands || [];
+  // 运营商图形标识：内嵌 SVG 配置，零图片请求；无配置时退化为通用符号。
+  const iconCfg = readSafe(path.join(root, 'config/isp-icons.json'), { icons: {}, fallback: { color: '#64748b', label: '', svg: '' } });
   const priceBandOf = (specs) => {
     const p = Number(specs?.nowPrice);
     if (!Number.isFinite(p)) return '';
@@ -204,7 +206,9 @@ export function runBuild(root = ROOT, args = {}) {
       const anchor = detail
         ? `<a href="/nav/${slugify(n.navId)}.html">${esc(n.title)}</a>`
         : `<a href="${esc(out)}" target="_blank" rel="sponsored nofollow noopener">${esc(n.title)} ↗</a>`;
-      const initial = String(n.title || '站').trim().charAt(0) || '站';
+      // 运营商图形标识：配置驱动的内嵌 SVG，取代标题首字；未知运营商用通用符号。
+      const icon = iconCfg.icons?.[n.isp] || iconCfg.fallback || { color: '#64748b', svg: '' };
+      const iconHtml = `<span class="card-icon" style="color:${esc(icon.color || '#64748b')}" role="img" aria-label="${esc(icon.label || n.isp || '运营商')}"><svg viewBox="${esc(iconCfg.viewBox || '0 0 32 32')}" width="20" height="20" aria-hidden="true" focusable="false">${icon.svg || ''}</svg></span>`;
       const specs = n.specs || {};
       const tag = (label, value) => value ? `<span class="tag">${esc(label)}${esc(value)}</span>` : '';
       const specTags = [
@@ -222,9 +226,9 @@ export function runBuild(root = ROOT, args = {}) {
         : '';
       // 搜索索引：标题/描述/分类/运营商/全部客观参数；营销话术不落盘故不进索引。
       const searchText = [n.title, n.cardDesc, n.description, n.category, n.isp, ...Object.values(specs)].filter(Boolean).join(' ');
-      const filterAttrs = ` data-isp="${esc(n.isp || '')}" data-band="${esc(priceBandOf(specs))}"`;
+      const filterAttrs = ` data-isp="${esc(n.isp || '')}" data-band="${esc(priceBandOf(specs))}" data-category="${esc(n.category || '')}"`;
       return `<div class="card" data-search="${esc(searchText)}"${filterAttrs}>
-<div class="card-head"><span class="card-icon" aria-hidden="true">${esc(initial)}</span><h3>${anchor}</h3></div>
+<div class="card-head">${iconHtml}<h3>${anchor}</h3></div>
 ${price}
 ${specTags ? `<div class="specs">${specTags}</div>` : ''}
 <p>${esc(n.cardDesc || n.description || '')}</p>

@@ -228,3 +228,37 @@ test('composeBundle: 429 退避后换 key 重试成功', async () => {
     if (old === undefined) delete process.env.OPENROUTER_API_KEYS; else process.env.OPENROUTER_API_KEYS = old;
   }
 });
+
+test('composeBundle: 配置化提示词占位符替换，sourceDigest 按配置长度透传', async () => {
+  const old = process.env.OPENROUTER_API_KEYS;
+  process.env.OPENROUTER_API_KEYS = 'test-key-prompt';
+  let seen = null;
+  try {
+    const digest = '资费原文'.repeat(1200); // 4800 字，超过默认 2000
+    const fetchFn = async (_url, opts) => {
+      seen = JSON.parse(opts.body).messages;
+      return fakeRes(JSON.stringify({ intro: [{ title: '核对', text: '依资料整理的正文。' }], cardDesc: '摘要', claims: [] }));
+    };
+    const r = await composeBundle('openrouter', {
+      id: 'p1', kind: 'article', title: '测试主题', sourceIds: ['src-001'],
+      cardDesc: '测卡片', sourceDigest: digest, links: [], byline: ''
+    }, {
+      fetchFn,
+      prompts: {
+        system: 'SYS-{title}',
+        user: '主题={title};描述={cardDesc};引用={sourceIds};资料={sourceDigest}',
+        sourceDigestChars: 4000,
+        paragraphs: 4
+      }
+    });
+    assert.equal(r._meta.degraded, false);
+    assert.equal(seen[0].content, 'SYS-测试主题', 'system 提示词须走配置模板并替换占位符');
+    assert.ok(seen[1].content.includes('主题=测试主题') && seen[1].content.includes('描述=测卡片'), 'user 模板占位符须替换');
+    assert.ok(seen[1].content.includes('"src-001"'), 'sourceIds 须注入');
+    const sentDigest = seen[1].content.split('资料=')[1];
+    assert.equal(sentDigest.length, 4000, 'sourceDigest 长度按配置截断');
+    assert.ok(sentDigest.includes('资费原文'), '全文摘录须透传给模型');
+  } finally {
+    if (old === undefined) delete process.env.OPENROUTER_API_KEYS; else process.env.OPENROUTER_API_KEYS = old;
+  }
+});

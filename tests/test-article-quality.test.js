@@ -35,12 +35,11 @@ test('write-content: 强制重生成丢弃低质旧文，护栏拦截模板标�
     await runFetchBody(root, {});
     const r = await runWriteContent(root, {});
     assert.deepEqual(r.regeneratedIds.sort(), ['article-auto-scene', 'article-auto-sub-manage']);
-    assert.ok(r.qualityFallbacks.length >= 1, '至少一篇命中质量护栏并走安全回退');
+    assert.ok(r.qualityFallbacks.length >= 1, '至少一篇命中质量护栏');
+    assert.ok(r.qualityFallbacks.every((f) => f.action === 'skipped-kept-old'), '质量不过跳过，不写兜底模板');
     const articles = readJson(root, 'data/articles.json').articles;
-    const scene = articles.find((a) => a.id === 'article-auto-scene');
-    assert.ok(scene, '重生成后该节点仍有文章');
-    assert.notEqual(scene.title, 'auto-scene', '标题不得是原始节点 ID');
-    assert.ok(!scene.body.includes('本卡片主题为'));
+    // 低质旧文被丢弃，mock 新稿质量不过被跳过：该节点不残留任何模板文。
+    assert.ok(!articles.some((a) => a.body.includes('本卡片主题为')), '模板占位句不得残留');
     for (const a of articles) {
       assert.ok(!a.body.includes('银行正式版本'), `无关领域措辞残留：${a.id}`);
     }
@@ -57,8 +56,34 @@ test('write-content: --only-force 只重生成点名节点，不覆盖合格文�
     await runDiscover(root, { limit: 10 });
     await runFetchBody(root, {});
     const r = await runWriteContent(root, { onlyForce: true });
-    assert.equal(r.generated, 2, '只处理两个点名节点');
+    assert.equal(r.regeneratedIds.length, 2, '只处理两个点名节点');
+    // mock 新稿质量不过被跳过，generated 为 0 是预期；旧文按规则丢弃不回写兜底。
+    assert.equal(r.generated, 0);
     const kept = readJson(root, 'data/articles.json').articles.find((a) => a.id === 'article-good');
     assert.equal(kept.title, '合格文章', '合格文章不得被覆盖');
+  } finally { cleanup(root); }
+});
+
+test('write-content: origin=manual 的人工文章不被覆盖、不为它重新生成', async () => {
+  const root = makeRoot();
+  try {
+    writeJson(root, 'config/article-rules.json', {
+      schema: 'article-rules/v1', skipNodeIds: [], bannedDomains: [],
+      forceRegenerateNodeIds: ['n2'], minBodyChars: 120,
+      protectedOrigins: ['manual'], bannedTitlePatterns: [], bannedBodyPhrases: []
+    });
+    await runDiscover(root, { limit: 10 });
+    await runFetchBody(root, {});
+    const doc = { schema: 'articles/v1', articles: [] };
+    const manualBody = '人工核实的正文：办卡前先看首充与合约，数值以官方页面为准。'.repeat(20);
+    doc.articles.push({ id: 'article-n2', nodeId: 'n2', title: '人工标题', body: manualBody, sourceId: 'src-001', links: [], generatedAt: '2026-11-27', origin: 'manual' });
+    writeJson(root, 'data/articles.json', doc);
+    const r = await runWriteContent(root, {});
+    assert.ok(r.protectedIds.includes('article-n2'), '报告应列出受保护文章');
+    assert.ok(r.skippedProtected.includes('n2'), '人工文章对应节点直接跳过');
+    const kept = readJson(root, 'data/articles.json').articles.find((a) => a.id === 'article-n2');
+    assert.equal(kept.title, '人工标题', '人工文章的标题不得被覆盖');
+    assert.equal(kept.body, manualBody, '人工正文不得被覆盖');
+    assert.equal(kept.origin, 'manual');
   } finally { cleanup(root); }
 });

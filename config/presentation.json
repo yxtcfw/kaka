@@ -5,7 +5,7 @@
   "searchPlaceholder": "搜索分类或关键词",
   "filters": [
     { "field": "isp", "label": "运营商", "values": [] },
-    { "field": "priceBand", "label": "月租区间", "values": ["20以下", "20-30", "30-40", "40以上"] },
+    { "field": "band", "label": "月租区间", "values": ["20以下", "20-30", "30-40", "40以上"] },
     { "field": "category", "label": "分类", "values": [] }
   ],
   "priceBands": [

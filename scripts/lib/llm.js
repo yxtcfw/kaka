@@ -217,7 +217,10 @@ export async function composeBundle(provider, ctx, opts = {}) {
   const status = llmStatus(provider);
   const citations = (ctx.sourceIds || []).map((sourceId) => ({ sourceId }));
   // 官方详情摘录：模型只能据此客观组织，不得引入资料外数值。
-  const sourceDigest = String(ctx.sourceDigest || '').slice(0, 2000);
+  // 长度与提示词模板均由配置层注入（config/article-prompts.json），缺省保持旧值。
+  const promptCfg = opts.prompts || {};
+  const digestChars = Number(promptCfg.sourceDigestChars || 2000);
+  const sourceDigest = String(ctx.sourceDigest || '').slice(0, digestChars);
   const mockText = `${ctx.title}：以下内容依据已登记信源整理，具体数值以官方实时页面为准。`;
   const mockBundle = () => ({
     schema: 'bundle/v1',
@@ -236,9 +239,21 @@ export async function composeBundle(provider, ctx, opts = {}) {
   });
 
   if (provider === 'mock' || !status.available) return mockBundle();
+  // 提示词模板来自配置层；占位符固定 {title}/{cardDesc}/{sourceIds}/{sourceDigest}，做字面替换不引入模板引擎。
+  const tplVars = {
+    title: String(ctx.title || ''),
+    cardDesc: String(ctx.cardDesc || '无'),
+    sourceIds: JSON.stringify(ctx.sourceIds || []),
+    sourceDigest: sourceDigest || '无'
+  };
+  const fill = (s) => String(s).replace(/\{(title|cardDesc|sourceIds|sourceDigest)\}/g, (m, k) => tplVars[k] ?? m);
+  const systemPrompt = promptCfg.system
+    ? fill(promptCfg.system)
+    : '你是资料整理助手。只输出 JSON：{"intro":[{"title":"...","text":"..."}],"cardDesc":"...","claims":[{"text":"...","citationIds":["..."]}]}。intro 为 2-4 个结构化段落，title 是小标题（如「套餐包含什么」「怎么办理」「谁能办理」，可为空串），text 是正文；不得编造数值：所有含数字的表述必须给出 citationIds，且只能引用给定 sourceId；拿不准就不要写数字。不得输出「本卡片主题为」等模板占位句，不得提及银行、持卡人协议等与流量卡无关的领域。';
+  const userDefault = `主题：${ctx.title}。当前卡片描述：${ctx.cardDesc || '无'}。可用引用 sourceId：${JSON.stringify(ctx.sourceIds || [])}。官方资料摘录（只能据此写，不得引入资料外数值）：\n${sourceDigest || '无'}。写 2-4 个结构化介绍段落（每段含 title 与 text，合计 150-300 字）与一句卡片描述（≤60字）；正文中的数字必须在 claims 中挂 citationIds。`;
   const messages = [
-    { role: 'system', content: '你是资料整理助手。只输出 JSON：{"intro":[{"title":"...","text":"..."}],"cardDesc":"...","claims":[{"text":"...","citationIds":["..."]}]}。intro 为 2-4 个结构化段落，title 是小标题（如「套餐包含什么」「怎么办理」「谁能办理」，可为空串），text 是正文；不得编造数值：所有含数字的表述必须给出 citationIds，且只能引用给定 sourceId；拿不准就不要写数字。不得输出「本卡片主题为」等模板占位句，不得提及银行、持卡人协议等与流量卡无关的领域。' },
-    { role: 'user', content: `主题：${ctx.title}。当前卡片描述：${ctx.cardDesc || '无'}。可用引用 sourceId：${JSON.stringify(ctx.sourceIds || [])}。官方资料摘录（只能据此写，不得引入资料外数值）：\n${sourceDigest || '无'}。写 2-4 个结构化介绍段落（每段含 title 与 text，合计 150-300 字）与一句卡片描述（≤60字）；正文中的数字必须在 claims 中挂 citationIds。` }
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: promptCfg.user ? fill(promptCfg.user) : userDefault }
   ];
   const r = await callModel(provider, messages, opts);
   const base = mockBundle();
@@ -252,9 +267,10 @@ export async function composeBundle(provider, ctx, opts = {}) {
     .map((c) => ({ text: String(c.text).slice(0, 200), citationIds: c.citationIds }));
   const cardDesc = typeof data.cardDesc === 'string' ? [...data.cardDesc].slice(0, 60).join('') : base.cardDesc;
   // 结构化段落：最多 4 段，每段 title ≤20 / text ≤500；模型不给则退回 mock 段落，body 同步拼接。
+  const maxParagraphs = Number(promptCfg.paragraphs || 4);
   const intro = (Array.isArray(data.intro) ? data.intro : [])
     .filter((s) => s && typeof s.text === 'string' && s.text.trim())
-    .slice(0, 4)
+    .slice(0, maxParagraphs)
     .map((s) => ({
       title: typeof s.title === 'string' ? [...s.title].slice(0, 20).join('') : '',
       text: [...s.text].slice(0, 500).join('')

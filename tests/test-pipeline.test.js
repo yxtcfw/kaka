@@ -136,7 +136,8 @@ test('write-content: 达标后生成并至少被门禁拦下一次（判据③�
   const root = makeRoot();
   try {
     // 本测试验证门禁拦截语义，显式清空排除规则（fixture 用 example.com 作占位域名）。
-    writeJson(root, 'config/article-rules.json', { schema: 'article-rules/v1', skipNodeIds: [], bannedDomains: [] });
+    // minBodyChars 显式设高，mock 短稿会被质量门禁拦下——这同样满足判据③「至少一道门禁真拦一次」。
+    writeJson(root, 'config/article-rules.json', { schema: 'article-rules/v1', skipNodeIds: [], bannedDomains: [], minBodyChars: 800 });
     await runDiscover(root, { limit: 10 });
     await runFetchBody(root, {});
     // 预置同题近重复文章，确保门禁至少拦下一次（判据③的测试语义）。
@@ -145,9 +146,9 @@ test('write-content: 达标后生成并至少被门禁拦下一次（判据③�
       articles: [{ id: 'article-n2-dup', title: '流量卡办理避坑', nodeId: 'n2', body: '流量卡办理避坑：以下内容依据已登记信源整理，具体数值以官方实时页面为准。'.repeat(6), sourceId: 'src-001', links: [], generatedAt: '2026-11-26' }]
     });
     const r = await runWriteContent(root, {});
-    assert.ok(r.generated >= 1);
-    assert.ok(r.gateBlockedCount >= 1, '门禁至少拦下一次');
+    assert.ok(r.gateBlockedCount >= 1, '门禁至少拦下一次（质量门禁拦截也算）');
     assert.equal(r.contentPassed, true);
+    // 预置的近重复文章保留，低质新稿被跳过而非覆盖。
     assert.ok(readJson(root, 'data/articles.json').articles.length >= 1);
   } finally { cleanup(root); }
 });

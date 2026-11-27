@@ -54,7 +54,7 @@ ${ldScript}
 <span class="brand-text"><strong>${esc(siteName)}</strong><small>${esc(site.tagline || '')}</small></span>
 </a>
 <form class="search" action="/" method="get" role="search">
-<input type="search" name="q" placeholder="搜索分类或关键词" aria-label="站内搜索">
+<input type="search" name="q" placeholder="${esc(seo.searchPlaceholder || site.searchPlaceholder || '搜索分类或关键词')}" aria-label="站内搜索">
 <button type="submit">搜索</button>
 </form>
 </div>
@@ -71,7 +71,7 @@ ${body}
 <div class="footer-col"><h4>站点导航</h4><a href="/">首页</a><a href="/blog/">文章</a><a href="/sitemap.xml">网站地图</a></div>
 <div class="footer-col"><h4>说明</h4><p>${esc(site.byline || '')}</p><p>${esc(site.license || '')}</p><p>数值以官方实时页面为准</p>${Array.isArray(site.complianceLinks) ? site.complianceLinks.map((l) => `<a href="${esc(l.path)}">${esc(l.label)}</a>`).join('') : ''}</div>
 </div>
-<div class="footer-bottom">${esc(site.byline || '')} · ${esc(site.license || '')}</div>
+<div class="footer-bottom">${[site.byline, site.license].filter((s) => String(s || '').trim()).map((s) => esc(s)).join(' · ')}</div>
 </div></footer>
 <script>
 (function () {
@@ -96,82 +96,73 @@ ${body}
   window.addEventListener('resize', sync);
   sync();
 })();
-// 站内搜索：实时过滤卡片（标题/描述/分类/运营商/客观规格），隐藏空分类，支持 ?q= 初始加载。
+// 站内搜索 + 筛选：单一渲染函数，状态为「搜索词 + 各维筛选」的交集，避免搜索覆盖筛选。
+// 纯渐进增强：无 JS 时卡片照常平铺可读；筛选按钮与搜索框都调用同一个 render()。
 (function () {
   var form = document.querySelector('.search');
   var input = form && form.querySelector('input[name="q"]');
   var main = document.querySelector('main.wrap');
-  var cards = document.querySelectorAll('.card');
-  if (!input || !main || !cards.length) return;
+  var bar = document.querySelector('.filters');
+  var cards = main && main.querySelectorAll('.card');
+  if (!input || !main || !cards || !cards.length) return;
   var sections = main.querySelectorAll('section[id]');
   var notice = document.createElement('div');
   notice.className = 'search-empty';
   notice.hidden = true;
   notice.textContent = '没有找到匹配的入口，试试其他关键词。';
   main.appendChild(notice);
-  function apply(value) {
-    var terms = String(value || '').trim().toLowerCase().split(/\s+/).filter(Boolean);
+  var active = {};
+
+  function render() {
+    var terms = String(input.value || '').trim().toLowerCase().split(/\s+/).filter(Boolean);
     var shown = 0;
     cards.forEach(function (card) {
-      var hay = ((card.getAttribute('data-search') || '') + ' ' + card.textContent).toLowerCase();
-      var ok = terms.every(function (t) { return hay.indexOf(t) !== -1; });
-      card.hidden = !ok;
-      if (ok) shown++;
-    });
-    sections.forEach(function (sec) {
-      sec.hidden = terms.length > 0 && !sec.querySelector('.card:not([hidden])');
-    });
-    notice.hidden = shown > 0 || terms.length === 0;
-  }
-  input.addEventListener('input', function () { apply(input.value); });
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    apply(input.value);
-    var u = new URL(window.location.href);
-    if (input.value.trim()) u.searchParams.set('q', input.value.trim());
-    else u.searchParams.delete('q');
-    try { history.replaceState(null, '', u.toString()); } catch (_) { /* srcdoc/file:// 等受限环境忽略 URL 同步 */ }
-  });
-  var initial = new URLSearchParams(window.location.search).get('q');
-  if (initial) { input.value = initial; apply(initial); }
-})();
-// 筛选：按 data-isp / data-band 交集过滤卡片，按钮可取消；与搜索词叠加。纯渐进增强。
-(function () {
-  var bar = document.querySelector('.filters');
-  if (!bar || !document.querySelectorAll('.card').length) return;
-  var active = {};
-  function run() {
-    var terms = String((document.querySelector('.search input') || {}).value || '').trim().toLowerCase().split(/\s+/).filter(Boolean);
-    document.querySelectorAll('.card').forEach(function (card) {
       var hay = ((card.getAttribute('data-search') || '') + ' ' + card.textContent).toLowerCase();
       var hit = terms.every(function (t) { return hay.indexOf(t) !== -1; });
       Object.keys(active).forEach(function (field) {
         if (active[field] && card.getAttribute('data-' + field) !== active[field]) hit = false;
       });
       card.hidden = !hit;
+      if (hit) shown++;
     });
-    document.querySelectorAll('main.wrap section[id]').forEach(function (sec) {
+    sections.forEach(function (sec) {
       sec.hidden = !sec.querySelector('.card:not([hidden])');
     });
+    notice.hidden = shown > 0 || (terms.length === 0 && !Object.keys(active).some(function (k) { return active[k]; }));
   }
-  bar.addEventListener('click', function (e) {
-    var btn = e.target.closest('button');
-    if (!btn) return;
-    if (btn.hasAttribute('data-filter-reset')) {
-      active = {};
-      bar.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
-    } else {
-      var field = btn.getAttribute('data-filter-field');
-      var value = btn.getAttribute('data-filter-value');
-      var on = active[field] !== value;
-      bar.querySelectorAll('button[data-filter-field]').forEach(function (b) {
-        if (b.getAttribute('data-filter-field') === field) b.setAttribute('aria-pressed', 'false');
-      });
-      active[field] = on ? value : '';
-      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    }
-    run();
+
+  input.addEventListener('input', render);
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    render();
+    var u = new URL(window.location.href);
+    if (input.value.trim()) u.searchParams.set('q', input.value.trim());
+    else u.searchParams.delete('q');
+    try { history.replaceState(null, '', u.toString()); } catch (_) { /* srcdoc/file:// 等受限环境忽略 URL 同步 */ }
   });
+  if (bar) {
+    bar.addEventListener('click', function (e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      if (btn.hasAttribute('data-filter-reset')) {
+        active = {};
+        bar.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
+      } else {
+        var field = btn.getAttribute('data-filter-field');
+        var value = btn.getAttribute('data-filter-value');
+        var on = active[field] !== value;
+        bar.querySelectorAll('button[data-filter-field]').forEach(function (b) {
+          if (b.getAttribute('data-filter-field') === field) b.setAttribute('aria-pressed', 'false');
+        });
+        active[field] = on ? value : '';
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
+      render();
+    });
+  }
+  var initial = new URLSearchParams(window.location.search).get('q');
+  if (initial) input.value = initial;
+  render();
 })();
 </script>
 </body>

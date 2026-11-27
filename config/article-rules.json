@@ -12,7 +12,8 @@
     "example.org"
   ],
   "forceRegenerateNodeIds": [],
-  "minBodyChars": 500,
+  "protectedOrigins": ["manual"],
+  "minBodyChars": 800,
   "bannedTitlePatterns": [
     "^auto-",
     "[（(]auto-[a-z0-9_-]+[）)]$"
@@ -21,7 +22,11 @@
     "本卡片主题为",
     "银行正式版本",
     "持卡人协议",
-    "以银行"
+    "以银行",
+    "围绕「",
+    "的办理要点、",
+    "的资费口径、",
+    "的适用限制"
   ],
-  "_comment2": "forceRegenerateNodeIds 中的节点在下一轮创作时丢弃旧文章重生成；质量门槛拦截模板标题/无关领域措辞，命中时走确定性安全回退，不写入低质正文。首页上屏门槛另见 rules/home-articles.json。"
+  "_comment2": "protectedOrigins 中的文章（如人工写就的 origin=manual）在自动创作时永不覆盖，即使模型产出合格也不替换。forceRegenerateNodeIds 中的节点在下一轮创作时丢弃旧文章重生成；质量门槛拦截模板标题/无关领域措辞，命中时跳过该节点、保留旧文而不是写入兜底模板。首页上屏门槛另见 rules/home-articles.json。"
 }

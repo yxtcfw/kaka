@@ -37,6 +37,9 @@ export async function runWriteContent(root = ROOT, args = {}) {
   const { bannedDomains, skipNodeIds } = loadExclusions(root);
   let articleRules = {};
   try { articleRules = readJson(path.join(root, 'config/article-rules.json')); } catch { /* 无规则时退化为仅门禁 */ }
+  let promptCfg = {};
+  try { promptCfg = readJson(path.join(root, 'config/article-prompts.json')); } catch { /* 无配置时用 llm.js 内置提示词 */ }
+  const protectedOrigins = new Set(Array.isArray(articleRules.protectedOrigins) ? articleRules.protectedOrigins : ['manual']);
   const tree = readJson(path.join(root, 'data/tree.json'));
   const sourcesDoc = readJson(path.join(root, 'data/sources.json'));
   const sources = sourcesDoc.sources;
@@ -56,6 +59,11 @@ export async function runWriteContent(root = ROOT, args = {}) {
   const nodes = tree.nodes.filter((n) => n.children !== undefined && !skipNodeIds.has(n.id));
   let articles = [];
   try { articles = readJson(path.join(root, 'data/articles.json')).articles || []; } catch { /* ignore */ }
+  // 人工文章保护：origin 命中 protectedOrigins 的文章永不覆盖、不为它重新生成。
+  // 保护优先于 forceRegenerate：即使被误列入强制名单也不动人工稿。
+  const protectedIds = new Set(articles.filter((a) => protectedOrigins.has(a.origin || '')).map((a) => a.id));
+  const protectedNodeIds = new Set(articles.filter((a) => protectedIds.has(a.id)).map((a) => a.nodeId).filter(Boolean));
+  articles = articles.filter((a) => !protectedIds.has(a.id));
   // 人工指定的低质节点：下一轮丢弃旧文章重生成（规则进 git 可审计）。
   const forceIds = new Set((articleRules.forceRegenerateNodeIds || []).map((id) => `article-${id}`));
   const regeneratedIds = articles.filter((a) => forceIds.has(a.id)).map((a) => a.id);
@@ -78,9 +86,12 @@ export async function runWriteContent(root = ROOT, args = {}) {
   const generated = [], blocked = [];
   const usedModels = new Set();
   const qualityFallbacks = [];
+  const skippedProtected = [];
   let gateBlockedCount = 0;
 
   for (const node of targetNodes.slice(0, limit)) {
+    // 人工文章对应节点直接跳过：不调用模型、不产出覆盖稿，旧文原样保留。
+    if (protectedNodeIds.has(node.id)) { skippedProtected.push(node.id); continue; }
     // 每个节点选一篇可用信源做引用
     const cite = approved.find((s) => !generated.some((g) => g.sourceId === s.sourceId)) || approved[0];
     if (!cite) break;
@@ -91,13 +102,23 @@ export async function runWriteContent(root = ROOT, args = {}) {
       sourceIds: [cite.sourceId],
       cardDesc: `${node.label}相关资料整理与选购参考。`,
       links: [{ href: cite.url, rel: 'sponsored nofollow noopener', kind: 'outbound' }],
-      byline: ''
-    }, args.llmOpts || {});
+      byline: '',
+      // 全文摘录透传给模型：没有资料就只能写模板，这是低质覆盖的根因。
+      sourceDigest: cite.bodyExcerpt || ''
+    }, { ...(args.llmOpts || {}), prompts: promptCfg });
     if (bundle._meta?.model) usedModels.add(bundle._meta.model);
     const qFail = qualityFailure(bundle, articleRules);
-    if (qFail && node.id !== 'n1') {
-      bundle = safeFallbackBundle(node, cite, bundle, displayTitle(node));
-      qualityFallbacks.push({ nodeId: node.id, reason: qFail });
+    if (qFail) {
+      // 质量不过就跳过：宁可没有新稿，也不用兜底模板覆盖已有文章。
+      // n1 是历史兼容例外（初始示例节点），保留原有回退语义。
+      if (node.id === 'n1') {
+        bundle = safeFallbackBundle(node, cite, bundle, displayTitle(node));
+      } else {
+        // 质量门禁拦截同样计入 gateBlocked（判据③语义：至少一道门禁真正拦下一次）。
+        gateBlockedCount += 1;
+        qualityFallbacks.push({ nodeId: node.id, reason: qFail, action: 'skipped-kept-old' });
+        continue;
+      }
     }
     bundle.body = `${bundle.body}\n\n参考信源：${cite.title}（${cite.domain}）。具体数值以官方实时页面为准。`;
     const gate = runGates(bundle, { root, sources, corpus });
@@ -111,9 +132,16 @@ export async function runWriteContent(root = ROOT, args = {}) {
   }
 
   // 按 id 合并去重：同一节点重复运行只保留最新一篇，避免 articles 无限累积。
+  // 人工文章在此步放回，且生成物不得覆盖同名 id（双保险）。
   const byId = new Map(articles.map((a) => [a.id, a]));
-  for (const g of generated) byId.set(g.id, g);
-  const mergedArticles = [...byId.values()];
+  for (const g of generated) if (!protectedIds.has(g.id)) byId.set(g.id, g);
+  const manualArticles = [];
+  try {
+    for (const a of (readJson(path.join(root, 'data/articles.json')).articles || [])) {
+      if (protectedIds.has(a.id)) manualArticles.push(a);
+    }
+  } catch { /* ignore */ }
+  const mergedArticles = [...manualArticles, ...byId.values()];
   const totalArticles = mergedArticles.length;
   state.content = {
     generated: totalArticles,
@@ -122,7 +150,7 @@ export async function runWriteContent(root = ROOT, args = {}) {
   };
 
   const skippedNodes = tree.nodes.filter((n) => skipNodeIds.has(n.id)).map((n) => n.id);
-  const report = { stage: 'write-content', provider, generated: generated.length, blocked: blocked.length, gateBlockedCount, contentPassed: state.content.passed, models: [...usedModels], deduped: articles.length + generated.length - mergedArticles.length, skippedNodes, bannedDomains: [...bannedDomains], blockedDetail: blocked, regeneratedIds, qualityFallbacks };
+  const report = { stage: 'write-content', provider, generated: generated.length, blocked: blocked.length, gateBlockedCount, contentPassed: state.content.passed, models: [...usedModels], deduped: articles.length + generated.length - mergedArticles.length, skippedNodes, skippedProtected, protectedIds: [...protectedIds], bannedDomains: [...bannedDomains], blockedDetail: blocked, regeneratedIds, qualityFallbacks };
 
   if (!args.dryRun) {
     makeSnapshots(root, `before-writecontent-${Date.now()}`);

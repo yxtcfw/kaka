@@ -97,8 +97,13 @@ export async function runMaintenance(root = ROOT, args = {}) {
     const rec = recheckResults.get(s.sourceId);
     if (rec?.dead) { removedSources.push({ sourceId: s.sourceId, reason: `dead: ${rec.reason}` }); continue; }
     if (rec?.changed) {
-      s.bodyExcerpt = rec.bodyExcerpt;
-      s.bodyChars = rec.bodyChars;
+      // 完整正文保护：新抓的摘录更短时不覆盖已有全文（本地回填/官方详情），避免云端回写截断。
+      const shorter = rules.preserveLongerBody !== false
+        && String(s.bodyExcerpt || '').length > String(rec.bodyExcerpt || '').length;
+      if (!shorter) {
+        s.bodyExcerpt = rec.bodyExcerpt;
+        s.bodyChars = rec.bodyChars;
+      }
       s.bodyHash = rec.bodyHash;
       s.fetchedAt = today;
       changedSources.push(s.sourceId);
