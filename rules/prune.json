@@ -1,0 +1,9 @@
+{
+  "schema": "rules/prune/v1",
+  "activeMinImpressions": 100,
+  "activeMinClicks": 5,
+  "watchMinImpressions": 20,
+  "minPagesForNodeReview": 1,
+  "apply": false,
+  "_comment": "Bing 回流修剪规则。只产出页面状态与树节点复核提案，apply=false 表示永不自动写 tree.json；空回流数据不下任何结论。"
+}

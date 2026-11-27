@@ -99,10 +99,12 @@ async function main() {
       const metrics = await runFetchMetrics(root, {
         ...o, provider: args.provider, siteUrl: args.siteUrl, fetchFn: args.fetchFn
       });
+      // 修剪提案：回流为空时下结论无意义，prune 自身会输出 no-data。
+      const prune = runPrune(root, o);
       const drift = runDriftCheck(root, o);
       // 兜底：周任务漏跑/失败导致超期时，在这里补跑一次建树（仍受阈值门槛）。
       const overdue = await runTreeOverdue(root, o);
-      print('pipeline', { bootstrap, harvest: [h1.passed, h2.passed], overdue: { action: overdue.action, alert: overdue.alert }, discover: discover.candidates, body: body.sourcesPassed, write: write.contentPassed, apiNav: apiNav.skipped === true ? { disabled: true } : { added: apiNav.added, duplicate: apiNav.skipped?.duplicate, degraded: apiNav.degraded }, details: { created: details.created, updated: details.updated, failed: details.failed }, maintenance: { removedSources: maintenance.removedSources.length, removedNodes: maintenance.removedNodes.length, rechecked: maintenance.recheck.checked }, fill: { filled: fill.filled, skipped: fill.skipped }, nav: { built: nav.built, skipped: nav.skipped, downgraded: nav.downgraded }, build: build.pages, metrics: { provider: metrics.provider, rows: metrics.rows, degraded: !!metrics.degraded }, drift: { alertCount: drift.alertCount, critical: drift.critical.length } });
+      print('pipeline', { bootstrap, harvest: [h1.passed, h2.passed], overdue: { action: overdue.action, alert: overdue.alert }, discover: discover.candidates, body: body.sourcesPassed, write: write.contentPassed, apiNav: apiNav.skipped === true ? { disabled: true } : { added: apiNav.added, duplicate: apiNav.skipped?.duplicate, degraded: apiNav.degraded }, details: { created: details.created, updated: details.updated, failed: details.failed }, maintenance: { removedSources: maintenance.removedSources.length, removedNodes: maintenance.removedNodes.length, rechecked: maintenance.recheck.checked }, fill: { filled: fill.filled, skipped: fill.skipped }, nav: { built: nav.built, skipped: nav.skipped, downgraded: nav.downgraded }, build: build.pages, metrics: { provider: metrics.provider, rows: metrics.rows, degraded: !!metrics.degraded }, prune: { status: prune.status, treeProposals: prune.treeProposals.length }, drift: { alertCount: drift.alertCount, critical: drift.critical.length } });
       break;
     }
     case 'help':

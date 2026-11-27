@@ -55,8 +55,8 @@ export async function runHarvest(root = ROOT, args = {}) {
     try {
       const r = await collectSuggest(provider, seedsDoc.seeds, {
         ...args, root,
-        maxQueries: Number(args.maxQueries || 36),
-        queries: args.queries || buildQueries(seedsDoc.seeds, Number(args.maxQueries || 36))
+        maxQueries: Number(args.maxQueries || 24),
+        queries: args.queries || buildQueries(seedsDoc.seeds, Number(args.maxQueries || 24))
       });
       collected = r.items;
       guardStats = { enabled: true, ...r.guard };

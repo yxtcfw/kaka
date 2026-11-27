@@ -96,6 +96,35 @@ export function runBuild(root = ROOT, args = {}) {
   const nav = readJson(path.join(root, 'data/navlinks.json'));
   const navDetails = readSafe(path.join(root, 'data/nav-details.json'), { pages: [] });
   const articles = readSafe(path.join(root, 'data/articles.json'), { articles: [] }).articles;
+  const tree = readSafe(path.join(root, 'data/tree.json'), { nodes: [] });
+  const homeRules = readSafe(path.join(root, 'rules/home-articles.json'), {
+    maxItems: 4, minBodyChars: 200, bannedTitlePatterns: [], bannedBodyPhrases: [],
+    groups: {}, fallbackGroup: '选购专题'
+  });
+
+  // 文章分组与首页上屏门槛：只控制展示，不删数据；规则文件可审计。
+  const nodeById = new Map((tree.nodes || []).map((n) => [n.id, n]));
+  const articleGroup = (a) => {
+    const node = nodeById.get(a.nodeId);
+    const childText = (node?.children || []).map((id) => nodeById.get(id)).filter(Boolean)
+      .map((c) => `${c.label || ''} ${c.topic || ''}`).join(' ');
+    const hay = [node?.label, node?.topic, childText, a.title].filter(Boolean).join(' ');
+    for (const [group, words] of Object.entries(homeRules.groups || {})) {
+      if ((words || []).some((w) => hay.includes(w))) return group;
+    }
+    return homeRules.fallbackGroup || '选购专题';
+  };
+  const isHomeEligible = (a) => {
+    const title = String(a.title || '');
+    const body = String(a.body || '');
+    if (body.length < Number(homeRules.minBodyChars || 200)) return false;
+    if ((homeRules.bannedTitlePatterns || []).some((p) => { try { return new RegExp(p).test(title); } catch { return false; } })) return false;
+    if ((homeRules.bannedBodyPhrases || []).some((p) => body.includes(p))) return false;
+    return true;
+  };
+  const articleSummary = (a) => String(a.cardDesc || '').trim()
+    || String(a.body || '').split(/[。\n]/)[0].slice(0, 60);
+  const articleLink = (a) => `<a href="/blog/${slugify(a.id)}.html">${esc(a.title)}</a>`;
 
   const base = `https://${manifest.domain}`;
   const urls = [];
@@ -157,7 +186,18 @@ ${specTags ? `<div class="specs">${specTags}</div>` : ''}
 <div class="grid">${cards}</div>
 </section>`;
   }).join('\n');
-  const homeBody = `<div class="intro"><p>${esc(site.intro || '资料整理与选购参考。')}</p></div>${homeSections || '<p class="empty">暂无导航条目</p>'}`;
+  // 最新文章：放在运营商卡片之前，让博客成为一级可达栏目。
+  // 不带 id，避免站内搜索的 section[id] 显隐逻辑把文章区误隐藏。
+  const latest = articles.filter(isHomeEligible)
+    .sort((a, b) => String(b.generatedAt || '').localeCompare(String(a.generatedAt || '')))
+    .slice(0, Number(homeRules.maxItems || 4));
+  const latestHtml = latest.length
+    ? `<section class="article-section">
+<div class="section-head"><h2>最新文章</h2><a class="more" href="/blog/">查看全部 ${articles.length} 篇 →</a></div>
+<div class="post-list">${latest.map((a) => `<div class="post-item"><h3>${articleLink(a)}</h3><p>${esc(articleSummary(a))}</p><div class="meta">${esc(a.generatedAt || '')} · ${esc(articleGroup(a))}</div></div>`).join('')}</div>
+</section>`
+    : '';
+  const homeBody = `<div class="intro"><p>${esc(site.intro || '资料整理与选购参考。')}</p></div>${latestHtml}${homeSections || '<p class="empty">暂无导航条目</p>'}`;
   writeFile(root, `${outDir}/index.html`, layout(site, manifest, site.siteName || manifest.vertical || '首页', homeBody));
   urls.push(`${base}/`);
 
@@ -178,6 +218,16 @@ ${specTags ? `<div class="specs">${specTags}</div>` : ''}
     const toc = `<div class="toc"><strong>目录</strong> · <a href="#intro">套餐介绍</a> · <a href="#official">官方资料</a> · <a href="#checked">办理与说明</a></div>`;
     // 唯一出站口前置到首屏（id=apply 供文末站内锚点回跳），rel 固定合规值。
     const outbound = `<a class="outbound" id="apply" href="${esc(p.outbound)}" target="_blank" rel="sponsored nofollow noopener">前往办理 ↗</a>`;
+    const cat = String(navItem?.category || '');
+    const matchedGuides = articles.filter((a) => {
+      const group = articleGroup(a);
+      const words = homeRules.groups?.[group] || [];
+      return cat && (group === cat || words.some((w) => cat.includes(w)) || String(a.title || '').includes(cat));
+    });
+    const relatedGuides = (matchedGuides.length ? matchedGuides : articles).slice(0, 2);
+    const relatedHtml = relatedGuides.length
+      ? `<section class="related"><div class="section-head"><h2>相关攻略</h2></div><div class="post-list">${relatedGuides.map((a) => `<div class="post-item"><h3>${articleLink(a)}</h3><p>${esc(articleSummary(a))}</p></div>`).join('')}</div></section>`
+      : '';
     const body = `${toc}
 <article class="post" id="intro">
 <h1>${esc(p.title || navItem?.title || '详情')}</h1>
@@ -186,6 +236,7 @@ ${outbound}
 <section id="intro-text">${introHtml}</section>
 <section id="official"><h2>官方资料</h2>${renderOfficial(p.sourceBody)}</section>
 <section id="checked"><h2>办理与说明</h2><p>数值以官方实时页面为准；本站不编造数字，不展示营销话术。</p><p class="back-to-apply"><a href="#apply">↑ 返回办理入口</a></p></section>
+${relatedHtml}
 <div class="citations">信源：${esc((p.sourceIds || navItem?.sourceIds || []).join(', '))}</div>
 </article>`;
     const rel = `${outDir}/nav/${slugify(p.navId)}.html`;
@@ -201,12 +252,39 @@ ${outbound}
   }
   if (articles.length) {
     fs.mkdirSync(blogDir, { recursive: true });
-    const list = articles.map((a) => `<div class="post-item"><h3><a href="/blog/${slugify(a.id)}.html">${esc(a.title)}</a></h3><p>${esc(a.cardDesc || '')}</p><div class="meta">${esc(a.generatedAt || '')}</div></div>`).join('');
-    writeFile(root, `${outDir}/blog/index.html`, layout(site, manifest, '文章', `<section><div class="section-head"><h2>文章</h2><span class="more">${articles.length} 篇</span></div><div class="post-list">${list}</div></section>`));
+    const groupNames = [...new Set([...Object.keys(homeRules.groups || {}), homeRules.fallbackGroup || '选购专题'])];
+    const groupsHtml = groupNames.map((group) => {
+      const list = articles.filter((a) => articleGroup(a) === group);
+      const items = list.length
+        ? list.map((a) => `<div class="post-item"><h3>${articleLink(a)}</h3><p>${esc(articleSummary(a))}</p><div class="meta">${esc(a.generatedAt || '')}</div></div>`).join('')
+        : '<p class="empty">该分类暂无文章，后续更新后自动展示。</p>';
+      return `<section id="${esc(slugify(group))}">
+<div class="section-head"><h2>${esc(group)}</h2><span class="more">${list.length} 篇</span></div>
+<div class="post-list">${items}</div>
+</section>`;
+    }).join('\n');
+    writeFile(root, `${outDir}/blog/index.html`, layout(site, manifest, '文章', `<div class="intro"><p>按主题整理的选购与办理资料，共 ${articles.length} 篇。</p></div>${groupsHtml}`));
     urls.push(`${base}/blog/`);
     for (const a of articles) {
-      const body = `<article class="post"><h1>${esc(a.title)}</h1><p class="meta">${esc(a.generatedAt || '')} · ${esc(site.byline || '')}</p><p class="body-text">${esc(a.body || '')}</p>
-<a class="outbound" href="${esc(a.links?.[0]?.href || '#')}" target="_blank" rel="sponsored nofollow noopener">参考来源 ↗</a></article>`;
+      const group = articleGroup(a);
+      const groupWords = homeRules.groups?.[group] || [];
+      let relatedNav = nav.items.filter((n) => n.category === group
+        || groupWords.some((w) => `${n.title || ''}${n.cardDesc || ''}`.includes(w)));
+      if (!relatedNav.length) relatedNav = nav.items.filter((n) => detailByNav.has(n.navId));
+      relatedNav = relatedNav.slice(0, 3);
+      const related = relatedNav.map((n) => {
+        const href = detailByNav.has(n.navId) ? `/nav/${slugify(n.navId)}.html` : (n.promoUrl || n.url);
+        const external = !detailByNav.has(n.navId);
+        return `<a class="related-link" href="${esc(href)}"${external ? ' target="_blank" rel="sponsored nofollow noopener"' : ''}>${esc(n.title)}${external ? ' ↗' : ''}</a>`;
+      }).join('');
+      const relatedHtml = related
+        ? `<section class="related"><div class="section-head"><h2>相关办理入口</h2></div><div class="related-links">${related}</div></section>`
+        : '';
+      const body = `<nav class="breadcrumb"><a href="/">首页</a> · <a href="/blog/">文章</a> · ${esc(group)}</nav>
+<article class="post"><h1>${esc(a.title)}</h1><p class="meta">${esc(a.generatedAt || '')} · ${esc(site.byline || '')}</p><p class="body-text">${esc(a.body || '')}</p>
+<a class="outbound" href="${esc(a.links?.[0]?.href || '#')}" target="_blank" rel="sponsored nofollow noopener">参考来源 ↗</a></article>
+${relatedHtml}
+<p class="back-to-apply"><a href="/blog/">← 返回文章列表</a></p>`;
       writeFile(root, `${outDir}/blog/${slugify(a.id)}.html`, layout(site, manifest, a.title, body));
       urls.push(`${base}/blog/${slugify(a.id)}.html`);
     }

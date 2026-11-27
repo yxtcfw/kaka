@@ -14,7 +14,13 @@ export function layout(site, manifest, title, body) {
   const siteName = site.siteName || title;
   const brandChar = String(siteName).trim().charAt(0) || '站';
   const cats = Array.isArray(site.navCategories) ? site.navCategories : [];
-  const catNav = cats.map((c) => `<a href="/#${esc(slugify(c))}">${esc(String(c))}</a>`).join('');
+  // 博客分组锚点（资费套餐/办理攻略）落在 /blog/，避免首页出现悬空锚点。
+  const blogAnchorCats = new Set(['资费套餐', '办理攻略']);
+  const catNav = cats.map((c) => {
+    const label = String(c);
+    const href = blogAnchorCats.has(label) ? `/blog/#${esc(slugify(label))}` : `/#${esc(slugify(label))}`;
+    return `<a href="${href}">${esc(label)}</a>`;
+  }).join('');
   const introBrief = String(site.intro || site.tagline || '').slice(0, 90);
   // 搜索引擎站点验证：与根目录 BingSiteAuth.xml 双保险；token 只从配置读取并转义。
   const bingToken = String(manifest.verification?.bing || '');
@@ -47,7 +53,7 @@ export function layout(site, manifest, title, body) {
 </form>
 </div>
 <nav class="catbar"><div class="wrap">
-<a href="/">首页</a>${catNav}
+<a href="/">首页</a><a href="/blog/">文章</a>${catNav}
 </div><button class="catbar-prev" type="button" aria-label="查看前面的分类" hidden>‹</button><button class="catbar-next" type="button" aria-label="查看更多分类" hidden>›</button></nav>
 </header>
 <main class="wrap">
@@ -56,7 +62,7 @@ ${body}
 <footer class="site-footer"><div class="wrap">
 <div class="footer-grid">
 <div class="footer-col"><h4>关于本站</h4><p>${esc(siteName)}</p><p>${esc(introBrief)}</p></div>
-<div class="footer-col"><h4>站点导航</h4><a href="/">首页</a><a href="/sitemap.xml">网站地图</a></div>
+<div class="footer-col"><h4>站点导航</h4><a href="/">首页</a><a href="/blog/">文章</a><a href="/sitemap.xml">网站地图</a></div>
 <div class="footer-col"><h4>说明</h4><p>${esc(site.byline || '')}</p><p>${esc(site.license || '')}</p><p>数值以官方实时页面为准</p></div>
 </div>
 <div class="footer-bottom">${esc(site.byline || '')} · ${esc(site.license || '')}</div>

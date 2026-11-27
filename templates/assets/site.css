@@ -113,6 +113,15 @@ section { margin: 0 0 40px; scroll-margin-top: var(--anchor-offset); }
 .post-item h3 a:hover { color: var(--primary); text-decoration: none; }
 .post-item p { margin: 0 0 8px; color: var(--muted); font-size: .88rem; }
 .post-item .meta { font-size: .75rem; color: var(--muted); }
+.article-section .post-list { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.article-section .post-item p { -webkit-line-clamp: 2; }
+.section-head .more { color: var(--primary); }
+.breadcrumb { font-size: .82rem; color: var(--muted); margin-bottom: 16px; }
+.breadcrumb a { color: var(--primary); }
+.related { margin-top: 28px; }
+.related-links { display: flex; flex-wrap: wrap; gap: 10px; }
+.related-link { background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 8px 14px; font-size: .85rem; color: var(--fg); }
+.related-link:hover { color: var(--primary); border-color: var(--primary); text-decoration: none; }
 
 /* 详情 */
 article.post { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); }
@@ -158,6 +167,7 @@ article.post > .outbound { margin-top: 6px; margin-bottom: 20px; }
   .intro { padding: 14px; margin-bottom: 20px; }
   section { margin-bottom: 28px; }
   .card { padding: 14px; }
+  .article-section .post-list { grid-template-columns: 1fr; }
   article.post { padding: 18px; }
   article.post h1 { font-size: 1.35rem; }
   article.post .intro-para { line-height: 1.75; }

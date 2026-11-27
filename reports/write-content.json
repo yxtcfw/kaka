@@ -1,17 +1,12 @@
 {
   "stage": "write-content",
   "provider": "openrouter",
-  "generated": 4,
-  "blocked": 1,
-  "gateBlockedCount": 1,
+  "generated": 2,
+  "blocked": 0,
+  "gateBlockedCount": 0,
   "contentPassed": true,
-  "models": [
-    "nvidia/nemotron-3.5-lightning:free",
-    "inclusionai/ling-3.2-flash:free",
-    "baidu/ernie-5.5-flash-preview:free",
-    "nvidia/nemotron-3.5-super-vl:free"
-  ],
-  "deduped": 4,
+  "models": [],
+  "deduped": 0,
   "skippedNodes": [
     "n1"
   ],
@@ -20,15 +15,19 @@
     "example.net",
     "example.org"
   ],
-  "blockedDetail": [
+  "blockedDetail": [],
+  "regeneratedIds": [
+    "article-auto-scene",
+    "article-auto-sub-manage"
+  ],
+  "qualityFallbacks": [
+    {
+      "nodeId": "auto-scene",
+      "reason": "body-too-short"
+    },
     {
       "nodeId": "auto-sub-manage",
-      "blockers": [
-        {
-          "gate": "dedup",
-          "detail": "max cosine=0.703 (limit 0.7) with article-auto-sub-apply"
-        }
-      ]
+      "reason": "body-too-short"
     }
   ]
 }

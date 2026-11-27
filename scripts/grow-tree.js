@@ -73,7 +73,7 @@ export async function runGrowTree(root = ROOT, args = {}) {
     canary.push({ nodeId: 'auto(proposed)', label: n.label, parent: n.parent, sampleTerms: n.keywords.slice(0, 5), wouldAdd: n.keywords.length });
   }
 
-  // 自动新增节点：完全自动写盘，但受 parent/深度/节点上限/重复标签约束；先快照、报告留痕。
+  // 结构变更只产建议：默认不写 tree.json，人工审阅 reports/tree-proposals.json 后用 --apply 落盘。
   const byId = new Map(tree.nodes.map((n) => [n.id, n]));
   const byLabel = new Map(tree.nodes.map((n) => [n.label, n]));
   const depthOf = (id) => {
@@ -85,7 +85,8 @@ export async function runGrowTree(root = ROOT, args = {}) {
   const maxNodes = Number(rules.maxNodes || 24);
   const maxDepth = Number(rules.maxDepth || 3);
   const today = new Date().toISOString().slice(0, 10);
-  let nodesAdded = 0;
+  const grouped = { ...suggestion.grouped };
+  const proposedNodes = [];
   const rejectedNodes = [];
   for (const proposal of suggestion.newNodes || []) {
     const label = String(proposal.label || '').trim();
@@ -94,7 +95,7 @@ export async function runGrowTree(root = ROOT, args = {}) {
     let reason = '';
     if (!parent) reason = 'invalid-parent';
     else if (depth > maxDepth) reason = 'too-deep';
-    else if (tree.nodes.length >= maxNodes) reason = 'max-nodes';
+    else if (tree.nodes.length + proposedNodes.length >= maxNodes) reason = 'max-nodes';
     else if (byLabel.has(label)) reason = 'duplicate-label';
     else if (byId.has(`auto-${sha256(label).slice(0, 8)}`)) reason = 'duplicate-id';
     if (reason) { rejectedNodes.push({ label, reason }); continue; }
@@ -107,42 +108,72 @@ export async function runGrowTree(root = ROOT, args = {}) {
     };
     byId.set(id, node);
     byLabel.set(label, node);
-    tree.nodes.push(node);
-    if (parent === tree.root.id) tree.root.children.push(id);
-    else byId.get(parent).children.push(id);
-    suggestion.grouped[id] = proposal.keywords.slice(0, 12);
-    nodesAdded++;
+    grouped[id] = proposal.keywords.slice(0, 12);
+    proposedNodes.push({ node, terms: grouped[id] });
   }
 
-  // 按建议扩展关键词：为每个有词的节点补 keywords（去重、截断），人工节点结构不动。
-  let added = 0;
-  for (const [nodeId, grouped] of Object.entries(suggestion.grouped)) {
+  const keywordAdditions = [];
+  for (const [nodeId, terms] of Object.entries(grouped)) {
     if (nodeId === 'n0') continue;
     const node = byId.get(nodeId) || (nodeId === tree.root.id ? tree.root : null);
     if (!node) continue;
-    node.keywords ||= [];
-    for (const t of grouped) {
-      if (!node.keywords.includes(t) && node.keywords.length < 30) { node.keywords.push(t); added++; }
+    const existing = new Set(node.keywords || []);
+    const additions = terms.filter((t) => !existing.has(t)).slice(0, Math.max(0, 30 - existing.size));
+    if (additions.length) keywordAdditions.push({ nodeId, terms: additions });
+  }
+
+  const proposalDoc = {
+    stage: 'tree-proposals', at: new Date().toISOString(), provider,
+    proposedNodes: proposedNodes.map((p) => ({ ...p.node, keywords: p.terms })),
+    keywordAdditions, rejectedNodes,
+    note: '仅提案，不写 tree.json；人工确认后运行 grow-tree --apply。'
+  };
+
+  let nodesAdded = 0;
+  let added = 0;
+  if (args.apply) {
+    for (const { node, terms } of proposedNodes) {
+      tree.nodes.push(node);
+      if (node.parent === tree.root.id) tree.root.children.push(node.id);
+      else byId.get(node.parent)?.children.push(node.id);
+      nodesAdded++;
+    }
+    for (const { nodeId, terms } of keywordAdditions) {
+      const node = byId.get(nodeId) || (nodeId === tree.root.id ? tree.root : null);
+      if (!node) continue;
+      node.keywords ||= [];
+      for (const t of terms) {
+        if (!node.keywords.includes(t) && node.keywords.length < 30) { node.keywords.push(t); added++; }
+      }
     }
   }
 
+  const proposedKeywordCount = keywordAdditions.reduce((n, x) => n + x.terms.length, 0);
   const report = {
     stage: 'grow-tree', provider, llm: llmStatus(provider),
     model: suggestion.model || '', requestedModel: suggestion.requestedModel || '',
     skipped: false, uncoveredTerms: uncoveredTerms.length, unmappedTerms: unmappedTerms.length,
     signalsPassed: signalsOk,
-    idempotent, canary, keywordsAdded: added,
-    nodesAdded, rejectedNodes, degraded: !!suggestion.degraded, reason: suggestion.reason || suggestion.note || '',
+    idempotent, canary,
+    proposalMode: !args.apply,
+    proposedNodes: proposedNodes.length, proposedKeywords: proposedKeywordCount,
+    keywordsAdded: added, nodesAdded, rejectedNodes,
+    degraded: !!suggestion.degraded, reason: suggestion.reason || suggestion.note || '',
     nodes: tree.nodes.length, terms: terms.length,
-    signalsPassed: signalsPassed(state, manifest),
-    approvalRequired: false
+    approvalRequired: !args.apply && (proposedNodes.length + proposedKeywordCount) > 0
   };
 
   if (!args.dryRun) {
-    makeSnapshots(root, `before-growtree-${Date.now()}`);
-    writeJson(path.join(root, 'data/tree.json'), tree);
-    state.tree = { built: true, version: (state.tree.version || 0) + 1 };
-    recordRun(state, { stage: 'grow-tree', provider, summary: `关键词 +${added}, 新节点 +${nodesAdded}, 节点 ${tree.nodes.length}, 幂等=${idempotent}`, inputs: terms.slice(0, 20) });
+    writeJson(path.join(root, 'reports', 'tree-proposals.json'), proposalDoc);
+    const summary = args.apply
+      ? `关键词 +${added}, 新节点 +${nodesAdded}, 节点 ${tree.nodes.length}, 幂等=${idempotent}`
+      : `提案：新节点 ${proposedNodes.length}, 关键词 +${proposedKeywordCount}, 待人工确认`;
+    if (args.apply) {
+      makeSnapshots(root, `before-growtree-${Date.now()}`);
+      writeJson(path.join(root, 'data/tree.json'), tree);
+      state.tree = { built: true, version: (state.tree.version || 0) + 1 };
+    }
+    recordRun(state, { stage: 'grow-tree', provider, summary, inputs: terms.slice(0, 20) });
     saveState(state, root);
     writeJson(path.join(root, 'reports', 'grow-tree.json'), report);
   }

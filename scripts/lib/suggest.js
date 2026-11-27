@@ -61,14 +61,22 @@ export async function baiduSuggest(queries, opts = {}) {
     }
   );
   const out = [];
+  const failures = [];
   for (const q of queries.slice(0, Number(opts.maxQueries || queries.length))) {
     const url = `${ENDPOINT}?wd=${encodeURIComponent(q)}&cb=vstcb&ie=utf-8`;
-    const res = await guard.request(url, { headers: { Accept: 'application/javascript' } });
-    for (const term of parseSuggestArray(res.text)) {
-      out.push({ term, source: 'baidu-suggest', query: q, collectedAt: new Date().toISOString().slice(0, 10) });
+    try {
+      const res = await guard.request(url, { headers: { Accept: 'application/javascript' } });
+      for (const term of parseSuggestArray(res.text)) {
+        out.push({ term, source: 'baidu-suggest', query: q, collectedAt: new Date().toISOString().slice(0, 10) });
+      }
+    } catch (e) {
+      // 单条查询超时/失败不拖垮整轮：留痕后继续下一条；全部失败才抛错让 harvest 降级。
+      failures.push({ query: q, reason: String(e?.message || e).slice(0, 160) });
     }
   }
-  return { items: out, guard: guard.getStats ? guard.getStats() : { enabled: true } };
+  if (!out.length && failures.length) throw new Error(`baidu-suggest 全部查询失败：${failures[0].reason}`);
+  const stats = guard.getStats ? guard.getStats() : { enabled: true };
+  return { items: out, guard: { ...stats, failures: failures.slice(0, 5) } };
 }
 
 // provider 分派：mock 由 harvest 自己的确定性实现负责；未知 provider 直接抛错。

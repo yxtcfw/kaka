@@ -1,0 +1,13 @@
+{
+  "schema": "rules/home-articles/v1",
+  "maxItems": 4,
+  "minBodyChars": 200,
+  "bannedTitlePatterns": ["^auto-"],
+  "bannedBodyPhrases": ["本卡片主题为", "银行正式版本", "持卡人协议", "以银行"],
+  "groups": {
+    "资费套餐": ["资费", "价格", "月租", "流量", "套餐"],
+    "办理攻略": ["办理", "申请", "入口", "实名", "首充", "流程"]
+  },
+  "fallbackGroup": "选购专题",
+  "_comment": "首页最新文章上屏门槛与博客分组规则。只控制展示，不删除 articles.json 中的任何文章；低质文章仍保留在 /blog/ 全量列表。规则进 git 可审计。"
+}

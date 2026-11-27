@@ -18,8 +18,11 @@ export async function runDiscover(root = ROOT, args = {}) {
   if (!terms.length) {
     terms = readJson(path.join(root, 'seeds.json')).seeds;
   }
-  // 取有代表性的词（去重后按长度降序，优先信息量高的长词），限量
-  const picked = [...new Set(terms)].sort((a, b) => b.length - a.length).slice(0, Number(args.limit || 30));
+  // 取可检索的词：过长的长尾联想词搜索引擎常无结果，优先 3–14 字的中短词；空集再回退原词表。
+  const unique = [...new Set(terms)];
+  const searchable = unique.filter((t) => { const n = [...String(t)].length; return n >= 3 && n <= 14; });
+  const picked = (searchable.length ? searchable : unique)
+    .sort((a, b) => a.length - b.length).slice(0, Number(args.limit || 30));
 
   let candidates = [];
   let degraded = false;

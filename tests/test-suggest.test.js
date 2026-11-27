@@ -36,6 +36,23 @@ test('baiduSuggest: 真 provider 走注入 fetchFn，词带 source/query', async
   assert.equal(r.items[0].source, 'baidu-suggest');
 });
 
+test('baiduSuggest: 单条查询超时只留痕，其余查询继续', async () => {
+  const root = makeRoot();
+  const fetchFn = async (url) => {
+    if (String(url).includes('robots.txt')) return { status: 200, text: 'User-agent: *\nAllow: /' };
+    if (decodeURIComponent(String(url)).includes('wd=流量卡办理') && !decodeURIComponent(String(url)).includes('联通')) {
+      throw new Error('GuardTimeout: first query');
+    }
+    return { status: 200, text: jsonp(['流量卡办理入口']) };
+  };
+  try {
+    const r = await baiduSuggest(['流量卡办理', '联通流量卡资费'], { root, fetchFn });
+    assert.ok(r.items.length >= 1, '其余查询仍须产出词');
+    assert.equal(r.guard.failures.length, 1);
+    assert.match(r.guard.failures[0].reason, /GuardTimeout|fetch guard timeout/i);
+  } finally { cleanup(root); }
+});
+
 test('harvest: API 商品名作为第二真实信号源', async () => {
   const root = makeRoot();
   try {

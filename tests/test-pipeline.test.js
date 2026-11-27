@@ -49,7 +49,7 @@ test('grow-tree: 幂等且按映射扩展关键词，不改节点数', async () 
     st.signals = { count: 300, sources: 2, newRate: 0.05, passed: true };
     writeJson(root, 'state.json', st);
     writeJson(root, 'rules/tree-cadence.json', { schema: 'rules/tree-cadence/v1', growThreshold: { minUncoveredTerms: 0, minUnmappedTerms: 0, requireSignalsPassed: true } });
-    const r = await runGrowTree(root, {});
+    const r = await runGrowTree(root, { apply: true });
     assert.equal(r.skipped, false);
     assert.equal(r.idempotent, true);
     assert.ok(r.keywordsAdded > 0);
@@ -81,7 +81,7 @@ test('grow-tree: 自动新增节点带 origin 标记，重复运行不新增重�
       autoNodePatterns: { '副卡专题': '副卡' },
       stopWords: [], minTermLength: 2, maxTermLength: 20
     });
-    const r1 = await runGrowTree(root, {});
+    const r1 = await runGrowTree(root, { apply: true });
     assert.ok(r1.nodesAdded >= 1, '未命中词应触发自动新节点');
     const doc = readJson(root, 'data/tree.json');
     const autos = doc.nodes.filter((n) => n.origin === 'auto');
@@ -92,7 +92,7 @@ test('grow-tree: 自动新增节点带 origin 标记，重复运行不新增重�
       assert.ok(n.keywords.length > 0);
       assert.ok(doc.root.children.includes(n.id) || doc.nodes.some((x) => x.children.includes(n.id)));
     }
-    const r2 = await runGrowTree(root, {});
+    const r2 = await runGrowTree(root, { apply: true });
     assert.equal(r2.nodesAdded, 0, '重复运行不得新增重复节点');
     assert.equal(readJson(root, 'data/tree.json').nodes.length, doc.nodes.length);
   } finally { cleanup(root); }
@@ -139,6 +139,11 @@ test('write-content: 达标后生成并至少被门禁拦下一次（判据③�
     writeJson(root, 'config/article-rules.json', { schema: 'article-rules/v1', skipNodeIds: [], bannedDomains: [] });
     await runDiscover(root, { limit: 10 });
     await runFetchBody(root, {});
+    // 预置同题近重复文章，确保门禁至少拦下一次（判据③的测试语义）。
+    writeJson(root, 'data/articles.json', {
+      schema: 'articles/v1',
+      articles: [{ id: 'article-n2-dup', title: '流量卡办理避坑', nodeId: 'n2', body: '流量卡办理避坑：以下内容依据已登记信源整理，具体数值以官方实时页面为准。'.repeat(6), sourceId: 'src-001', links: [], generatedAt: '2026-11-26' }]
+    });
     const r = await runWriteContent(root, {});
     assert.ok(r.generated >= 1);
     assert.ok(r.gateBlockedCount >= 1, '门禁至少拦下一次');

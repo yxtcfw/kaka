@@ -59,7 +59,7 @@ const STATIC_FILES = [
   'package.json',
   'config/api-nav.json',
   'config/article-rules.json',
-  'rules/signals-tree.json', 'rules/tree-cadence.json', 'rules/nav-classify.json', 'rules/source-grade.json', 'rules/autopilot.json', 'rules/collect-policy.json', 'rules/suggest-policy.json', 'rules/maintenance.json',
+  'rules/signals-tree.json', 'rules/tree-cadence.json', 'rules/nav-classify.json', 'rules/source-grade.json', 'rules/autopilot.json', 'rules/collect-policy.json', 'rules/suggest-policy.json', 'rules/maintenance.json', 'rules/home-articles.json', 'rules/prune.json',
   'templates/assets/site.css',
   ...fs.readdirSync(path.join(REPO, 'schema')).map((f) => `schema/${f}`)
 ];

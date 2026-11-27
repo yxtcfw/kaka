@@ -69,9 +69,9 @@
     "https://kaka.yxtcfw.cn/nav/api-6037.html",
     "https://kaka.yxtcfw.cn/blog/",
     "https://kaka.yxtcfw.cn/blog/article-n2.html",
-    "https://kaka.yxtcfw.cn/blog/article-auto-scene.html",
     "https://kaka.yxtcfw.cn/blog/article-auto-region.html",
     "https://kaka.yxtcfw.cn/blog/article-auto-sub-apply.html",
+    "https://kaka.yxtcfw.cn/blog/article-auto-scene.html",
     "https://kaka.yxtcfw.cn/blog/article-auto-sub-manage.html"
   ],
   "outDir": "_site"

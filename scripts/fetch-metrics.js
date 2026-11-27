@@ -24,7 +24,22 @@ function redactKey(text, key) {
   return out.replace(/([?&]apikey=)[^&\s"']+/gi, '$1***');
 }
 
-function normalizeBingRows(rawRows, today) {
+// Bing 返回的是完整 URL；站内页面键统一归一化成 /blog/xxx.html、/nav/xxx.html。
+export function normalizeBingPage(value, siteUrl, domain) {
+  let s = String(value || '').trim();
+  if (/^https?:\/\//i.test(s)) {
+    try {
+      const u = new URL(s);
+      const host = u.hostname.replace(/^www\./, '');
+      const siteHost = String(domain || '').replace(/^www\./, '');
+      s = host && siteHost && host === siteHost ? `${u.pathname}${u.search}` : u.pathname || '/';
+    } catch { s = '/'; }
+  }
+  if (!s.startsWith('/')) s = `/${s}`;
+  return (s.split('?')[0].replace(/\/$/, '') || '/').slice(0, 300);
+}
+
+function normalizeBingRows(rawRows, today, siteUrl, domain) {
   return (Array.isArray(rawRows) ? rawRows : [])
     .filter((item) => item && typeof item === 'object')
     .map((item) => {
@@ -32,7 +47,7 @@ function normalizeBingRows(rawRows, today) {
       const clicks = Number(item.Clicks || 0);
       const position = item.AvgClickPosition ?? item.AvgImpressionPosition ?? 0;
       return {
-        page: String(item.PageURL || item.Url || item.Query || '/').slice(0, 300),
+        page: normalizeBingPage(item.PageURL || item.Url || item.Query || '/', siteUrl, domain),
         impressions,
         clicks,
         avgPosition: Number.isFinite(Number(position)) ? Number(position.toFixed(1)) : 0,
@@ -76,7 +91,7 @@ async function fetchBingMetrics(manifest, args) {
     if (payload?.ErrorCode) {
       return { degraded: true, reason: `Bing API ${payload.ErrorCode}: ${redactKey(payload.Message, key)}`, fingerprint, rows: [] };
     }
-    const rows = normalizeBingRows(payload?.d, new Date().toISOString().slice(0, 10))
+    const rows = normalizeBingRows(payload?.d, new Date().toISOString().slice(0, 10), siteUrl, domain)
       .slice(0, Number(args.limit || 100));
     return {
       degraded: false,

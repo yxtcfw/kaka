@@ -1,0 +1,13 @@
+{
+  "stage": "prune",
+  "checkedAt": "2026-11-27T09:56:38.264Z",
+  "provider": "bing",
+  "rows": 0,
+  "apply": false,
+  "status": "no-data",
+  "counts": {},
+  "decisions": [],
+  "unmatched": [],
+  "treeProposals": [],
+  "note": "回流为空：不判断页面，也不修剪内容树。"
+}

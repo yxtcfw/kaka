@@ -22,6 +22,11 @@ on:
         required: false
         default: ''
 
+# 连续推送时排队而非并跑，避免两轮流水线同时回写数据导致其中一轮失败。
+concurrency:
+  group: vst-pipeline-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
   # workflow_run 触发的下游（deploy.yml）权限不能超过上游，故同步声明 Pages 权限。

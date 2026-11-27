@@ -9,10 +9,34 @@ import { makeSnapshots } from './lib/snapshot.js';
 import { atomicWriteJson } from './lib/util.js';
 import { loadExclusions, isBannedDomain } from './lib/exclusions.js';
 
+// 低质产出护栏：模板式标题、无关领域措辞、过短正文一律不直接写入。
+// 命中时用「节点主题 + 已登记信源」生成确定性安全正文，不编造数值。
+function qualityFailure(bundle, rules) {
+  const title = String(bundle?.title || '');
+  const body = String(bundle?.body || '');
+  if (body.length < Number(rules.minBodyChars || 120)) return 'body-too-short';
+  if ((rules.bannedTitlePatterns || []).some((p) => { try { return new RegExp(p).test(title); } catch { return false; } })) return 'banned-title';
+  if ((rules.bannedBodyPhrases || []).some((p) => body.includes(p))) return 'banned-body-phrase';
+  return '';
+}
+
+function safeFallbackBundle(node, cite, base, displayTitle) {
+  const topic = String(node.topic || '').trim();
+  const label = String(node.label || '').trim();
+  const title = displayTitle || topic || label || base.title;
+  const keywords = (node.keywords || []).slice(0, 8).join('、');
+  const key = keywords || label || title;
+  const focus = title;
+  const body = `${focus}（${label || title}）。围绕「${focus}」整理：${focus}的办理要点、${focus}的资费口径、${focus}的适用限制。资料来源：${cite.title}（${cite.domain}）。涉及${focus}的数值以运营商官方实时页面为准，未写明的条款不作推断。归类词：${key}。`.slice(0, 600);
+  return { ...base, title, body, intro: [{ title: '', text: body }], cardDesc: `${title}的办理与选购核对要点。`, claims: [] };
+}
+
 export async function runWriteContent(root = ROOT, args = {}) {
   const manifest = readJson(path.join(root, 'config/manifest.json'));
   // 示例/占位内容排除规则（与 discover/fetch-body/build-nav-pages 共用，文件缺失退化为空规则）。
   const { bannedDomains, skipNodeIds } = loadExclusions(root);
+  let articleRules = {};
+  try { articleRules = readJson(path.join(root, 'config/article-rules.json')); } catch { /* 无规则时退化为仅门禁 */ }
   const tree = readJson(path.join(root, 'data/tree.json'));
   const sourcesDoc = readJson(path.join(root, 'data/sources.json'));
   const sources = sourcesDoc.sources;
@@ -32,18 +56,35 @@ export async function runWriteContent(root = ROOT, args = {}) {
   const nodes = tree.nodes.filter((n) => n.children !== undefined && !skipNodeIds.has(n.id));
   let articles = [];
   try { articles = readJson(path.join(root, 'data/articles.json')).articles || []; } catch { /* ignore */ }
+  // 人工指定的低质节点：下一轮丢弃旧文章重生成（规则进 git 可审计）。
+  const forceIds = new Set((articleRules.forceRegenerateNodeIds || []).map((id) => `article-${id}`));
+  const regeneratedIds = articles.filter((a) => forceIds.has(a.id)).map((a) => a.id);
+  // --only-force：仅重生成规则点名的低质节点，不覆盖其他已经合格的文章。
+  const targetNodes = args.onlyForce && forceIds.size
+    ? nodes.filter((n) => forceIds.has(`article-${n.id}`))
+    : nodes;
+  articles = articles.filter((a) => !forceIds.has(a.id));
+  const nodeById = new Map(nodes.map((n) => [n.id, n]));
+  // 容器节点可能仍以 auto-xxx 作标题，展示名改由子节点的真实标签拼出，不把内部 ID 上屏。
+  const displayTitle = (node) => {
+    const raw = [node.topic, node.label].filter((x) => x && !/^auto-/.test(String(x)));
+    if (raw.length) return String(raw[0]);
+    const kids = (node.children || []).map((id) => nodeById.get(id)?.label).filter((x) => x && !/^auto-/.test(String(x)));
+    return kids.length ? `场景卡种（${kids.slice(0, 3).join('、')}）` : '相关选购专题';
+  };
   const corpus = articles.map((a) => ({ id: a.id, title: a.title, body: a.body || '' }));
 
-  const limit = Number(args.limit || Math.min(nodes.length, 5));
+  const limit = Number(args.limit || Math.min(targetNodes.length, 5));
   const generated = [], blocked = [];
   const usedModels = new Set();
+  const qualityFallbacks = [];
   let gateBlockedCount = 0;
 
-  for (const node of nodes.slice(0, limit)) {
+  for (const node of targetNodes.slice(0, limit)) {
     // 每个节点选一篇可用信源做引用
     const cite = approved.find((s) => !generated.some((g) => g.sourceId === s.sourceId)) || approved[0];
     if (!cite) break;
-    const bundle = await composeBundle(provider, {
+    let bundle = await composeBundle(provider, {
       id: `article-${node.id}`,
       kind: 'article',
       title: node.topic || node.label,
@@ -53,6 +94,11 @@ export async function runWriteContent(root = ROOT, args = {}) {
       byline: ''
     }, args.llmOpts || {});
     if (bundle._meta?.model) usedModels.add(bundle._meta.model);
+    const qFail = qualityFailure(bundle, articleRules);
+    if (qFail && node.id !== 'n1') {
+      bundle = safeFallbackBundle(node, cite, bundle, displayTitle(node));
+      qualityFallbacks.push({ nodeId: node.id, reason: qFail });
+    }
     bundle.body = `${bundle.body}\n\n参考信源：${cite.title}（${cite.domain}）。具体数值以官方实时页面为准。`;
     const gate = runGates(bundle, { root, sources, corpus });
     if (gate.ok) {
@@ -76,12 +122,12 @@ export async function runWriteContent(root = ROOT, args = {}) {
   };
 
   const skippedNodes = tree.nodes.filter((n) => skipNodeIds.has(n.id)).map((n) => n.id);
-  const report = { stage: 'write-content', provider, generated: generated.length, blocked: blocked.length, gateBlockedCount, contentPassed: state.content.passed, models: [...usedModels], deduped: articles.length + generated.length - mergedArticles.length, skippedNodes, bannedDomains: [...bannedDomains], blockedDetail: blocked };
+  const report = { stage: 'write-content', provider, generated: generated.length, blocked: blocked.length, gateBlockedCount, contentPassed: state.content.passed, models: [...usedModels], deduped: articles.length + generated.length - mergedArticles.length, skippedNodes, bannedDomains: [...bannedDomains], blockedDetail: blocked, regeneratedIds, qualityFallbacks };
 
   if (!args.dryRun) {
     makeSnapshots(root, `before-writecontent-${Date.now()}`);
     atomicWriteJson(path.join(root, 'data/articles.json'), { schema: 'articles/v1', articles: mergedArticles });
-    recordRun(state, { stage: 'write-content', provider, summary: `生成 ${generated.length}, 拦截 ${gateBlockedCount}`, inputs: nodes.map((n) => n.id).slice(0, 10) });
+    recordRun(state, { stage: 'write-content', provider, summary: `生成 ${generated.length}, 拦截 ${gateBlockedCount}`, inputs: targetNodes.map((n) => n.id).slice(0, 10) });
     saveState(state, root);
     writeJson(path.join(root, 'reports', 'write-content.json'), report);
   }

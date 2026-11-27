@@ -12,6 +12,14 @@ on:
         description: '绕过阈值门槛直接建树（首次建树/阈值调整后使用）'
         type: boolean
         default: false
+      apply:
+        description: '确认提案并写入 tree.json（默认只产出提案）'
+        type: boolean
+        default: false
+
+concurrency:
+  group: vst-tree-weekly-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -53,13 +61,12 @@ jobs:
           EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
           BING_API_KEY: ${{ secrets.BING_API_KEY }}
 
-      - name: 建树（受阈值门槛，dispatch 可 force）
+      - name: 建树（默认只产提案，dispatch 可确认落盘）
         run: |
-          if [ "${{ github.event.inputs.force }}" = "true" ]; then
-            node scripts/cli.js grow-tree --force
-          else
-            node scripts/cli.js grow-tree
-          fi
+          FLAGS=""
+          if [ "${{ github.event.inputs.force }}" = "true" ]; then FLAGS="$FLAGS --force"; fi
+          if [ "${{ github.event.inputs.apply }}" = "true" ]; then FLAGS="$FLAGS --apply"; fi
+          node scripts/cli.js grow-tree $FLAGS
         env:
           OPENROUTER_API_KEYS: ${{ secrets.OPENROUTER_API_KEYS }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}

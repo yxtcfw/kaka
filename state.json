@@ -1139,6 +1139,20 @@
       "provider": "openrouter",
       "inputHash": "7b971cd3041703d3ae37e2124bf9ac10ecbafdd4f9aee4e59c50f9d9fcf1c387",
       "summary": "新建 1, 跳过已有 63, 降级 0, 门禁拦截 0"
+    },
+    {
+      "at": "2026-11-27T09:49:34.159Z",
+      "stage": "write-content",
+      "provider": "openrouter",
+      "inputHash": "6d392350898f3f7a3b0aa201b1e077235fb88803b8cda430d0cd34439ef2f7dc",
+      "summary": "生成 2, 拦截 0"
+    },
+    {
+      "at": "2026-11-27T09:50:06.844Z",
+      "stage": "write-content",
+      "provider": "openrouter",
+      "inputHash": "6d392350898f3f7a3b0aa201b1e077235fb88803b8cda430d0cd34439ef2f7dc",
+      "summary": "生成 2, 拦截 0"
     }
   ],
   "_comment": "三道达标判据进度 + 首次填空标记。脚本据此避免重复采集；siteFilled=true 后 fill-site 永久跳过。"

@@ -5,7 +5,7 @@
   "candidateMaxAgeDays": 30,
   "recheckEnabled": true,
   "recheckLimit": 20,
-  "staleNodeCycles": 3,
+  "staleNodeCycles": 21,
   "minKeywordsPerNode": 3,
   "minNodes": 3,
   "_comment": "周期维护阈值。只清理系统自建条目（search 候选/auto 节点）；collect/manual/seed 信源、被页面引用的信源、人工节点永不删除。删除前快照，报告逐条留痕。"

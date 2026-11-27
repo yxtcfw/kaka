@@ -237,7 +237,7 @@ export async function composeBundle(provider, ctx, opts = {}) {
 
   if (provider === 'mock' || !status.available) return mockBundle();
   const messages = [
-    { role: 'system', content: '你是资料整理助手。只输出 JSON：{"intro":[{"title":"...","text":"..."}],"cardDesc":"...","claims":[{"text":"...","citationIds":["..."]}]}。intro 为 2-4 个结构化段落，title 是小标题（如「套餐包含什么」「怎么办理」「谁能办理」，可为空串），text 是正文；不得编造数值：所有含数字的表述必须给出 citationIds，且只能引用给定 sourceId；拿不准就不要写数字。' },
+    { role: 'system', content: '你是资料整理助手。只输出 JSON：{"intro":[{"title":"...","text":"..."}],"cardDesc":"...","claims":[{"text":"...","citationIds":["..."]}]}。intro 为 2-4 个结构化段落，title 是小标题（如「套餐包含什么」「怎么办理」「谁能办理」，可为空串），text 是正文；不得编造数值：所有含数字的表述必须给出 citationIds，且只能引用给定 sourceId；拿不准就不要写数字。不得输出「本卡片主题为」等模板占位句，不得提及银行、持卡人协议等与流量卡无关的领域。' },
     { role: 'user', content: `主题：${ctx.title}。当前卡片描述：${ctx.cardDesc || '无'}。可用引用 sourceId：${JSON.stringify(ctx.sourceIds || [])}。官方资料摘录（只能据此写，不得引入资料外数值）：\n${sourceDigest || '无'}。写 2-4 个结构化介绍段落（每段含 title 与 text，合计 150-300 字）与一句卡片描述（≤60字）；正文中的数字必须在 claims 中挂 citationIds。` }
   ];
   const r = await callModel(provider, messages, opts);

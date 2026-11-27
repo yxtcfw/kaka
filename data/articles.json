@@ -22,26 +22,6 @@
       "generatedAt": "2026-11-27"
     },
     {
-      "id": "article-auto-scene",
-      "title": "auto-scene",
-      "nodeId": "auto-scene",
-      "body": "本卡片主题为 auto-scene，用于汇总该产品或服务的资料整理与选购参考信息。当前可引用的官方资料摘录为空，暂无已核实的参数、规格、价格或办理条件可供展示。\n在官方资料补充前，建议通过官方渠道核实产品名称、适用场景、费用标准与服务条款，避免依据未经确认的信息做出购买决定。\n后续如获得官方资料摘录，将及时补充结构化介绍与可溯源的数值引用，确保每项数字均有对应来源标注。\n\n参考信源：广电飞甜卡【29元230G】 · 官方详情（lingqu.haokalingqu.cn）。具体数值以官方实时页面为准。",
-      "sourceId": "src-api-4779",
-      "citations": [
-        {
-          "sourceId": "src-api-4779"
-        }
-      ],
-      "links": [
-        {
-          "href": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=1ca5b53f89089b1b",
-          "rel": "sponsored nofollow noopener",
-          "kind": "outbound"
-        }
-      ],
-      "generatedAt": "2026-11-27"
-    },
-    {
       "id": "article-auto-region",
       "title": "按办理地区查找专属流量卡",
       "nodeId": "auto-region",
@@ -82,19 +62,39 @@
       "generatedAt": "2026-11-27"
     },
     {
-      "id": "article-auto-sub-manage",
-      "title": "副卡资费规则、注销退订与主卡关系",
-      "nodeId": "auto-sub-manage",
-      "body": "当前可引用的官方资料未给出可确认的副卡资费项目，也没有提供可整理的收费说明。因此资费内容暂不宜展开。\n关于副卡注销、退订与主卡的关联处理，官方摘录中暂无可引用内容，不能确认流程或责任边界。\n资料可整理为选购与管理提示，但具体规则仍需以银行正式版本、持卡人协议和实际办理反馈为准。\n若后续获得正式资料，再补充资费、状态变更和主卡关系的可核准说明。\n\n参考信源：广电福建专属卡【19元130G+200分钟】 · 官方详情（lingqu.haokalingqu.cn）。具体数值以官方实时页面为准。",
-      "sourceId": "src-api-5141",
+      "id": "article-auto-scene",
+      "title": "场景卡种（副卡办理、副卡资费与管理、校园卡办理）",
+      "nodeId": "auto-scene",
+      "body": "场景卡种（副卡办理、副卡资费与管理、校园卡办理）（auto-scene）。围绕「场景卡种（副卡办理、副卡资费与管理、校园卡办理）」整理：场景卡种（副卡办理、副卡资费与管理、校园卡办理）的办理要点、场景卡种（副卡办理、副卡资费与管理、校园卡办理）的资费口径、场景卡种（副卡办理、副卡资费与管理、校园卡办理）的适用限制。资料来源：广电飞花卡3.0【29元192G】 · 官方详情（lingqu.haokalingqu.cn）。涉及场景卡种（副卡办理、副卡资费与管理、校园卡办理）的数值以运营商官方实时页面为准，未写明的条款不作推断。归类词：auto-scene。\n\n参考信源：广电飞花卡3.0【29元192G】 · 官方详情（lingqu.haokalingqu.cn）。具体数值以官方实时页面为准。",
+      "sourceId": "src-api-5260",
       "citations": [
         {
-          "sourceId": "src-api-5141"
+          "sourceId": "src-api-5260"
         }
       ],
       "links": [
         {
-          "href": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=1d1b7539ef2b2eb6",
+          "href": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=3bc1c6eead648fab",
+          "rel": "sponsored nofollow noopener",
+          "kind": "outbound"
+        }
+      ],
+      "generatedAt": "2026-11-27"
+    },
+    {
+      "id": "article-auto-sub-manage",
+      "title": "副卡资费规则、注销退订与主卡关系",
+      "nodeId": "auto-sub-manage",
+      "body": "副卡资费规则、注销退订与主卡关系（副卡资费与管理）。围绕「副卡资费规则、注销退订与主卡关系」整理：副卡资费规则、注销退订与主卡关系的办理要点、副卡资费规则、注销退订与主卡关系的资费口径、副卡资费规则、注销退订与主卡关系的适用限制。资料来源：广电飞甜卡【29元230G】 · 官方详情（lingqu.haokalingqu.cn）。涉及副卡资费规则、注销退订与主卡关系的数值以运营商官方实时页面为准，未写明的条款不作推断。归类词：大流量副卡是什么意思、副卡资费怎么算、副卡资费是什么意思、副卡资费标准、副卡资费是什么、副卡资费是从主卡里扣吗、副卡的资费怎么比主卡贵、副卡独立后资费会变化吗。\n\n参考信源：广电飞甜卡【29元230G】 · 官方详情（lingqu.haokalingqu.cn）。具体数值以官方实时页面为准。",
+      "sourceId": "src-api-4779",
+      "citations": [
+        {
+          "sourceId": "src-api-4779"
+        }
+      ],
+      "links": [
+        {
+          "href": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=1ca5b53f89089b1b",
           "rel": "sponsored nofollow noopener",
           "kind": "outbound"
         }

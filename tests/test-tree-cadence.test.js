@@ -151,11 +151,39 @@ test('调度配置：每日链无建树，周任务与兜底就位', () => {
   assert.ok(cli.includes('runTreeOverdue(root, o)'));
   const daily = fs.readFileSync(path.join(REPO, '.github/workflows/pipeline.yml'), 'utf8');
   assert.ok(daily.includes('tree-overdue'));
+  assert.ok(daily.includes('concurrency:') && daily.includes('vst-pipeline-'), 'pipeline 须有并发排队保护');
   const weekly = fs.readFileSync(path.join(REPO, '.github/workflows/tree-weekly.yml'), 'utf8');
   assert.ok(weekly.includes("cron: '0 3 * * 1'"));
-  assert.ok(weekly.includes('grow-tree --force'));
+  assert.ok(weekly.includes('--force') && weekly.includes('--apply'), '周任务须支持 force 与 apply');
+  assert.ok(weekly.includes('concurrency:') && weekly.includes('vst-tree-weekly-'), '周任务须有并发排队保护');
   const cadence = readJson(REPO, 'rules/tree-cadence.json');
   assert.equal(cadence.overdueDays, 10);
+});
+
+test('grow-tree: 默认只产提案不写树，--apply 才落盘', async () => {
+  const root = makeRoot();
+  try {
+    runHarvest(root, {});
+    passSignals(root);
+    looseThreshold(root);
+    const before = fs.readFileSync(path.join(root, 'data/tree.json'), 'utf8');
+    const proposal = await runGrowTree(root, {});
+    assert.equal(proposal.proposalMode, true);
+    assert.ok(proposal.approvalRequired);
+    assert.equal(fs.readFileSync(path.join(root, 'data/tree.json'), 'utf8'), before, '未确认不得写树');
+    const doc = readJson(root, 'reports/tree-proposals.json');
+    assert.ok(Array.isArray(doc.proposedNodes));
+    assert.ok(Array.isArray(doc.keywordAdditions));
+    const applied = await runGrowTree(root, { apply: true });
+    assert.equal(applied.proposalMode, false);
+    assert.equal(applied.keywordsAdded, proposal.proposedKeywords, '确认后按提案写入');
+    assert.notEqual(fs.readFileSync(path.join(root, 'data/tree.json'), 'utf8'), before);
+  } finally { cleanup(root); }
+});
+
+test('maintenance: auto 节点空转周期按周计（staleNodeCycles=21）', () => {
+  const rules = readJson(REPO, 'rules/maintenance.json');
+  assert.equal(rules.staleNodeCycles, 21);
 });
 
 test('build: BingSiteAuth.xml 原样复制到站点根目录', () => {

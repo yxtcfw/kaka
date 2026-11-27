@@ -12,6 +12,7 @@ Termux 安装：
 失败时输出 {"error": "..."} 并以非零码退出，由 Node 侧显式降级，不静默伪造。
 """
 import json
+import os
 import sys
 
 
@@ -32,18 +33,35 @@ def main():
             from duckduckgo_search import DDGS
 
         rows = []
-        backend = sys.argv[3] if len(sys.argv) > 3 else "duckduckgo"
-        with DDGS() as ddg:
-            for item in ddg.text(query, max_results=max_results, backend=backend):
-                url = item.get("href") or item.get("url") or ""
-                if not url:
-                    continue
-                rows.append({
-                    "url": url,
-                    "title": item.get("title") or url,
-                    "snippet": item.get("body") or item.get("snippet") or item.get("content") or "",
-                    "provider": "ddgs",
-                })
+        if len(sys.argv) > 3:
+            backends = [sys.argv[3]]
+        else:
+            backends = [b.strip() for b in os.environ.get(
+                "DDGS_BACKENDS", "duckduckgo,html,lite,brave,mojeek,google"
+            ).split(",") if b.strip()]
+        errors = []
+        for backend in backends:
+            try:
+                rows = []
+                with DDGS() as ddg:
+                    for item in ddg.text(query, max_results=max_results, backend=backend):
+                        url = item.get("href") or item.get("url") or ""
+                        if not url:
+                            continue
+                        rows.append({
+                            "url": url,
+                            "title": item.get("title") or url,
+                            "snippet": item.get("body") or item.get("snippet") or item.get("content") or "",
+                            "provider": "ddgs",
+                        })
+                if rows:
+                    break
+                errors.append(f"{backend}: no results")
+            except Exception as exc:
+                errors.append(f"{backend}: {type(exc).__name__}: {exc}")
+        if not rows:
+            print(json.dumps({"error": " | ".join(errors)[:400]}, ensure_ascii=False))
+            sys.exit(1)
         print(json.dumps(rows, ensure_ascii=False))
     except Exception as exc:
         print(json.dumps({"error": f"{type(exc).__name__}: {exc}"}, ensure_ascii=False))
