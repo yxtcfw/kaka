@@ -134,6 +134,12 @@
       "collectedAt": "2026-11-27"
     },
     {
+      "term": "副卡办理需要多少钱",
+      "source": "baidu-suggest",
+      "query": "副卡办理",
+      "collectedAt": "2026-11-27"
+    },
+    {
       "term": "副卡办理要等几天",
       "source": "baidu-suggest",
       "query": "副卡办理",
@@ -141,12 +147,6 @@
     },
     {
       "term": "副卡办理需要额外的",
-      "source": "baidu-suggest",
-      "query": "副卡办理",
-      "collectedAt": "2026-11-27"
-    },
-    {
-      "term": "副卡办理有什么要求",
       "source": "baidu-suggest",
       "query": "副卡办理",
       "collectedAt": "2026-11-27"
@@ -686,6 +686,12 @@
       "collectedAt": "2026-11-27"
     },
     {
+      "term": "联通校园套餐怎么办理",
+      "source": "baidu-suggest",
+      "query": "联通校园流量卡办理",
+      "collectedAt": "2026-11-27"
+    },
+    {
       "term": "联通校园卡流量只能在学校用吗",
       "source": "baidu-suggest",
       "query": "联通校园流量卡办理",
@@ -693,12 +699,6 @@
     },
     {
       "term": "联通校园卡流量看网站学校知道吗",
-      "source": "baidu-suggest",
-      "query": "联通校园流量卡办理",
-      "collectedAt": "2026-11-27"
-    },
-    {
-      "term": "联通校园卡可以办理副卡",
       "source": "baidu-suggest",
       "query": "联通校园流量卡办理",
       "collectedAt": "2026-11-27"
@@ -734,7 +734,7 @@
       "collectedAt": "2026-11-27"
     },
     {
-      "term": "电信流量卡办理网站",
+      "term": "电信流量卡办理平台",
       "source": "baidu-suggest",
       "query": "电信流量卡办理",
       "collectedAt": "2026-11-27"
@@ -746,7 +746,7 @@
       "collectedAt": "2026-11-27"
     },
     {
-      "term": "电信流量卡办理平台",
+      "term": "电信流量卡办理网站",
       "source": "baidu-suggest",
       "query": "电信流量卡办理",
       "collectedAt": "2026-11-27"
@@ -890,24 +890,6 @@
       "collectedAt": "2026-11-27"
     },
     {
-      "term": "电信校园流量卡办理多少钱",
-      "source": "baidu-suggest",
-      "query": "电信校园流量卡办理",
-      "collectedAt": "2026-11-27"
-    },
-    {
-      "term": "电信校园流量卡办理要钱吗",
-      "source": "baidu-suggest",
-      "query": "电信校园流量卡办理",
-      "collectedAt": "2026-11-27"
-    },
-    {
-      "term": "电信校园流量卡办理要多久",
-      "source": "baidu-suggest",
-      "query": "电信校园流量卡办理",
-      "collectedAt": "2026-11-27"
-    },
-    {
       "term": "电信校园通用流量办理",
       "source": "baidu-suggest",
       "query": "电信校园流量卡办理",
@@ -933,6 +915,24 @@
     },
     {
       "term": "电信校园通用流量",
+      "source": "baidu-suggest",
+      "query": "电信校园流量卡办理",
+      "collectedAt": "2026-11-27"
+    },
+    {
+      "term": "电信校园流量使用范围",
+      "source": "baidu-suggest",
+      "query": "电信校园流量卡办理",
+      "collectedAt": "2026-11-27"
+    },
+    {
+      "term": "电信校园流量只能在学校用吗",
+      "source": "baidu-suggest",
+      "query": "电信校园流量卡办理",
+      "collectedAt": "2026-11-27"
+    },
+    {
+      "term": "电信校园园区流量包是什么流量包",
       "source": "baidu-suggest",
       "query": "电信校园流量卡办理",
       "collectedAt": "2026-11-27"
@@ -1065,12 +1065,6 @@
     },
     {
       "term": "副卡办理要钱吗",
-      "source": "baidu-suggest",
-      "query": "低价副卡办理",
-      "collectedAt": "2026-11-27"
-    },
-    {
-      "term": "副卡办理需要多少钱",
       "source": "baidu-suggest",
       "query": "低价副卡办理",
       "collectedAt": "2026-11-27"
@@ -1342,6 +1336,6 @@
       "collectedAt": "2026-11-27"
     }
   ],
-  "collectedAt": "2026-11-27T15:55:18.300Z",
+  "collectedAt": "2026-11-27T17:02:36.720Z",
   "provider": "baidu-suggest"
 }

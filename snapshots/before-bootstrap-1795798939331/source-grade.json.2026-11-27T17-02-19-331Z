@@ -1,0 +1,10 @@
+{
+  "schema": "rules/source-grade/v1",
+  "searchCandidateDefault": "L3",
+  "minBodyChars": 300,
+  "l1Whitelist": ["example.com", "10086.cn", "189.cn", "10010.com"],
+  "independentDomainMin": 2,
+  "noAutoUpgrade": true,
+  "preserveLongerBody": true,
+  "_comment": "信源分级规则。搜索发现候选默认 L3；L1 只认官方白名单；L2 需独立域；noAutoUpgrade=true 时脚本永不自动把候选升到 L1/L2。正文 <300 字降级或进 reject。preserveLongerBody=true 时，复检/同步发现的新摘录比已存正文短就不覆盖，避免云端回写把本地回填的官方全文截回 300 字。"
+}

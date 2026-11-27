@@ -1,20 +1,28 @@
 {
   "stage": "write-content",
   "provider": "openrouter",
-  "generated": 3,
-  "blocked": 2,
-  "gateBlockedCount": 2,
+  "generated": 1,
+  "blocked": 1,
+  "gateBlockedCount": 1,
   "contentPassed": true,
   "models": [
-    "liquid/lfm-3-1.7b:free",
-    "nvidia/nemotron-3.5-lightning:free",
-    "nvidia/nemotron-3.5-super-vl:free"
+    "nvidia/nemotron-3.5-lightning:free"
   ],
-  "deduped": 2,
+  "deduped": -3,
   "skippedNodes": [
     "n1",
     "auto-scene",
     "auto-sub-manage"
+  ],
+  "skippedProtected": [
+    "n2",
+    "auto-region",
+    "auto-sub-apply"
+  ],
+  "protectedIds": [
+    "article-n2",
+    "article-auto-region",
+    "article-auto-sub-apply"
   ],
   "bannedDomains": [
     "example.com",
@@ -23,45 +31,15 @@
   ],
   "blockedDetail": [
     {
-      "nodeId": "auto-region",
+      "nodeId": "auto-campus-faq",
       "blockers": [
         {
           "gate": "dedup",
-          "detail": "max cosine=0.729 (limit 0.7) with article-n2"
-        }
-      ]
-    },
-    {
-      "nodeId": "auto-campus-apply",
-      "blockers": [
-        {
-          "gate": "dedup",
-          "detail": "max cosine=0.740 (limit 0.7) with article-n2"
+          "detail": "max cosine=0.718 (limit 0.7) with article-auto-campus-apply"
         }
       ]
     }
   ],
   "regeneratedIds": [],
-  "qualityFallbacks": [
-    {
-      "nodeId": "n2",
-      "reason": "body-too-short"
-    },
-    {
-      "nodeId": "auto-region",
-      "reason": "body-too-short"
-    },
-    {
-      "nodeId": "auto-sub-apply",
-      "reason": "body-too-short"
-    },
-    {
-      "nodeId": "auto-campus-apply",
-      "reason": "body-too-short"
-    },
-    {
-      "nodeId": "auto-campus-faq",
-      "reason": "body-too-short"
-    }
-  ]
+  "qualityFallbacks": []
 }
