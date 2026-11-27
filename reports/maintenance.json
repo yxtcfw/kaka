@@ -1,18 +1,31 @@
 {
   "stage": "maintenance",
   "now": "2026-11-27",
-  "removedSources": [],
-  "changedSources": [],
+  "removedSources": [
+    {
+      "sourceId": "src-023",
+      "reason": "dead: GuardError: fetch guard error: http-403 (https://www.nideyu.com/post/514.html)"
+    }
+  ],
+  "changedSources": [
+    "src-001",
+    "src-014",
+    "src-015",
+    "src-021",
+    "src-022",
+    "src-024",
+    "src-025"
+  ],
   "protectedSources": 64,
   "removedCandidates": 0,
   "removedNodes": [],
   "keywordDrops": [],
   "recheck": {
-    "enabled": false,
-    "reason": "search-degraded",
-    "checked": 0,
-    "changed": 0,
-    "dead": 0
+    "enabled": true,
+    "reason": "",
+    "checked": 20,
+    "changed": 7,
+    "dead": 1
   },
   "dryRun": false
 }

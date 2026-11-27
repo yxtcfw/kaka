@@ -698,6 +698,12 @@
       "collectedAt": "2026-11-27"
     },
     {
+      "term": "联通校园套餐怎么办理",
+      "source": "baidu-suggest",
+      "query": "联通校园流量卡办理",
+      "collectedAt": "2026-11-27"
+    },
+    {
       "term": "联通校园卡流量只能在学校用吗",
       "source": "baidu-suggest",
       "query": "联通校园流量卡办理",
@@ -705,12 +711,6 @@
     },
     {
       "term": "联通校园卡流量看网站学校知道吗",
-      "source": "baidu-suggest",
-      "query": "联通校园流量卡办理",
-      "collectedAt": "2026-11-27"
-    },
-    {
-      "term": "联通校园卡可以办理副卡",
       "source": "baidu-suggest",
       "query": "联通校园流量卡办理",
       "collectedAt": "2026-11-27"
@@ -1130,13 +1130,13 @@
       "collectedAt": "2026-11-27"
     },
     {
-      "term": "大流量卡怎么办理才正规",
+      "term": "大流量卡怎么办理",
       "source": "baidu-suggest",
       "query": "大流量流量卡办理",
       "collectedAt": "2026-11-27"
     },
     {
-      "term": "大流量卡怎么办理",
+      "term": "大流量卡怎么办理才正规",
       "source": "baidu-suggest",
       "query": "大流量流量卡办理",
       "collectedAt": "2026-11-27"
@@ -1229,6 +1229,12 @@
       "term": "流量卡副卡办理费用",
       "source": "baidu-suggest",
       "query": "大流量副卡办理",
+      "collectedAt": "2026-11-27"
+    },
+    {
+      "term": "大流量校园流量卡办理需要什么",
+      "source": "baidu-suggest",
+      "query": "大流量校园流量卡办理",
       "collectedAt": "2026-11-27"
     },
     {
@@ -1363,6 +1369,6 @@
       "collectedAt": "2026-11-27"
     }
   ],
-  "collectedAt": "2026-11-27T10:40:56.892Z",
+  "collectedAt": "2026-11-27T11:24:40.391Z",
   "provider": "baidu-suggest"
 }

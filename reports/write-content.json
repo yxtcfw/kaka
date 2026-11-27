@@ -6,11 +6,11 @@
   "gateBlockedCount": 0,
   "contentPassed": true,
   "models": [
-    "liquid/lfm-3-1.7b:free",
     "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "baidu/ernie-5.5-flash-preview:free",
+    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
     "nvidia/nemotron-3.5-super-vl:free",
-    "nvidia/nemotron-3.5-lightning:free",
-    "baidu/ernie-5.5-flash-preview:free"
+    "recursive/flint-v1.0:free"
   ],
   "deduped": 3,
   "skippedNodes": [

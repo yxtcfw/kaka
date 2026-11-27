@@ -2,7 +2,7 @@
   "schema": "state/v1",
   "siteFilled": true,
   "signals": {
-    "count": 231,
+    "count": 232,
     "sources": 2,
     "newRate": 0.0043,
     "passed": false
@@ -1247,6 +1247,55 @@
     },
     {
       "at": "2026-11-27T10:43:15.213Z",
+      "stage": "build-nav-pages",
+      "provider": "openrouter",
+      "inputHash": "7b971cd3041703d3ae37e2124bf9ac10ecbafdd4f9aee4e59c50f9d9fcf1c387",
+      "summary": "新建 0, 跳过已有 64, 降级 0, 门禁拦截 0"
+    },
+    {
+      "at": "2026-11-27T11:24:33.839Z",
+      "stage": "harvest",
+      "provider": "baidu-suggest",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 232 词，newRate=0.0043"
+    },
+    {
+      "at": "2026-11-27T11:24:40.392Z",
+      "stage": "harvest",
+      "provider": "baidu-suggest",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 232 词，newRate=0.0043"
+    },
+    {
+      "at": "2026-11-27T11:25:08.861Z",
+      "stage": "discover",
+      "provider": "ddgs",
+      "inputHash": "5599b1b5e290f1f6cadde878ed815a8c3def1a9195a3978c535ba695995cbd2d",
+      "summary": "9 候选"
+    },
+    {
+      "at": "2026-11-27T11:25:19.383Z",
+      "stage": "fetch-body",
+      "provider": "ddgs",
+      "inputHash": "888dcc179f20a73131dcc80ee8698b787766632fa3233879bb226d17f48af1bb",
+      "summary": "+9 源, L1=64, L2独立域=0"
+    },
+    {
+      "at": "2026-11-27T11:27:16.594Z",
+      "stage": "write-content",
+      "provider": "openrouter",
+      "inputHash": "20b2536d8b7b85e41f9c86ffd93fc4e7d831206c60510dcc17976de6c839b083",
+      "summary": "生成 5, 拦截 0"
+    },
+    {
+      "at": "2026-11-27T11:28:23.576Z",
+      "stage": "maintenance",
+      "provider": "ddgs",
+      "inputHash": "52c4f1178cb9382d007a709ee804cbe6caa7ee9d0785605db632de49b46b812d",
+      "summary": "信源 -1/改7, 候选 -0, 节点 -0, 复检 20"
+    },
+    {
+      "at": "2026-11-27T11:28:23.583Z",
       "stage": "build-nav-pages",
       "provider": "openrouter",
       "inputHash": "7b971cd3041703d3ae37e2124bf9ac10ecbafdd4f9aee4e59c50f9d9fcf1c387",
