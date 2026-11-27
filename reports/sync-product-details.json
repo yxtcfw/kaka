@@ -1,22 +1,22 @@
 {
   "stage": "sync-product-details",
   "endpoint": "https://h5api.lot-ml.com/api/H5OrderEn/Index",
-  "total": 63,
-  "created": 3,
+  "total": 64,
+  "created": 1,
   "updated": 0,
-  "unchanged": 60,
+  "unchanged": 63,
   "failed": 0,
-  "linked": 3,
+  "linked": 1,
   "sources": {
-    "l1": 63,
+    "l1": 64,
     "independentL2": 0,
     "passed": true
   },
   "dryRun": false,
   "failures": [],
   "snapshots": [
-    "/home/yx/WorkBuddy/2026-11-22-15-32-38/vertical-site-template/snapshots/before-product-details-1795760223801/sources.json.2026-11-27T06-17-03-801Z",
-    "/home/yx/WorkBuddy/2026-11-22-15-32-38/vertical-site-template/snapshots/before-product-details-1795760223801/navlinks.json.2026-11-27T06-17-03-806Z",
-    "/home/yx/WorkBuddy/2026-11-22-15-32-38/vertical-site-template/snapshots/before-product-details-1795760223801/state.json.2026-11-27T06-17-03-811Z"
+    "/home/runner/work/kaka/kaka/snapshots/before-product-details-1795770314209/sources.json.2026-11-27T09-05-14-209Z",
+    "/home/runner/work/kaka/kaka/snapshots/before-product-details-1795770314209/navlinks.json.2026-11-27T09-05-14-210Z",
+    "/home/runner/work/kaka/kaka/snapshots/before-product-details-1795770314209/state.json.2026-11-27T09-05-14-210Z"
   ]
 }

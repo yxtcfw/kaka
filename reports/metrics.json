@@ -1,0 +1,10 @@
+{
+  "stage": "fetch-metrics",
+  "provider": "bing",
+  "rows": 0,
+  "estimated": false,
+  "guard": {
+    "provider": "bing",
+    "keyFingerprint": "80c75f14"
+  }
+}

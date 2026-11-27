@@ -1,15 +1,15 @@
 {
   "stage": "harvest",
   "provider": "baidu-suggest",
-  "count": 326,
-  "sources": 2,
+  "count": 389,
+  "sources": 3,
   "newRate": 0,
   "passed": true,
   "degraded": true,
-  "reason": "Error: suggest 响应缺少 s 数组",
+  "reason": "GuardTimeout: fetch guard timeout: https://suggestion.baidu.com/su?wd=%E6%B5%81%E9%87%8F%E5%8D%A1%E5%8A%9E%E7%90%86&cb=vstcb&ie=utf-8",
   "guard": {
     "enabled": false,
-    "reason": "degraded: Error: suggest 响应缺少 s 数组"
+    "reason": "degraded: GuardTimeout: fetch guard timeout: https://suggestion.baidu.com/su?wd=%E6%B5%81%E9%87%8F%E5%8D%A1%E5%8A%9E%E7%90%86&cb=vstcb&ie=utf-8"
   },
   "threshold": {
     "signalsMin": 300,

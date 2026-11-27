@@ -2,9 +2,9 @@
   "schema": "state/v1",
   "siteFilled": true,
   "signals": {
-    "count": 330,
-    "sources": 2,
-    "newRate": 0.003,
+    "count": 389,
+    "sources": 3,
+    "newRate": 0,
     "passed": true
   },
   "tree": {
@@ -12,17 +12,17 @@
     "version": 20
   },
   "sources": {
-    "l1": 63,
+    "l1": 64,
     "independentL2": 0,
     "passed": true
   },
   "content": {
     "generated": 5,
-    "gateBlocked": 9,
+    "gateBlocked": 10,
     "passed": true
   },
   "navPages": {
-    "built": 0,
+    "built": 1,
     "skipped": 63,
     "downgraded": 0
   },
@@ -1076,6 +1076,69 @@
       "provider": "openrouter",
       "inputHash": "aed85b03d04a625789567cbe442f93526b32cb037074df17156cd4f1c64f710a",
       "summary": "新建 0, 跳过已有 63, 降级 0, 门禁拦截 0"
+    },
+    {
+      "at": "2026-11-27T09:02:12.082Z",
+      "stage": "harvest",
+      "provider": "baidu-suggest",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 389 词，newRate=0.91（真实采集失败已降级）"
+    },
+    {
+      "at": "2026-11-27T09:02:42.089Z",
+      "stage": "harvest",
+      "provider": "baidu-suggest",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 389 词，newRate=0（真实采集失败已降级）"
+    },
+    {
+      "at": "2026-11-27T09:02:42.833Z",
+      "stage": "discover",
+      "provider": "ddgs",
+      "inputHash": "405a5d4b8011bee3a56d3f8acdbaa5828f159a345076c2f2c025b6425442bb86",
+      "summary": "0 候选(已降级mock), 过滤示例域 10"
+    },
+    {
+      "at": "2026-11-27T09:02:42.837Z",
+      "stage": "fetch-body",
+      "provider": "ddgs",
+      "inputHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "summary": "+0 源, L1=63, L2独立域=0"
+    },
+    {
+      "at": "2026-11-27T09:04:28.210Z",
+      "stage": "write-content",
+      "provider": "openrouter",
+      "inputHash": "20b2536d8b7b85e41f9c86ffd93fc4e7d831206c60510dcc17976de6c839b083",
+      "summary": "生成 4, 拦截 1"
+    },
+    {
+      "at": "2026-11-27T09:04:38.557Z",
+      "stage": "sync-api-nav",
+      "provider": "lot-ml-api",
+      "inputHash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "summary": "+1 商品nav"
+    },
+    {
+      "at": "2026-11-27T09:05:14.212Z",
+      "stage": "sync-product-details",
+      "provider": "official-api",
+      "inputHash": "68fdd9fe9177c2e62f737cad390ad4b9e9ed52d719e021e0d22e2eb7504e7dec",
+      "summary": "详情信源 +1 更新 0 未变 63 失败 0 挂载 1"
+    },
+    {
+      "at": "2026-11-27T09:05:14.217Z",
+      "stage": "maintenance",
+      "provider": "ddgs",
+      "inputHash": "af3d9bc8db90d6de96c1379afe4d6e86243306810f6f542c95a6d0baf5ebbe19",
+      "summary": "信源 -0/改0, 候选 -0, 节点 -0, 复检 0"
+    },
+    {
+      "at": "2026-11-27T09:05:32.308Z",
+      "stage": "build-nav-pages",
+      "provider": "openrouter",
+      "inputHash": "7b971cd3041703d3ae37e2124bf9ac10ecbafdd4f9aee4e59c50f9d9fcf1c387",
+      "summary": "新建 1, 跳过已有 63, 降级 0, 门禁拦截 0"
     }
   ],
   "_comment": "三道达标判据进度 + 首次填空标记。脚本据此避免重复采集；siteFilled=true 后 fill-site 永久跳过。"

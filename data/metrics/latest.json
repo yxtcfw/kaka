@@ -1,0 +1,7 @@
+{
+  "schema": "metrics/v1",
+  "provider": "bing",
+  "estimated": false,
+  "note": "Bing Webmaster 真实回流（https://kaka.yxtcfw.cn/），estimated=false；站点须已在 Bing Webmaster Tools 验证。",
+  "rows": []
+}
