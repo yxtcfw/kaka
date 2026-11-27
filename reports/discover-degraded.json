@@ -2,7 +2,7 @@
   "stage": "discover",
   "provider": "ddgs",
   "degraded": true,
-  "reason": "Error: ddgs 适配器退出码 1: {\"error\": \"DDGSException: No results found.\"}\n",
+  "reason": "Error: ddgs 适配器退出码 1: {\"error\": \"duckduckgo: DDGSException: No results found. | html: DDGSException: No results found. | lite: DDGSException: No results found. | brave: DDGSException: No results found. | mojeek: DDGSException: No results found. | google: DDGSException: No results found.\"}\n",
   "queries": 10,
   "candidates": 0,
   "bannedFiltered": 10,

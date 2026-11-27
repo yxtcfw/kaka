@@ -1,9 +1,9 @@
 # 站点周报
 
-生成时间：2026-11-27T10:10:41.446Z
+生成时间：2026-11-27T10:43:16.208Z
 
 ## 达标进度
-- 判据① 联想词：{"count":232,"sources":2,"newRate":0.0086,"passed":false}
+- 判据① 联想词：{"count":231,"sources":2,"newRate":0.0043,"passed":false}
 - 判据② 信源：{"l1":64,"independentL2":0,"passed":true}
 - 判据③ 内容：{"generated":5,"gateBlocked":11,"passed":true}
 - 首次填空：siteFilled=true
@@ -22,9 +22,7 @@
 - 无漂移，三者一致
 
 ## 规则/数据变更与回滚
-快照数：768
-- 快照：snapshots/signals/signals.json.2026-11-27T07-06-47-489Z
-- 快照：snapshots/signals/signals.json.2026-11-27T07-06-52-594Z
+快照数：791
 - 快照：snapshots/signals/signals.json.2026-11-27T07-08-45-769Z
 - 快照：snapshots/signals/signals.json.2026-11-27T07-08-50-141Z
 - 快照：snapshots/signals/signals.json.2026-11-27T08-30-13-941Z
@@ -33,6 +31,8 @@
 - 快照：snapshots/signals/signals.json.2026-11-27T09-02-42-089Z
 - 快照：snapshots/signals/signals.json.2026-11-27T10-06-51-691Z
 - 快照：snapshots/signals/signals.json.2026-11-27T10-06-58-950Z
+- 快照：snapshots/signals/signals.json.2026-11-27T10-40-49-690Z
+- 快照：snapshots/signals/signals.json.2026-11-27T10-40-56-892Z
 
 回滚命令示例（人工决定后执行）：
 ```bash

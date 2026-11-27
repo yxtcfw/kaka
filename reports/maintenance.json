@@ -1,55 +1,18 @@
 {
   "stage": "maintenance",
   "now": "2026-11-27",
-  "removedSources": [
-    {
-      "sourceId": "src-002",
-      "reason": "dead: GuardError: fetch guard error: http-403 (https://www.daliuliang.net/)"
-    },
-    {
-      "sourceId": "src-008",
-      "reason": "dead: GuardError: fetch guard error: http-403 (https://zhuanlan.zhihu.com/p/2038104081009529248)"
-    },
-    {
-      "sourceId": "src-009",
-      "reason": "dead: GuardError: fetch guard error: http-403 (https://zhuanlan.zhihu.com/p/1926656950239756388)"
-    },
-    {
-      "sourceId": "src-012",
-      "reason": "dead: GuardError: fetch guard error: http-403 (https://zhuanlan.zhihu.com/p/2037547288688636348)"
-    },
-    {
-      "sourceId": "src-019",
-      "reason": "dead: GuardError: fetch guard error: http-403 (https://zhuanlan.zhihu.com/p/677147152)"
-    }
-  ],
-  "changedSources": [
-    "src-001",
-    "src-003",
-    "src-004",
-    "src-005",
-    "src-006",
-    "src-007",
-    "src-010",
-    "src-011",
-    "src-013",
-    "src-014",
-    "src-015",
-    "src-016",
-    "src-017",
-    "src-018",
-    "src-020"
-  ],
+  "removedSources": [],
+  "changedSources": [],
   "protectedSources": 64,
   "removedCandidates": 0,
   "removedNodes": [],
   "keywordDrops": [],
   "recheck": {
-    "enabled": true,
-    "reason": "",
-    "checked": 20,
-    "changed": 15,
-    "dead": 5
+    "enabled": false,
+    "reason": "search-degraded",
+    "checked": 0,
+    "changed": 0,
+    "dead": 0
   },
   "dryRun": false
 }

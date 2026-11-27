@@ -1,16 +1,18 @@
 {
   "stage": "write-content",
   "provider": "openrouter",
-  "generated": 4,
-  "blocked": 1,
-  "gateBlockedCount": 1,
+  "generated": 5,
+  "blocked": 0,
+  "gateBlockedCount": 0,
   "contentPassed": true,
   "models": [
+    "liquid/lfm-3-1.7b:free",
     "nvidia/nemotron-3-ultra-550b-a55b:free",
-    "particle-ai/particle-1:free",
-    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
+    "nvidia/nemotron-3.5-super-vl:free",
+    "nvidia/nemotron-3.5-lightning:free",
+    "baidu/ernie-5.5-flash-preview:free"
   ],
-  "deduped": 2,
+  "deduped": 3,
   "skippedNodes": [
     "n1"
   ],
@@ -19,17 +21,7 @@
     "example.net",
     "example.org"
   ],
-  "blockedDetail": [
-    {
-      "nodeId": "auto-sub-apply",
-      "blockers": [
-        {
-          "gate": "dedup",
-          "detail": "max cosine=0.760 (limit 0.7) with article-auto-scene"
-        }
-      ]
-    }
-  ],
+  "blockedDetail": [],
   "regeneratedIds": [
     "article-auto-scene",
     "article-auto-sub-manage"
@@ -38,10 +30,6 @@
     {
       "nodeId": "auto-scene",
       "reason": "banned-title"
-    },
-    {
-      "nodeId": "auto-sub-apply",
-      "reason": "body-too-short"
     }
   ]
 }
