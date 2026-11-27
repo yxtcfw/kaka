@@ -23,7 +23,7 @@
     "suggest": "baidu-suggest",
     "search": "ddgs",
     "llm": "openrouter",
-    "metrics": "site-estimate"
+    "metrics": "bing"
   },
   "verification": {
     "bing": "B8B33A6B522E953CC557C211546D6CDF"

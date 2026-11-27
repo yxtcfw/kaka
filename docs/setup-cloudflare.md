@@ -20,7 +20,7 @@ v7 的最低可运行标准：人工只提供 **种子词 + 云端密钥 + 域�
 
 > 变量（非 secret）：`PAGES_PROJECT`（Pages 项目名，默认 `vertical-site`）。
 
-**默认无 key 配置**：`config/manifest.json` 里 `providers.search="ddgs"`、`providers.metrics="site-estimate"`。搜索走 Termux/PC 的 `adapters/ddgs_search.py`（`pip install ddgs`，Node 侧仍零依赖，经 guard 限速）；回流用 `site:域名` 查收录数，产出**估算值**（`estimated=true`），不是 GSC 曝光/点击真值，不参与内容裁剪。未装 ddgs / 失败时显式降级 mock 或跳过，不静默伪造。
+**默认配置**：`config/manifest.json` 里 `providers.search="ddgs"`、`providers.metrics="bing"`。搜索走 Termux/PC 的 `adapters/ddgs_search.py`（`pip install ddgs`，Node 侧仍零依赖，经 guard 限速）；回流走 Bing Webmaster 真实数据（`estimated=false`），密钥从 `BING_API_KEY` 读取，缺 key/接口失败显式降级，不静默伪造。无 key 时可把 provider 临时改为 `site-estimate`（用 `site:域名` 查收录数，产出**估算值** `estimated=true`，非真实曝光/点击，不参与内容裁剪）。
 
 **后期补 key**：只改 `config/manifest.json` 的 `providers` 目标值 + 配对应 Secret，脚本自动切换，无需改代码。`pipeline.yml` 的 env 已注入全部 7 个候选变量（`OPENROUTER_API_KEYS`/`TAVILY_API_KEY`/`EXA_API_KEY`/`DEEPSEEK_API_KEY`/`DASHSCOPE_API_KEY`/`GSC_SERVICE_ACCOUNT`/`BING_API_KEY`），切到 `exa`/`deepseek`/`dashscope` 时只需配对应 Secret，无需改 workflow。
 
