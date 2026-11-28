@@ -20,6 +20,8 @@ const DEFAULT = {
   },
   comparisonCards: 3,
   sourcesPerNode: 3,
+  minFactsPerNode: 0, // 默认宽松；真实仓库 config/fact-sheet.json 设为 4 才启用素材前置门槛
+  excludeGradesFromPrimary: [],
   maxFactChars: 240,
   l3Qualifier: '据平台整理约为',
   pitfallKeys: ['首充要求', '优惠说明'],

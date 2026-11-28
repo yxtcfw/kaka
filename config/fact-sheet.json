@@ -22,6 +22,8 @@
   },
   "comparisonCards": 3,
   "sourcesPerNode": 3,
+  "minFactsPerNode": 4,
+  "_commentMaterial": "节点可用事实不足 4 条、且没有「具体的坑」或「反常识数字」时直接跳过，不调用模型；需人工补录该节点的官方详情信源。",
   "preferGrades": ["L1", "L2"],
   "excludeGradesFromPrimary": ["L3"],
   "gradeWeights": { "L1": 12, "L2": 4, "L3": -10 },

@@ -103,7 +103,7 @@ export async function runWriteContent(root = ROOT, args = {}) {
   const usedModels = new Set();
   const qualityFallbacks = [];
   const skippedProtected = [];
-  const briefGenerated = [], briefReused = [], qualityRejects = [];
+  const briefGenerated = [], briefReused = [], qualityRejects = [], skippedNoMaterial = [];
   let gateBlockedCount = 0;
 
   for (const node of targetNodes.slice(0, limit)) {
@@ -138,6 +138,14 @@ export async function runWriteContent(root = ROOT, args = {}) {
     const pack = buildMaterialPack(node, cites, factSheet, factCfg);
     const facts = [...new Map((factSheet.facts || [])
       .filter((f) => sourceIds.includes(f.sourceId)).map((f) => [f.factId, f])).values()];
+    // 素材前置检查：节点没有可核验的具体事实时，直接跳过，不调用模型。
+    // 方案原则：素材不足时放开自由，产出会从「含糊」变成「编造」，危害更大。
+    const minFacts = Number(factCfg.minFactsPerNode || 0);
+    if (minFacts > 0 && (facts.length < minFacts || (!pack.pitfall && !pack.surprisingNumber))) {
+      skippedNoMaterial.push({ nodeId: node.id, facts: facts.length, pitfall: !!pack.pitfall, surprising: !!pack.surprisingNumber });
+      qualityFallbacks.push({ nodeId: node.id, reason: 'no-material', action: 'skipped-kept-old' });
+      continue;
+    }
     const factText = factSheetDigest({ facts }, pack, factCfg, Number(promptCfg.sourceDigestChars || 4000));
 
     // 第三层：AI 只做表达。命题卡+事实清单同时注入，标题候选由程序打分选定。
@@ -229,7 +237,7 @@ export async function runWriteContent(root = ROOT, args = {}) {
   };
 
   const skippedNodes = tree.nodes.filter((n) => skipNodeIds.has(n.id)).map((n) => n.id);
-  const report = { stage: 'write-content', provider, generated: generated.length, blocked: blocked.length, gateBlockedCount, contentPassed: state.content.passed, models: [...usedModels], deduped: articles.length + generated.length - mergedArticles.length, skippedNodes, skippedProtected, protectedIds: [...protectedIds], bannedDomains: [...bannedDomains], blockedDetail: blocked, regeneratedIds, qualityFallbacks, briefGenerated, briefReused, factCount: factSheet.facts.length, qualityRejects };
+  const report = { stage: 'write-content', provider, generated: generated.length, blocked: blocked.length, gateBlockedCount, contentPassed: state.content.passed, models: [...usedModels], deduped: articles.length + generated.length - mergedArticles.length, skippedNodes, skippedProtected, protectedIds: [...protectedIds], bannedDomains: [...bannedDomains], blockedDetail: blocked, regeneratedIds, qualityFallbacks, briefGenerated, briefReused, factCount: factSheet.facts.length, qualityRejects, skippedNoMaterial };
 
   if (!args.dryRun) {
     makeSnapshots(root, `before-writecontent-${Date.now()}`);
