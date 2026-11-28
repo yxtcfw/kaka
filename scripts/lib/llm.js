@@ -211,6 +211,31 @@ export async function suggestTreeRules(provider, seedTerms, mapping, opts = {}) 
   };
 }
 
+// 标题候选打分：含关键词、长度、疑问句/反差句加分；站内重复或模板句扣分。
+// 规则来自 config/article-prompts.json，程序自动选定最高分，候选一并保留供人工替换。
+export function pickTitle(candidates, ctx = {}, rules = {}) {
+  const list = (Array.isArray(candidates) ? candidates : [])
+    .filter((x) => typeof x === 'string' && x.trim()).slice(0, 5).map((x) => x.trim().slice(0, 60));
+  if (!list.length) return { candidates: [], chosen: '' };
+  const min = Number(rules.minChars || 15), max = Number(rules.maxChars || 22);
+  const compile = (arr) => (arr || []).map((p) => { try { return new RegExp(p); } catch { return null; } }).filter(Boolean);
+  const bonus = compile(rules.bonusPatterns), penalty = compile(rules.penaltyPatterns);
+  const kws = (ctx.keywords || []).map(String).filter((k) => k.length >= 2);
+  const existing = new Set((ctx.existingTitles || []).map(String));
+  const scored = list.map((title) => {
+    let score = 0;
+    const len = [...title].length;
+    if (len < min || len > max) score -= 3;
+    if (rules.requireKeyword !== false && kws.some((k) => title.includes(k))) score += 2;
+    if (bonus.some((re) => re.test(title))) score += 2;
+    if (penalty.some((re) => re.test(title))) score -= 2;
+    if (existing.has(title)) score -= 5;
+    return { title, score };
+  }).sort((a, b) => b.score - a.score);
+  const chosen = scored[0].score >= Number(rules.minScore ?? 0) ? scored[0].title : '';
+  return { candidates: scored, chosen };
+}
+
 // 生成内容 bundle：AI 只写组织/推荐语；数字必须来自 citations，真实模型产出的 claim
 // 若无合法 citationId 会被事实闸拦下，不会绕过。失败即降级 mock，不静默伪造。
 export async function composeBundle(provider, ctx, opts = {}) {
@@ -244,9 +269,12 @@ export async function composeBundle(provider, ctx, opts = {}) {
     title: String(ctx.title || ''),
     cardDesc: String(ctx.cardDesc || '无'),
     sourceIds: JSON.stringify(ctx.sourceIds || []),
-    sourceDigest: sourceDigest || '无'
+    sourceDigest: sourceDigest || '无',
+    brief: JSON.stringify(ctx.brief || {}),
+    facts: String(ctx.facts || '无'),
+    reviewNotes: String(ctx.reviewNotes || '无')
   };
-  const fill = (s) => String(s).replace(/\{(title|cardDesc|sourceIds|sourceDigest)\}/g, (m, k) => tplVars[k] ?? m);
+  const fill = (s) => String(s).replace(/\{(title|cardDesc|sourceIds|sourceDigest|brief|facts|reviewNotes)\}/g, (m, k) => tplVars[k] ?? m);
   const systemPrompt = promptCfg.system
     ? fill(promptCfg.system)
     : '你是资料整理助手。只输出 JSON：{"intro":[{"title":"...","text":"..."}],"cardDesc":"...","claims":[{"text":"...","citationIds":["..."]}]}。intro 为 2-4 个结构化段落，title 是小标题（如「套餐包含什么」「怎么办理」「谁能办理」，可为空串），text 是正文；不得编造数值：所有含数字的表述必须给出 citationIds，且只能引用给定 sourceId；拿不准就不要写数字。不得输出「本卡片主题为」等模板占位句，不得提及银行、持卡人协议等与流量卡无关的领域。';
@@ -275,13 +303,100 @@ export async function composeBundle(provider, ctx, opts = {}) {
       title: typeof s.title === 'string' ? [...s.title].slice(0, 20).join('') : '',
       text: [...s.text].slice(0, 500).join('')
     }));
-  const introText = intro.map((s) => s.text).join('\n');
+  // 空行分段：渲染层按空行切 <p>，单换行会被合并成一大段（旧版结构病的成因之一）。
+  const introText = intro.map((s) => s.text).join('\n\n');
+  const titlePick = pickTitle(data.titleCandidates, {
+    keywords: ctx.keywords || [], existingTitles: ctx.existingTitles || []
+  }, promptCfg.titleRules || {});
   return {
     ...base,
+    title: titlePick.chosen || base.title,
     body: introText || (typeof data.body === 'string' && data.body.trim() ? data.body : base.body),
     intro: intro.length ? intro : base.intro,
     cardDesc,
     claims,
-    _meta: { provider, degraded: false, fingerprint: r.fingerprint, model: r.model || '', requestedModel: r.requestedModel || '' }
+    titleCandidates: titlePick.candidates,
+    _meta: {
+      provider, degraded: false, fingerprint: r.fingerprint,
+      model: r.model || '', requestedModel: r.requestedModel || '',
+      promptVersion: String(promptCfg.promptVersion || ''),
+      snapshotIds: ctx.snapshotIds || [],
+      paragraphCount: intro.length
+    }
+  };
+}
+
+// ---- 命题卡：树给问题，不写数字。生成后落盘复用，保证后续渲染确定性。 ----
+const BRIEF_FIELDS = ['reader_situation', 'core_question', 'one_sentence_answer', 'scope_boundary', 'parent_title'];
+
+export function deterministicBrief(ctx = {}, cfg = {}) {
+  const label = String(ctx.label || ctx.node?.label || '');
+  const topic = String(ctx.topic || ctx.node?.topic || label);
+  const keywords = (Array.isArray(ctx.keywords) ? ctx.keywords : ctx.node?.keywords || []).map(String);
+  const parentTitle = String(ctx.parentTitle || '');
+  const key = keywords.slice(0, 4).join('、') || topic;
+  const max = Number(cfg.maxFieldChars || 160);
+  const cut = (s) => [...String(s)].slice(0, max).join('');
+  return {
+    reader_situation: cut(`想办「${label || topic}」的人，手上有几个入口却不确定哪一个适合自己`),
+    core_question: cut(`「${topic}」到底值不值得办，办之前要先核对什么？`),
+    one_sentence_answer: cut(`先核对${key}中与自己地区、年龄和预算相关的限制，再决定是否办理`),
+    scope_boundary: cut(`只谈${parentTitle || label || topic}范围内有信源支撑的要点，不展开无资料的横向对比`),
+    must_cover: ['办理条件与首充', '流量构成与到期资费', '禁发地区与年龄限制', '套外资费与止损办法'],
+    must_avoid: ['编造办理成功率', '虚构用户评价', '无信源支撑的跨运营商对比'],
+    intent: 'problem',
+    parent_title: cut(parentTitle || label || topic)
+  };
+}
+
+// 命题卡禁止出现资费数字（那是 Fact Sheet 的职责）；命中即丢弃该字段回退确定性值。
+function hasFeeDigits(s) {
+  return /\d+\s*(元|G|GB|个月|周岁|分钟|条)/i.test(String(s));
+}
+
+export async function composeBrief(provider, ctx = {}, opts = {}) {
+  const status = llmStatus(provider);
+  const cfg = opts.prompts || {};
+  const fallback = deterministicBrief(ctx, cfg);
+  const meta = (extra = {}) => ({
+    provider: provider === 'mock' || !status.available ? 'mock-fallback' : provider,
+    model: '', deterministic: true, degraded: false,
+    promptVersion: String(cfg.promptVersion || ''), ...extra
+  });
+  if (provider === 'mock' || !status.available) return { brief: fallback, meta: meta() };
+
+  const tplVars = {
+    title: String(ctx.topic || ctx.node?.topic || ctx.label || ''),
+    keywords: JSON.stringify(Array.isArray(ctx.keywords) ? ctx.keywords : ctx.node?.keywords || []),
+    parentTitle: String(ctx.parentTitle || ''),
+    sourceTitles: JSON.stringify((ctx.sourceTitles || []).slice(0, 6).map(String))
+  };
+  const fill = (s) => String(s).replace(/\{(title|keywords|parentTitle|sourceTitles)\}/g, (m, k) => tplVars[k] ?? m);
+  const system = cfg.system ? fill(cfg.system) : '你是内容策划助手。只输出命题卡 JSON，不写资费数字。';
+  const userDefault = '节点标题：{title}。关键词：{keywords}。可用信源标题：{sourceTitles}。输出命题卡 JSON。';
+  const r = await callModel(provider, [
+    { role: 'system', content: system },
+    { role: 'user', content: cfg.user ? fill(cfg.user) : fill(userDefault) }
+  ], opts);
+  if (!r.ok) return { brief: fallback, meta: meta({ degraded: true, reason: r.reason, model: r.model || '' }) };
+
+  const d = r.data || {};
+  const brief = { ...fallback };
+  const max = Number(cfg.maxFieldChars || 160);
+  const cut = (s) => [...String(s).trim()].slice(0, max).join('');
+  for (const k of BRIEF_FIELDS) {
+    if (typeof d[k] === 'string' && d[k].trim() && !hasFeeDigits(d[k])) brief[k] = cut(d[k]);
+  }
+  const maxList = Number(cfg.maxListItems || 6);
+  for (const k of ['must_cover', 'must_avoid']) {
+    if (Array.isArray(d[k]) && d[k].length) {
+      const list = d[k].filter((x) => typeof x === 'string' && x.trim() && !hasFeeDigits(x)).slice(0, maxList).map(cut);
+      if (list.length) brief[k] = list;
+    }
+  }
+  if (d.intent === 'problem' || d.intent === 'guide') brief.intent = d.intent;
+  return {
+    brief,
+    meta: { provider, model: r.model || '', fingerprint: r.fingerprint, deterministic: false, degraded: false, promptVersion: String(cfg.promptVersion || '') }
   };
 }

@@ -6,10 +6,11 @@ import path from 'node:path';
 import { makeRoot, cleanup, writeJson, REPO } from './helper.js';
 import { runBuild } from '../scripts/build.js';
 
-test('存量文章：三篇长文达标，两篇模板文已清除', () => {
+test('存量文章：人工长文与云端合格长文均达标，模板文已清除', () => {
   const doc = JSON.parse(fs.readFileSync(path.join(REPO, 'data/articles.json'), 'utf8'));
   const ids = doc.articles.map((a) => a.id);
-  assert.deepEqual(ids.sort(), ['article-auto-region', 'article-auto-sub-apply', 'article-n2']);
+  // 三篇人工稿受保护 + 一篇云端模型合格稿（917 字，由真实信源生成）。
+  assert.deepEqual(ids.sort(), ['article-auto-campus-apply', 'article-auto-region', 'article-auto-sub-apply', 'article-n2']);
   for (const a of doc.articles) {
     assert.ok(a.body.length >= 600, `${a.id} 正文不足 600 字`);
     assert.ok(!/本卡片主题为|银行正式版本|持卡人协议/.test(a.body), `${a.id} 残留模板措辞`);

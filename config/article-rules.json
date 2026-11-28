@@ -13,7 +13,7 @@
   ],
   "forceRegenerateNodeIds": [],
   "protectedOrigins": ["manual"],
-  "minBodyChars": 800,
+  "minBodyChars": 0,
   "bannedTitlePatterns": [
     "^auto-",
     "[（(]auto-[a-z0-9_-]+[）)]$"
@@ -28,5 +28,5 @@
     "的资费口径、",
     "的适用限制"
   ],
-  "_comment2": "protectedOrigins 中的文章（如人工写就的 origin=manual）在自动创作时永不覆盖，即使模型产出合格也不替换。forceRegenerateNodeIds 中的节点在下一轮创作时丢弃旧文章重生成；质量门槛拦截模板标题/无关领域措辞，命中时跳过该节点、保留旧文而不是写入兜底模板。首页上屏门槛另见 rules/home-articles.json。"
+  "_comment2": "protectedOrigins 中的文章（如人工写就的 origin=manual）在自动创作时永不覆盖，即使模型产出合格也不替换。forceRegenerateNodeIds 中的节点在下一轮创作时丢弃旧文章重生成。minBodyChars=0 表示取消字数硬下限，改由 rules/content-quality.json 的信息密度/事实对齐/判断句门禁判优劣；命中时跳过该节点、保留旧文而不是写入兜底模板。首页上屏门槛另见 rules/home-articles.json。"
 }

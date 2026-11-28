@@ -1,6 +1,6 @@
 {
   "stage": "build",
-  "pages": 69,
+  "pages": 71,
   "urls": [
     "https://kaka.yxtcfw.cn/",
     "https://kaka.yxtcfw.cn/nav/api-5260.html",
@@ -70,7 +70,9 @@
     "https://kaka.yxtcfw.cn/blog/article-n2.html",
     "https://kaka.yxtcfw.cn/blog/article-region.html",
     "https://kaka.yxtcfw.cn/blog/article-sub-apply.html",
-    "https://kaka.yxtcfw.cn/blog/article-campus-apply.html"
+    "https://kaka.yxtcfw.cn/blog/article-campus-apply.html",
+    "https://kaka.yxtcfw.cn/forbidden-regions.html",
+    "https://kaka.yxtcfw.cn/age-limits.html"
   ],
   "outDir": "_site"
 }

@@ -1,0 +1,28 @@
+{
+  "schema": "content-quality/v1",
+  "_comment": "内容质量门禁（独立于六道门禁，不修改 gates.js）。字数不设硬下限，信息密度设硬下限。失败一律跳过该节点并保留旧文，不写兜底模板。规则进 git 可审计，换主题改本文件即可。",
+  "enabled": true,
+  "maxRewrites": 1,
+  "_commentRewrite": "门禁失败先打回重写：把失败项回灌给模型再生成一次；仍不过才跳过并保留旧文。0 表示不重写直接跳过。",
+  "fuzzyWords": ["通常", "一般", "可能", "部分", "不少", "很多", "往往", "多用于", "大多", "据说", "常见", "多在", "大约", "基本上"],
+  "maxFuzzyHits": 0,
+  "density": {
+    "windowChars": 300,
+    "minConcretePerWindow": 1,
+    "concretePatterns": ["\\d", "广东|河南|湖南|江苏|江西|山东|湖北|陕西|重庆|福建|内蒙古|西藏|黑龙江", "相比|不同于|反例|换成| alternatives"]
+  },
+  "numberAlignment": {
+    "enabled": true,
+    "pattern": "\\d+(?:\\.\\d+)?\\s*(?:元|G|GB|个月|周岁|分钟|条|%)",
+    "allowedNumbers": ["2026"],
+    "maxUnmatched": 0
+  },
+  "l3Qualifier": "据平台整理约为",
+  "l3QualifierWindow": 40,
+  "requireJudgement": true,
+  "judgementWords": ["适合", "不适合", "不建议", "优先", "别碰", "推荐", "应选", "避开", "不推荐"],
+  "parallelListPatterns": ["第[一二三四五]要", "第[一二三四五]步", "首先.{0,40}其次", "一是.{0,40}二是"],
+  "mustCoverMinRatio": 0.6,
+  "minBodyChars": 0,
+  "_comment2": "minBodyChars=0 表示取消字数硬下限；密度与事实对齐才是门槛。模糊词按字面命中计，资料未注明等限定语不在黑名单内。"
+}

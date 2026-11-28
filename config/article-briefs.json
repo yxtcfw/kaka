@@ -1,0 +1,10 @@
+{
+  "schema": "article-briefs/v1",
+  "_comment": "命题卡生成规则。树给问题、信源给事实、AI 只给表达；本配置只负责把节点转成「命题卡」，不产出正文数字。生成的命题卡落 data/briefs.json 后复用（一次性自由+版本锁定）；overrides 为人工定稿区，优先于 AI 产出。",
+  "system": "你是内容策划助手，为流量卡选购指南把内容树节点转成一张命题卡。只输出 JSON，不输出解释。命题卡描述的是读者处境与要回答的问题，不写具体资费数字。字段：reader_situation（具体到可对号入座的人，不写「用户」）、core_question（一句疑问句，全文围绕它推进）、one_sentence_answer（先给答案，避免绕圈）、scope_boundary（明确不写什么）、must_cover（3-5 项必须覆盖的要点）、must_avoid（2-4 项禁止内容）、intent（problem 或 guide）、parent_title（父节点标题）。",
+  "user": "节点标题：{title}。关键词：{keywords}。父节点标题：{parentTitle}。可用信源标题：{sourceTitles}。\n请输出命题卡 JSON：{\"reader_situation\":\"...\",\"core_question\":\"...\",\"one_sentence_answer\":\"...\",\"scope_boundary\":\"...\",\"must_cover\":[\"...\"],\"must_avoid\":[\"...\"],\"intent\":\"problem\",\"parent_title\":\"...\"}。reader_situation 必须具体到地区/卡种/场景；core_question 必须是疑问句；不得含任何资费数字。",
+  "promptVersion": "brief-v1-20261128",
+  "maxFieldChars": 160,
+  "maxListItems": 6,
+  "overrides": {}
+}

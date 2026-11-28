@@ -102,7 +102,7 @@ test('composeBundle: 真 provider 产出正文与带合法 citation 的 claim', 
     }, { fetchFn });
     assert.equal(r._meta.degraded, false);
     assert.deepEqual(r.intro.map((s) => s.title), ['套餐包含什么', '怎么办理'], '结构化段落须保留');
-    assert.equal(r.body, '依据已登记信源整理的客观介绍正文。\n前往官方页面办理。', 'body 须由段落拼接');
+    assert.equal(r.body, '依据已登记信源整理的客观介绍正文。\n\n前往官方页面办理。', 'body 须以空行分段，避免渲染时被合并成一个大段');
     assert.equal(r.claims.length, 1);
     assert.equal(r.claims[0].citationIds[0], 'src-001');
   } finally {

@@ -1,0 +1,31 @@
+{
+  "schema": "fact-sheet/v1",
+  "_comment": "事实清单抽取规则。信源字段一律带 grade/sourceId/fetchedAt；L3 不得作确定报价。素材包只从已登记信源原文抽取，脚本不自行换算、不编造用户评价。",
+  "promptVersion": "fact-v1-20261128",
+  "gradePolicy": {
+    "L1": { "not_for": [], "usable_as": "可直接作确定表述，须注明信源" },
+    "L2": { "not_for": [], "usable_as": "可引用，须注明信源" },
+    "L3": { "not_for": ["fact", "price"], "usable_as": "仅可作为「据平台整理约为」类表述，不得作为确定报价" }
+  },
+  "fields": {
+    "monthly_fee": { "keys": ["月租费用", "套餐资费", "nowPrice"], "label": "月租" },
+    "general_data": { "keys": ["通用流量", "tyLiuliang"], "label": "通用流量" },
+    "directional_data": { "keys": ["定向流量"], "label": "定向流量" },
+    "voice": { "keys": ["通话时长"], "label": "通话时长" },
+    "activation_fee": { "keys": ["首充要求", "优惠说明"], "label": "首充要求" },
+    "age_range": { "keys": ["年龄要求", "age"], "label": "年龄要求" },
+    "contract_months": { "keys": ["合约期限"], "label": "合约期限" },
+    "excluded_regions": { "keys": ["禁发地区"], "label": "禁发地区" },
+    "overage_rate": { "keys": ["超出资费", "套外资费"], "label": "套外资费" },
+    "first_month": { "keys": ["首月资费"], "label": "首月计费" },
+    "cancel_method": { "keys": ["销户方式"], "label": "销户方式" }
+  },
+  "comparisonCards": 3,
+  "sourcesPerNode": 3,
+  "maxFactChars": 240,
+  "l3Qualifier": "据平台整理约为",
+  "pitfallKeys": ["首充要求", "优惠说明"],
+  "surprisingKeys": ["超出资费", "套外资费"],
+  "linkKeywordsTo": ["title", "bodyExcerpt", "category", "specs"],
+  "_comment2": "comparisonCards=同类卡对比张数；sourcesPerNode=每节点注入的信源数；linkKeywordsTo=节点关键词与信源字段的相关性打分范围。"
+}
