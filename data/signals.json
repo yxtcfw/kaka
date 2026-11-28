@@ -32,13 +32,13 @@
       "collectedAt": "2026-11-28"
     },
     {
-      "term": "流量卡办理移动",
+      "term": "流量卡办理入口电信",
       "source": "baidu-suggest",
       "query": "流量卡办理",
       "collectedAt": "2026-11-28"
     },
     {
-      "term": "流量卡办理入口电信",
+      "term": "流量卡办理移动",
       "source": "baidu-suggest",
       "query": "流量卡办理",
       "collectedAt": "2026-11-28"
@@ -404,12 +404,6 @@
       "collectedAt": "2026-11-28"
     },
     {
-      "term": "移动校园流量卡",
-      "source": "baidu-suggest",
-      "query": "移动校园流量卡办理",
-      "collectedAt": "2026-11-28"
-    },
-    {
       "term": "移动校园流量卡办理流程",
       "source": "baidu-suggest",
       "query": "移动校园流量卡办理",
@@ -459,6 +453,12 @@
     },
     {
       "term": "移动校园流量使用范围",
+      "source": "baidu-suggest",
+      "query": "移动校园流量卡办理",
+      "collectedAt": "2026-11-28"
+    },
+    {
+      "term": "移动校园融合专属流量",
       "source": "baidu-suggest",
       "query": "移动校园流量卡办理",
       "collectedAt": "2026-11-28"
@@ -554,13 +554,13 @@
       "collectedAt": "2026-11-28"
     },
     {
-      "term": "联通大流量套餐有哪些",
+      "term": "联通大流量卡有哪些套餐",
       "source": "baidu-suggest",
       "query": "联通大流量卡办理",
       "collectedAt": "2026-11-28"
     },
     {
-      "term": "联通大流量卡有哪些套餐",
+      "term": "联通大流量套餐有哪些",
       "source": "baidu-suggest",
       "query": "联通大流量卡办理",
       "collectedAt": "2026-11-28"
@@ -1052,6 +1052,12 @@
       "collectedAt": "2026-11-28"
     },
     {
+      "term": "副卡办理可以线上办理吗",
+      "source": "baidu-suggest",
+      "query": "低价副卡办理",
+      "collectedAt": "2026-11-28"
+    },
+    {
       "term": "副卡办理要钱吗",
       "source": "baidu-suggest",
       "query": "低价副卡办理",
@@ -1065,12 +1071,6 @@
     },
     {
       "term": "副卡办理的套餐是怎么收费的",
-      "source": "baidu-suggest",
-      "query": "低价副卡办理",
-      "collectedAt": "2026-11-28"
-    },
-    {
-      "term": "副卡办理有什么要求",
       "source": "baidu-suggest",
       "query": "低价副卡办理",
       "collectedAt": "2026-11-28"
@@ -1130,13 +1130,13 @@
       "collectedAt": "2026-11-28"
     },
     {
-      "term": "大流量的手机卡在哪里办理",
+      "term": "大流量卡办理条件",
       "source": "baidu-suggest",
       "query": "大流量流量卡办理",
       "collectedAt": "2026-11-28"
     },
     {
-      "term": "大流量卡办理条件",
+      "term": "大流量的手机卡在哪里办理",
       "source": "baidu-suggest",
       "query": "大流量流量卡办理",
       "collectedAt": "2026-11-28"
@@ -1217,6 +1217,12 @@
       "term": "流量卡副卡办理费用",
       "source": "baidu-suggest",
       "query": "大流量副卡办理",
+      "collectedAt": "2026-11-28"
+    },
+    {
+      "term": "大流量校园流量卡办理需要什么",
+      "source": "baidu-suggest",
+      "query": "大流量校园流量卡办理",
       "collectedAt": "2026-11-28"
     },
     {
@@ -1336,6 +1342,6 @@
       "collectedAt": "2026-11-28"
     }
   ],
-  "collectedAt": "2026-11-28T03:08:44.805Z",
+  "collectedAt": "2026-11-28T03:20:51.235Z",
   "provider": "baidu-suggest"
 }

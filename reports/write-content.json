@@ -1,16 +1,17 @@
 {
   "stage": "write-content",
   "provider": "openrouter",
-  "generated": 1,
+  "generated": 0,
   "blocked": 0,
-  "gateBlockedCount": 1,
+  "gateBlockedCount": 2,
   "contentPassed": true,
   "models": [
-    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "baidu/ernie-5.5-flash-preview:free",
+    "nvidia/nemotron-3.5-lightning:free",
     "recursive/flint-v1.0:free",
-    "liquid/lfm-3-1.7b:free"
+    "nvidia/nemotron-3.5-super-vl:free"
   ],
-  "deduped": -2,
+  "deduped": -3,
   "skippedNodes": [
     "n1",
     "auto-scene",
@@ -35,37 +36,56 @@
   "regeneratedIds": [],
   "qualityFallbacks": [
     {
+      "nodeId": "auto-campus-apply",
+      "reason": "fact-density+density",
+      "action": "skipped-kept-old"
+    },
+    {
       "nodeId": "auto-campus-faq",
-      "reason": "fuzzy+density+judgement",
+      "reason": "fuzzy+fact-density+number-alignment",
       "action": "skipped-kept-old"
     }
   ],
-  "briefGenerated": [
+  "briefGenerated": [],
+  "briefReused": [
     "auto-campus-apply",
     "auto-campus-faq"
   ],
-  "briefReused": [],
   "factCount": 598,
   "qualityRejects": [
     {
+      "nodeId": "auto-campus-apply",
+      "reason": "fact-density+density",
+      "detail": [
+        {
+          "gate": "fact-density",
+          "detail": "正文仅引用 0 条事实值，低于 3"
+        },
+        {
+          "gate": "density",
+          "detail": "2 个 300 字窗口缺少具体信息",
+          "sample": {
+            "from": 0,
+            "hits": 0
+          }
+        }
+      ]
+    },
+    {
       "nodeId": "auto-campus-faq",
-      "reason": "fuzzy+density+judgement",
+      "reason": "fuzzy+fact-density+number-alignment",
       "detail": [
         {
           "gate": "fuzzy",
           "detail": "模糊词命中：常见"
         },
         {
-          "gate": "density",
-          "detail": "1 个 300 字窗口缺少具体信息",
-          "sample": {
-            "from": 0,
-            "hits": 0
-          }
+          "gate": "fact-density",
+          "detail": "正文仅引用 0 条事实值，低于 3"
         },
         {
-          "gate": "judgement",
-          "detail": "文末缺少明确判断句"
+          "gate": "number-alignment",
+          "detail": "正文数字无法对应 Fact Sheet：5G"
         }
       ]
     }

@@ -2,9 +2,9 @@
   "schema": "state/v1",
   "siteFilled": true,
   "signals": {
-    "count": 226,
+    "count": 227,
     "sources": 2,
-    "newRate": 0,
+    "newRate": 0.0044,
     "passed": false
   },
   "tree": {
@@ -17,8 +17,8 @@
     "passed": true
   },
   "content": {
-    "generated": 4,
-    "gateBlocked": 15,
+    "generated": 3,
+    "gateBlocked": 17,
     "passed": true
   },
   "navPages": {
@@ -27,55 +27,6 @@
     "downgraded": 0
   },
   "runs": [
-    {
-      "at": "2026-11-26T13:20:06.139Z",
-      "stage": "fetch-body",
-      "provider": "mock",
-      "inputHash": "dadcb3b4b85518115c65f2602df5b0adb9915fbdcf9a48494aaea385371c6fc4",
-      "summary": "+10 源, L1=1, L2独立域=1"
-    },
-    {
-      "at": "2026-11-26T13:20:06.201Z",
-      "stage": "write-content",
-      "provider": "mock",
-      "inputHash": "7922ce65b7977ce7f0bf7f99bc941b51acb595f193fdd9573dd62a400db05418",
-      "summary": "生成 1, 拦截 1"
-    },
-    {
-      "at": "2026-11-26T13:20:06.259Z",
-      "stage": "fill-site",
-      "provider": "deterministic",
-      "inputHash": "84b70913f0ffdc655e67c0cbd9b29a3ed9a30cd14c832d8b40e7adde04f93779",
-      "summary": "首次填空 9 字段并冻结"
-    },
-    {
-      "at": "2026-11-26T13:20:06.334Z",
-      "stage": "build-nav-pages",
-      "provider": "mock",
-      "inputHash": "b5f28420b76235f465757c730bb7906ea9ecd6a3440e42fc57ac82a70622d297",
-      "summary": "详情 2, 降级 0, 门禁拦截 0"
-    },
-    {
-      "at": "2026-11-26T13:39:43.906Z",
-      "stage": "harvest",
-      "provider": "mock",
-      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
-      "summary": "采集 326 词，newRate=0"
-    },
-    {
-      "at": "2026-11-26T13:39:43.945Z",
-      "stage": "harvest",
-      "provider": "mock",
-      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
-      "summary": "采集 326 词，newRate=0"
-    },
-    {
-      "at": "2026-11-26T13:39:44.026Z",
-      "stage": "grow-tree",
-      "provider": "mock",
-      "inputHash": "beecaf01c348881896a0e483dd1d9239f7631175ddbaa9d06a853389d2d3c649",
-      "summary": "关键词 +0, 节点 2, 幂等=true"
-    },
     {
       "at": "2026-11-26T13:39:44.049Z",
       "stage": "discover",
@@ -1422,6 +1373,55 @@
     },
     {
       "at": "2026-11-28T03:16:28.752Z",
+      "stage": "build-nav-pages",
+      "provider": "openrouter",
+      "inputHash": "e2b896e3bcad418bf946245c7e1ddef21f963eecd73f255290b637ce4ee55392",
+      "summary": "新建 0, 跳过已有 63, 降级 0, 门禁拦截 0"
+    },
+    {
+      "at": "2026-11-28T03:20:44.611Z",
+      "stage": "harvest",
+      "provider": "baidu-suggest",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 227 词，newRate=0.0088"
+    },
+    {
+      "at": "2026-11-28T03:20:51.236Z",
+      "stage": "harvest",
+      "provider": "baidu-suggest",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 227 词，newRate=0.0044"
+    },
+    {
+      "at": "2026-11-28T03:20:58.399Z",
+      "stage": "discover",
+      "provider": "ddgs",
+      "inputHash": "5599b1b5e290f1f6cadde878ed815a8c3def1a9195a3978c535ba695995cbd2d",
+      "summary": "0 候选(已降级mock), 过滤示例域 10"
+    },
+    {
+      "at": "2026-11-28T03:20:58.403Z",
+      "stage": "fetch-body",
+      "provider": "ddgs",
+      "inputHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "summary": "+0 源, L1=69, L2独立域=0"
+    },
+    {
+      "at": "2026-11-28T03:28:25.036Z",
+      "stage": "write-content",
+      "provider": "openrouter",
+      "inputHash": "425c0e3213fa3b5e90401bc3ea66bb4717be0382a7943e70a8f457f8dd233676",
+      "summary": "生成 0, 拦截 2"
+    },
+    {
+      "at": "2026-11-28T03:29:05.677Z",
+      "stage": "maintenance",
+      "provider": "ddgs",
+      "inputHash": "b43450d79933445f8edf4aa7335dfaedc81cdf4beeff0c668c6fd356d7b0b844",
+      "summary": "信源 -0/改0, 候选 -0, 节点 -0, 复检 0"
+    },
+    {
+      "at": "2026-11-28T03:29:05.683Z",
       "stage": "build-nav-pages",
       "provider": "openrouter",
       "inputHash": "e2b896e3bcad418bf946245c7e1ddef21f963eecd73f255290b637ce4ee55392",
