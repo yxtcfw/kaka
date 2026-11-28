@@ -1,0 +1,67 @@
+{
+  "schema": "briefs/v1",
+  "briefs": {
+    "auto-campus-apply": {
+      "reader_situation": "在校大学生（校园场景）需要办理校园专属流量卡（校园流量卡）",
+      "core_question": "校园流量卡的办理条件与首充要求是怎样的？",
+      "one_sentence_answer": "办理校园流量卡需要满足学生身份和实名认证，且通常不强制首充，但部分运营商可能要求首充以激活。",
+      "scope_boundary": "不包括具体资费价格、不涉及其他卡种办理、不提供详细的步骤说明、不涉及校园外的通用流量卡办理",
+      "must_cover": [
+        "学生身份及实名认证要求",
+        "首充政策是否必选",
+        "办理渠道（线上或线下）",
+        "需要准备的材料清单",
+        "首充是否影响激活的情况"
+      ],
+      "must_avoid": [
+        "具体资费金额",
+        "套餐名称",
+        "第三方购买链接",
+        "其他运营商的流量卡办理细节"
+      ],
+      "intent": "problem",
+      "parent_title": "校园流量卡办理指南",
+      "generatedAt": "2026-11-28",
+      "_meta": {
+        "provider": "openrouter",
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "fingerprint": "1f448143",
+        "deterministic": false,
+        "degraded": false,
+        "promptVersion": "brief-v1-20261128"
+      },
+      "promptVersion": "brief-v1-20261128"
+    },
+    "auto-campus-faq": {
+      "reader_situation": "在校大学生使用移动/联通/电信校园流量卡，想了解校园内外的流量使用范围及相关常见问题",
+      "core_question": "校园流量卡的使用范围和常见问题有哪些？",
+      "one_sentence_answer": "校园流量卡主要在校园内使用，校外使用视运营商政策而定，常见问题涉及使用限制、资费退订、取消及覆盖范围查询等。",
+      "scope_boundary": "不包括具体资费金额、具体套餐价格、办理渠道的操作细节以及非校园场景的通用流量使用说明",
+      "must_cover": [
+        "校园流量卡的主要使用范围及是否支持校外使用",
+        "各运营商在校园卡的资费政策差异",
+        "资费退订、取消及查询的流程",
+        "如何查询校园流量的覆盖范围和使用限制",
+        "常见的使用弊端及注意事项"
+      ],
+      "must_avoid": [
+        "具体资费金额或套餐价格",
+        "具体办理渠道的操作步骤细节",
+        "个人使用感受或案例分享",
+        "与其他非校园流量卡的对比"
+      ],
+      "intent": "problem",
+      "parent_title": "校园流量卡资费与办理指南",
+      "generatedAt": "2026-11-28",
+      "_meta": {
+        "provider": "openrouter",
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "fingerprint": "1f448143",
+        "deterministic": false,
+        "degraded": false,
+        "promptVersion": "brief-v1-20261128"
+      },
+      "promptVersion": "brief-v1-20261128"
+    }
+  }
+}

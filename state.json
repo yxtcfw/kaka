@@ -4,7 +4,7 @@
   "signals": {
     "count": 226,
     "sources": 2,
-    "newRate": 0.0177,
+    "newRate": 0,
     "passed": false
   },
   "tree": {
@@ -18,7 +18,7 @@
   },
   "content": {
     "generated": 4,
-    "gateBlocked": 14,
+    "gateBlocked": 15,
     "passed": true
   },
   "navPages": {
@@ -27,34 +27,6 @@
     "downgraded": 0
   },
   "runs": [
-    {
-      "at": "2026-11-26T13:20:06.043Z",
-      "stage": "harvest",
-      "provider": "mock",
-      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
-      "summary": "采集 326 词，newRate=1"
-    },
-    {
-      "at": "2026-11-26T13:20:06.059Z",
-      "stage": "harvest",
-      "provider": "mock",
-      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
-      "summary": "采集 326 词，newRate=0"
-    },
-    {
-      "at": "2026-11-26T13:20:06.117Z",
-      "stage": "grow-tree",
-      "provider": "mock",
-      "inputHash": "beecaf01c348881896a0e483dd1d9239f7631175ddbaa9d06a853389d2d3c649",
-      "summary": "关键词 +37, 节点 2, 幂等=true"
-    },
-    {
-      "at": "2026-11-26T13:20:06.130Z",
-      "stage": "discover",
-      "provider": "mock",
-      "inputHash": "ab92cdec14ac75722f1b37f3f63c79f8c7d6d02ee66b2e75b0bdd9bf76ccc016",
-      "summary": "10 候选"
-    },
     {
       "at": "2026-11-26T13:20:06.139Z",
       "stage": "fetch-body",
@@ -1394,6 +1366,62 @@
     },
     {
       "at": "2026-11-27T17:09:21.349Z",
+      "stage": "build-nav-pages",
+      "provider": "openrouter",
+      "inputHash": "e2b896e3bcad418bf946245c7e1ddef21f963eecd73f255290b637ce4ee55392",
+      "summary": "新建 0, 跳过已有 63, 降级 0, 门禁拦截 0"
+    },
+    {
+      "at": "2026-11-28T03:08:38.845Z",
+      "stage": "harvest",
+      "provider": "baidu-suggest",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 227 词，newRate=0.0352"
+    },
+    {
+      "at": "2026-11-28T03:08:44.806Z",
+      "stage": "harvest",
+      "provider": "baidu-suggest",
+      "inputHash": "140ac5f9c7f10e1a9383f97977fe72932bd73f6a897d55d2bfe4f46d857b1384",
+      "summary": "采集 226 词，newRate=0"
+    },
+    {
+      "at": "2026-11-28T03:08:50.844Z",
+      "stage": "discover",
+      "provider": "ddgs",
+      "inputHash": "5599b1b5e290f1f6cadde878ed815a8c3def1a9195a3978c535ba695995cbd2d",
+      "summary": "0 候选(已降级mock), 过滤示例域 10"
+    },
+    {
+      "at": "2026-11-28T03:08:50.849Z",
+      "stage": "fetch-body",
+      "provider": "ddgs",
+      "inputHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "summary": "+0 源, L1=69, L2独立域=0"
+    },
+    {
+      "at": "2026-11-28T03:15:49.525Z",
+      "stage": "write-content",
+      "provider": "openrouter",
+      "inputHash": "425c0e3213fa3b5e90401bc3ea66bb4717be0382a7943e70a8f457f8dd233676",
+      "summary": "生成 1, 拦截 1"
+    },
+    {
+      "at": "2026-11-28T03:16:28.742Z",
+      "stage": "sync-product-details",
+      "provider": "official-api",
+      "inputHash": "68fdd9fe9177c2e62f737cad390ad4b9e9ed52d719e021e0d22e2eb7504e7dec",
+      "summary": "详情信源 +0 更新 1 未变 62 失败 0 挂载 0"
+    },
+    {
+      "at": "2026-11-28T03:16:28.746Z",
+      "stage": "maintenance",
+      "provider": "ddgs",
+      "inputHash": "b43450d79933445f8edf4aa7335dfaedc81cdf4beeff0c668c6fd356d7b0b844",
+      "summary": "信源 -0/改0, 候选 -0, 节点 -0, 复检 0"
+    },
+    {
+      "at": "2026-11-28T03:16:28.752Z",
       "stage": "build-nav-pages",
       "provider": "openrouter",
       "inputHash": "e2b896e3bcad418bf946245c7e1ddef21f963eecd73f255290b637ce4ee55392",

@@ -1,6 +1,6 @@
 {
   "schema": "alerts/v1",
-  "generatedAt": "2026-11-27T17:09:22.000Z",
+  "generatedAt": "2026-11-28T03:16:29.196Z",
   "checks": 7,
   "alertCount": 1,
   "alerts": [
@@ -9,7 +9,7 @@
       "severity": "critical",
       "subject": "src-026",
       "detail": "搜索发现源 grade=L1，应为 L3",
-      "at": "2026-11-27"
+      "at": "2026-11-28"
     }
   ],
   "_comment": "树/信源/规则一致性校验；只告警不阻断。critical 需人工关注，info 仅提示。"

@@ -1,0 +1,30 @@
+{
+  "schema": "site/v1",
+  "siteName": "流量卡精选指南",
+  "tagline": "流量卡选购 · 值得参考的整理",
+  "vertical": "流量卡",
+  "topics": [
+    "资费套餐",
+    "办理攻略"
+  ],
+  "navCategories": [
+    "资费套餐",
+    "办理攻略",
+    "广电套餐",
+    "联通套餐",
+    "电信套餐",
+    "移动套餐"
+  ],
+  "intro": "各运营商套餐与办卡渠道整理，供选购时对照参考。数值以官方实时页面为准。",
+  "h1": "流量卡选购指南与套餐资费对照",
+  "blogTitle": "流量卡选购文章",
+  "styleTokens": {
+    "primary": "#2563eb",
+    "accent": "#f59e0b",
+    "radius": "12px",
+    "font": "system-ui, sans-serif"
+  },
+  "license": "",
+  "byline": "流量卡编辑部",
+  "_comment": "站点信息。首构建时 fill-site.js 只补空值；人工值保留；siteFilled=true 后永久冻结，清空也不重填。"
+}

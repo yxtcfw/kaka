@@ -2,13 +2,15 @@
   "stage": "write-content",
   "provider": "openrouter",
   "generated": 1,
-  "blocked": 1,
+  "blocked": 0,
   "gateBlockedCount": 1,
   "contentPassed": true,
   "models": [
-    "nvidia/nemotron-3.5-lightning:free"
+    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "recursive/flint-v1.0:free",
+    "liquid/lfm-3-1.7b:free"
   ],
-  "deduped": -3,
+  "deduped": -2,
   "skippedNodes": [
     "n1",
     "auto-scene",
@@ -29,17 +31,43 @@
     "example.net",
     "example.org"
   ],
-  "blockedDetail": [
+  "blockedDetail": [],
+  "regeneratedIds": [],
+  "qualityFallbacks": [
     {
       "nodeId": "auto-campus-faq",
-      "blockers": [
+      "reason": "fuzzy+density+judgement",
+      "action": "skipped-kept-old"
+    }
+  ],
+  "briefGenerated": [
+    "auto-campus-apply",
+    "auto-campus-faq"
+  ],
+  "briefReused": [],
+  "factCount": 598,
+  "qualityRejects": [
+    {
+      "nodeId": "auto-campus-faq",
+      "reason": "fuzzy+density+judgement",
+      "detail": [
         {
-          "gate": "dedup",
-          "detail": "max cosine=0.718 (limit 0.7) with article-auto-campus-apply"
+          "gate": "fuzzy",
+          "detail": "模糊词命中：常见"
+        },
+        {
+          "gate": "density",
+          "detail": "1 个 300 字窗口缺少具体信息",
+          "sample": {
+            "from": 0,
+            "hits": 0
+          }
+        },
+        {
+          "gate": "judgement",
+          "detail": "文末缺少明确判断句"
         }
       ]
     }
-  ],
-  "regeneratedIds": [],
-  "qualityFallbacks": []
+  ]
 }
