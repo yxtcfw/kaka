@@ -1,15 +1,44 @@
 {
   "stage": "fetch-body",
   "provider": "ddgs",
-  "fetched": 0,
-  "approved": 0,
+  "fetched": 36,
+  "approved": 30,
   "bannedFiltered": 0,
-  "fetchFailures": [],
+  "fetchFailures": [
+    {
+      "url": "https://www.potterquizzes.com/which-harry-potter-house-are-you-quiz/",
+      "reason": "GuardError: fetch guard error: http-403 (https://www.potterquizzes.com/which-harry-potter-house-are-you-quiz/)"
+    },
+    {
+      "url": "https://www.linkedin.com/in/todd-white-8492353a",
+      "reason": "GuardError: fetch guard error: http-999 (https://www.linkedin.com/in/todd-white-8492353a)"
+    },
+    {
+      "url": "https://www.linkedin.com/in/daniel-vogel-jr",
+      "reason": "GuardError: fetch guard error: http-999 (https://www.linkedin.com/in/daniel-vogel-jr)"
+    },
+    {
+      "url": "https://mc.linkedin.com/in/claire-marroncles",
+      "reason": "GuardError: fetch guard error: http-999 (https://mc.linkedin.com/in/claire-marroncles)"
+    },
+    {
+      "url": "https://account.microsoft.com/account-checkup",
+      "reason": "GuardError: fetch guard error: http-404 (https://account.microsoft.com/account-checkup)"
+    }
+  ],
   "l1": 69,
   "independentL2": 0,
   "sourcesPassed": true,
   "guard": {
-    "enabled": false,
-    "reason": "degraded-to-mock"
+    "enabled": true,
+    "requests": 36,
+    "retries": 0,
+    "waitsMs": 135681,
+    "denied": 0,
+    "timeouts": 0,
+    "robotsChecked": 0,
+    "concurrencyPeak": 1,
+    "errors": 5,
+    "externalCalls": 0
   }
 }

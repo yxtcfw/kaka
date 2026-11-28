@@ -404,6 +404,12 @@
       "collectedAt": "2026-11-28"
     },
     {
+      "term": "移动校园流量卡",
+      "source": "baidu-suggest",
+      "query": "移动校园流量卡办理",
+      "collectedAt": "2026-11-28"
+    },
+    {
       "term": "移动校园流量卡办理流程",
       "source": "baidu-suggest",
       "query": "移动校园流量卡办理",
@@ -453,12 +459,6 @@
     },
     {
       "term": "移动校园流量使用范围",
-      "source": "baidu-suggest",
-      "query": "移动校园流量卡办理",
-      "collectedAt": "2026-11-28"
-    },
-    {
-      "term": "移动校园融合专属流量",
       "source": "baidu-suggest",
       "query": "移动校园流量卡办理",
       "collectedAt": "2026-11-28"
@@ -992,7 +992,7 @@
       "collectedAt": "2026-11-28"
     },
     {
-      "term": "低价大流量卡将集体退场图片",
+      "term": "低价免实流量卡链接",
       "source": "baidu-suggest",
       "query": "低价流量卡办理",
       "collectedAt": "2026-11-28"
@@ -1023,6 +1023,12 @@
     },
     {
       "term": "低价大流量卡套路有哪些",
+      "source": "baidu-suggest",
+      "query": "低价大流量卡办理",
+      "collectedAt": "2026-11-28"
+    },
+    {
+      "term": "低价大流量卡将集体退场是什么",
       "source": "baidu-suggest",
       "query": "低价大流量卡办理",
       "collectedAt": "2026-11-28"
@@ -1071,6 +1077,12 @@
     },
     {
       "term": "副卡办理的套餐是怎么收费的",
+      "source": "baidu-suggest",
+      "query": "低价副卡办理",
+      "collectedAt": "2026-11-28"
+    },
+    {
+      "term": "副卡办理有什么要求",
       "source": "baidu-suggest",
       "query": "低价副卡办理",
       "collectedAt": "2026-11-28"
@@ -1342,6 +1354,6 @@
       "collectedAt": "2026-11-28"
     }
   ],
-  "collectedAt": "2026-11-28T03:20:51.235Z",
+  "collectedAt": "2026-11-28T03:32:05.620Z",
   "provider": "baidu-suggest"
 }

@@ -1,7 +1,7 @@
 {
   "stage": "harvest",
   "provider": "baidu-suggest",
-  "count": 227,
+  "count": 229,
   "sources": 2,
   "newRate": 0.0044,
   "passed": false,
@@ -11,7 +11,7 @@
     "enabled": true,
     "requests": 24,
     "retries": 0,
-    "waitsMs": 8923,
+    "waitsMs": 8602,
     "denied": 0,
     "timeouts": 0,
     "robotsChecked": 0,

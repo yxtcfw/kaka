@@ -2,16 +2,23 @@
   "stage": "maintenance",
   "now": "2026-11-28",
   "removedSources": [],
-  "changedSources": [],
+  "changedSources": [
+    "src-001",
+    "src-003",
+    "src-005",
+    "src-014",
+    "src-015",
+    "src-026"
+  ],
   "protectedSources": 68,
   "removedCandidates": 0,
   "removedNodes": [],
   "keywordDrops": [],
   "recheck": {
-    "enabled": false,
-    "reason": "search-degraded",
-    "checked": 0,
-    "changed": 0,
+    "enabled": true,
+    "reason": "",
+    "checked": 20,
+    "changed": 6,
     "dead": 0
   },
   "dryRun": false

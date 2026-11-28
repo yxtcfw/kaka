@@ -3,14 +3,9 @@
   "provider": "openrouter",
   "generated": 0,
   "blocked": 0,
-  "gateBlockedCount": 2,
+  "gateBlockedCount": 0,
   "contentPassed": true,
-  "models": [
-    "baidu/ernie-5.5-flash-preview:free",
-    "nvidia/nemotron-3.5-lightning:free",
-    "recursive/flint-v1.0:free",
-    "nvidia/nemotron-3.5-super-vl:free"
-  ],
+  "models": [],
   "deduped": -3,
   "skippedNodes": [
     "n1",
@@ -37,12 +32,12 @@
   "qualityFallbacks": [
     {
       "nodeId": "auto-campus-apply",
-      "reason": "fact-density+density",
+      "reason": "no-material",
       "action": "skipped-kept-old"
     },
     {
       "nodeId": "auto-campus-faq",
-      "reason": "fuzzy+fact-density+number-alignment",
+      "reason": "no-material",
       "action": "skipped-kept-old"
     }
   ],
@@ -52,42 +47,19 @@
     "auto-campus-faq"
   ],
   "factCount": 598,
-  "qualityRejects": [
+  "qualityRejects": [],
+  "skippedNoMaterial": [
     {
       "nodeId": "auto-campus-apply",
-      "reason": "fact-density+density",
-      "detail": [
-        {
-          "gate": "fact-density",
-          "detail": "正文仅引用 0 条事实值，低于 3"
-        },
-        {
-          "gate": "density",
-          "detail": "2 个 300 字窗口缺少具体信息",
-          "sample": {
-            "from": 0,
-            "hits": 0
-          }
-        }
-      ]
+      "facts": 0,
+      "pitfall": false,
+      "surprising": false
     },
     {
       "nodeId": "auto-campus-faq",
-      "reason": "fuzzy+fact-density+number-alignment",
-      "detail": [
-        {
-          "gate": "fuzzy",
-          "detail": "模糊词命中：常见"
-        },
-        {
-          "gate": "fact-density",
-          "detail": "正文仅引用 0 条事实值，低于 3"
-        },
-        {
-          "gate": "number-alignment",
-          "detail": "正文数字无法对应 Fact Sheet：5G"
-        }
-      ]
+      "facts": 0,
+      "pitfall": false,
+      "surprising": false
     }
   ]
 }

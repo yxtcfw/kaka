@@ -1,9 +1,9 @@
 # 站点周报
 
-生成时间：2026-11-28T03:29:06.412Z
+生成时间：2026-11-28T03:33:43.091Z
 
 ## 达标进度
-- 判据① 联想词：{"count":227,"sources":2,"newRate":0.0044,"passed":false}
+- 判据① 联想词：{"count":229,"sources":2,"newRate":0.0044,"passed":false}
 - 判据② 信源：{"l1":69,"independentL2":0,"passed":true}
 - 判据③ 内容：{"generated":3,"gateBlocked":17,"passed":true}
 - 首次填空：siteFilled=true
@@ -22,11 +22,11 @@
 - [critical] search-source-upgraded · src-026：搜索发现源 grade=L1，应为 L3
 
 ## 规则/数据变更与回滚
-快照数：928
-- 快照：snapshots/signals/signals.json.2026-11-28T03-08-38-845Z
-- 快照：snapshots/signals/signals.json.2026-11-28T03-08-44-806Z
+快照数：952
 - 快照：snapshots/signals/signals.json.2026-11-28T03-20-44-611Z
 - 快照：snapshots/signals/signals.json.2026-11-28T03-20-51-236Z
+- 快照：snapshots/signals/signals.json.2026-11-28T03-31-58-389Z
+- 快照：snapshots/signals/signals.json.2026-11-28T03-32-05-621Z
 - 快照：snapshots/sources.json.2026-11-27T15-40-23-418Z
 - 快照：snapshots/sources.json.2026-11-27T15-41-01-145Z
 - 快照：snapshots/sources.json.2026-11-27T15-41-01-703Z

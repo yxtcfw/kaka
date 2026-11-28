@@ -1,19 +1,14 @@
 {
   "schema_version": "2.0.0",
   "site_id": "kaka",
-  "last_run_at": "2026-11-28T03:29:05.683Z",
+  "last_run_at": "2026-11-28T03:33:42.469Z",
   "result": "success",
   "reason": "",
   "pages": 68,
-  "ai_calls": 4,
-  "models": [
-    "baidu/ernie-5.5-flash-preview:free",
-    "nvidia/nemotron-3.5-lightning:free",
-    "recursive/flint-v1.0:free",
-    "nvidia/nemotron-3.5-super-vl:free"
-  ],
-  "run_url": "https://github.com/yxtcfw/kaka/actions/runs/46102376409",
-  "run_id": "46102376409",
+  "ai_calls": 0,
+  "models": [],
+  "run_url": "https://github.com/yxtcfw/kaka/actions/runs/46103260244",
+  "run_id": "46103260244",
   "composition": {
     "modules": [],
     "order": [],
@@ -27,7 +22,7 @@
   },
   "counts": {
     "generated": 0,
-    "gateBlocked": 2,
+    "gateBlocked": 0,
     "navBuilt": 0,
     "navSkipped": 63,
     "sourcesL1": 69,
@@ -47,48 +42,6 @@
     }
   ],
   "stages": [
-    {
-      "at": "2026-11-28T03:08:50.849Z",
-      "stage": "fetch-body",
-      "provider": "ddgs",
-      "summary": "+0 源, L1=69, L2独立域=0"
-    },
-    {
-      "at": "2026-11-28T03:15:49.525Z",
-      "stage": "write-content",
-      "provider": "openrouter",
-      "summary": "生成 1, 拦截 1"
-    },
-    {
-      "at": "2026-11-28T03:16:28.742Z",
-      "stage": "sync-product-details",
-      "provider": "official-api",
-      "summary": "详情信源 +0 更新 1 未变 62 失败 0 挂载 0"
-    },
-    {
-      "at": "2026-11-28T03:16:28.746Z",
-      "stage": "maintenance",
-      "provider": "ddgs",
-      "summary": "信源 -0/改0, 候选 -0, 节点 -0, 复检 0"
-    },
-    {
-      "at": "2026-11-28T03:16:28.752Z",
-      "stage": "build-nav-pages",
-      "provider": "openrouter",
-      "summary": "新建 0, 跳过已有 63, 降级 0, 门禁拦截 0"
-    },
-    {
-      "at": "2026-11-28T03:20:44.611Z",
-      "stage": "harvest",
-      "provider": "baidu-suggest",
-      "summary": "采集 227 词，newRate=0.0088"
-    },
-    {
-      "at": "2026-11-28T03:20:51.236Z",
-      "stage": "harvest",
-      "provider": "baidu-suggest",
-      "summary": "采集 227 词，newRate=0.0044"
-    },
     {
       "at": "2026-11-28T03:20:58.399Z",
       "stage": "discover",
@@ -115,6 +68,48 @@
     },
     {
       "at": "2026-11-28T03:29:05.683Z",
+      "stage": "build-nav-pages",
+      "provider": "openrouter",
+      "summary": "新建 0, 跳过已有 63, 降级 0, 门禁拦截 0"
+    },
+    {
+      "at": "2026-11-28T03:31:58.389Z",
+      "stage": "harvest",
+      "provider": "baidu-suggest",
+      "summary": "采集 229 词，newRate=0.0218"
+    },
+    {
+      "at": "2026-11-28T03:32:05.621Z",
+      "stage": "harvest",
+      "provider": "baidu-suggest",
+      "summary": "采集 229 词，newRate=0.0044"
+    },
+    {
+      "at": "2026-11-28T03:32:22.761Z",
+      "stage": "discover",
+      "provider": "ddgs",
+      "summary": "36 候选"
+    },
+    {
+      "at": "2026-11-28T03:32:41.218Z",
+      "stage": "fetch-body",
+      "provider": "ddgs",
+      "summary": "+36 源, L1=69, L2独立域=0"
+    },
+    {
+      "at": "2026-11-28T03:32:41.229Z",
+      "stage": "write-content",
+      "provider": "openrouter",
+      "summary": "生成 0, 拦截 0"
+    },
+    {
+      "at": "2026-11-28T03:33:42.463Z",
+      "stage": "maintenance",
+      "provider": "ddgs",
+      "summary": "信源 -0/改6, 候选 -0, 节点 -0, 复检 20"
+    },
+    {
+      "at": "2026-11-28T03:33:42.469Z",
       "stage": "build-nav-pages",
       "provider": "openrouter",
       "summary": "新建 0, 跳过已有 63, 降级 0, 门禁拦截 0"

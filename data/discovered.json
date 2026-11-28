@@ -1,8 +1,8 @@
 {
   "schema": "discovered/v1",
   "provider": "ddgs",
-  "degraded": true,
-  "reason": "Error: ddgs 适配器退出码 1: {\"error\": \"duckduckgo: DDGSException: No results found. | html: DDGSException: No results found. | lite: DDGSException: No results found. | brave: DDGSException: No results found. | mojeek: DDGSException: No results found. | google: DDGSException: No results found.\"}\n",
+  "degraded": false,
+  "reason": "",
   "queryTerms": [
     "流量卡办理",
     "联通大流量",
@@ -15,6 +15,367 @@
     "联通大流量卡",
     "电信大流量卡"
   ],
-  "candidates": [],
-  "discoveredAt": "2026-11-28T03:20:58.398Z"
+  "candidates": [
+    {
+      "url": "https://www.qizhantong.net/",
+      "title": "流量卡办理-流量卡推荐-云卡之家",
+      "snippet": "云卡之家专业的正规流量卡测评和推荐网站，实时为您推荐最划算的移动流量卡、电信流量卡、联通流量卡和办理入口以及常见问题，帮助您轻松用最少的月租办理到性价比最高的流量卡。",
+      "provider": "ddgs",
+      "query": "流量卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://www.harrypotter.com/news/discover-your-hogwarts-house-on-wizarding-world",
+      "title": "Official Hogwarts House Sorting Quiz - Wizarding World",
+      "snippet": "Get sorted into your official Hogwarts House by the Sorting Hat. Are you a Gryffindor, Hufflepuff, Slytherin, or Ravenclaw? Take the official quiz and discover your house here!",
+      "provider": "ddgs",
+      "query": "联通大流量",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://www.potterquizzes.com/which-harry-potter-house-are-you-quiz/",
+      "title": "Harry Potter House Quiz: Where Would You Be Sorted? (In 2026)",
+      "snippet": "Our Harry Potter House Quiz will tell you where you truly belong at Hogwarts. Are you a Gryffindor, Hufflepuff, Ravenclaw, or Slytherin?",
+      "provider": "ddgs",
+      "query": "联通大流量",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://hogwartshousequiz.com/",
+      "title": "Free Hogwarts House Quiz Online | HogwartsHouseQuiz.com",
+      "snippet": "Take the free Hogwarts House Quiz at HogwartsHouseQuiz.com! Discover your house—Gryffindor, Hufflepuff, Ravenclaw, or Slytherin—with this fun and accurate test.",
+      "provider": "ddgs",
+      "query": "联通大流量",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://www.buzzfeed.com/eleanorbate/accurate-af-sorting-quiz",
+      "title": "'Harry Potter' House Quiz: What Hogwarts House Am I In?",
+      "snippet": "Jun 16, 2026 · Discover your true Hogwarts House match with this magical personality quiz that reveals not just where the Sorting Hat would place you, but what percentage of each house you embody.",
+      "provider": "ddgs",
+      "query": "联通大流量",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://hogwartshousequiz.com/quizzes/sorting-hat-quiz",
+      "title": "Harry Potter Sorting Hat Quiz (Percentage Test) | Find Your House",
+      "snippet": "Take our free Harry Potter sorting hat quiz! See your Hogwarts house personality in detailed percentages. Get your accurate online sorting hat test result now.",
+      "provider": "ddgs",
+      "query": "联通大流量",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://www.microsoft.com/en-us/",
+      "title": "Microsoft - Official Home Page",
+      "snippet": "At Microsoft our mission and values are to help people and businesses throughout the world realize their full potential.",
+      "provider": "ddgs",
+      "query": "低价流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://techcommunity.microsoft.com/category/microsoft365/discussions/word",
+      "title": "Word | Microsoft Community Hub",
+      "snippet": "Nov 19, 2026 · The edges of Microsoft Word keep blinking intermittently. I just bought a brand new laptop and installed Microsoft Office 365 on my device, and my active subscription to Office is provided as courtesy from my college. For some reason, the area behind the wo...",
+      "provider": "ddgs",
+      "query": "低价流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://support.microsoft.com/en-us/windows/deployment/install-upgrade/getting-ready-for-the-windows-11-upgrade",
+      "title": "Getting ready for the Windows 11 upgrade | Microsoft Support",
+      "snippet": "Learn how to get ready for the Windows 11 upgrade, from making sure your device can run Windows 11 to backing up your files and installing Windows 11.",
+      "provider": "ddgs",
+      "query": "低价流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://techcommunity.microsoft.com/blog/microsoftintuneblog/what’s-new-in-microsoft-intune-–-april/4493135",
+      "title": "headTitleNoCommunity - techcommunity.microsoft.com",
+      "snippet": "April in Intune: faster app inventory on Windows and stronger cross-platform management for Linux and Apple devices.",
+      "provider": "ddgs",
+      "query": "低价流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://support.microsoft.com/en-us/accounts-billing/manage/help-us-secure-your-account",
+      "title": "Help us secure your account | Microsoft Support",
+      "snippet": "Select Next. Retrieve the code from your alternate email or phone number and enter it in the prompt provided. Select Verify. Learn more How to help keep your Microsoft account safe and secure Microsoft account security info & verification codes",
+      "provider": "ddgs",
+      "query": "低价流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://drivecentric.com/",
+      "title": "AI-Powered Automotive CRM for Car Dealerships | DriveCentric",
+      "snippet": "DriveCentric helps car dealerships sell more, follow up faster, and keep customers for life. Discover why thousands of dealers trust our AI-powered CRM.",
+      "provider": "ddgs",
+      "query": "副卡办理条件",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://drivecentric.com/products/engagement-hub",
+      "title": "CRM for Dealerships| DriveCentric",
+      "snippet": "DriveCentric is the world's first CRM and engagement platform, combining advanced artificial intelligence AI with intuitive design for superior relationship management. They are OEM certified by manufacturers and integrate all major DMS providers.",
+      "provider": "ddgs",
+      "query": "副卡办理条件",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://login.drivecentric.io/",
+      "title": "login.drivecentric.io - SignIn",
+      "snippet": "Invalid ClientId or RedirectUri.",
+      "provider": "ddgs",
+      "query": "副卡办理条件",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://drivecentric.com/support",
+      "title": "DriveCentric",
+      "snippet": "DriveCentric is the world's first CRM and engagement platform, combining advanced artificial intelligence AI with intuitive design for superior relationship management. They are OEM certified by manufacturers and integrate all major DMS providers.",
+      "provider": "ddgs",
+      "query": "副卡办理条件",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://drivecentric.com/solutions/independent",
+      "title": "CRM for Independent Dealers | DriveCentric",
+      "snippet": "DriveCentric is built to feel familiar, so your team can pick it up quickly and work from one place instead of bouncing between screens. Will this help me respond faster? Yes. AI responses and automation make sure every lead gets an immediate reply, even after hours. Do I need a BDC team? No.",
+      "provider": "ddgs",
+      "query": "副卡办理条件",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://translate.google.com/?hl=ar",
+      "title": "ترجمة Google",
+      "snippet": "خدمة ترجمة مجانية مقدَّمة من Google حيث يمكن ترجمة الكلمات والعبارات وصفحات الويب بشكل فوري بين اللغة الإنجليزية وأكثر من 100 لغة أخرى.",
+      "provider": "ddgs",
+      "query": "副卡办理流程",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://translate.google.com/details",
+      "title": "Google Translate",
+      "snippet": "Some sentences may contain gender-specific alternatives. Click a sentence to see alternatives. Learn more",
+      "provider": "ddgs",
+      "query": "副卡办理流程",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://translate.google.com/intl/ar/about/",
+      "title": "\"ترجمة Google\": مترجم شخصي على الهاتف أو الكمبيوتر",
+      "snippet": "تعرَّف على كيفية ترجمة النصوص والكلام والصور والمستندات والمواقع الإلكترونية والمزيد باستخدام \"ترجمة Google\".",
+      "provider": "ddgs",
+      "query": "副卡办理流程",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://translate.google.com/about/",
+      "title": "Google Translate - A Personal Interpreter on Your Phone or...",
+      "snippet": "Learn how to translate text, speech, images, documents, websites, and more with Google Translate.",
+      "provider": "ddgs",
+      "query": "副卡办理流程",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://translate.google.com/intl/ny/about/",
+      "title": "Zomasulira za Google - Zili Ngati Munthu Womasulira Amene ali mu...",
+      "snippet": "Dziwani mmene mungamasulire mawu olembedwa, olankhulidwa, zithunzi, madokyumenti, mawebusaiti, ndi zina zambiri ndi Zomasulira za Google.",
+      "provider": "ddgs",
+      "query": "副卡办理流程",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://hk.news.yahoo.com/同志教會爆性侵醜聞-涉最少三受害人-牧師：坐大腿不涉性衝動、無強迫性交｜yahoo-160130798.html",
+      "title": "同志教會爆性侵醜聞 涉最少三受害人 牧師：坐大腿不涉性衝動、無強迫...",
+      "snippet": "Apr 1, 2024 · 本地性小眾教會爆出性侵醜聞。《Yahoo 新聞》近日接到三宗受害人的投訴，分別指控牧師彭偉業在香港「基恩之家」或馬來西亞「好撒瑪利亞人教會」任職期間，未獲受害人同意之下作出坐大腿、摸私處，甚至是性交的行為。彭偉業回覆本網查詢時，承認曾與教友坐大腿，但強調不涉及性衝動。他亦 ...",
+      "provider": "ddgs",
+      "query": "移动副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://hk.news.yahoo.com/文睇晒-國慶煙花匯演特別交通安排-120000518.html",
+      "title": "一文睇晒｜國慶煙花匯演特別交通安排 - Yahoo新聞",
+      "snippet": "Sep 28, 2026 · 【Now新聞台】2026年國慶煙花匯演將於10月1日晚上8時在維港上演，警方預計約26萬人觀賞煙花匯演，屆時將實施特別交通安排，港島及九龍一帶當日下午起分階段封路。具體安排如下：港島九龍 #要聞",
+      "provider": "ddgs",
+      "query": "移动副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://hk.news.yahoo.com/中大講師譚蕙芸被拒入境澳門-保安當局稱「強烈跡象從事危害公安活動」-澳門傳媒工作者協會強烈抗議｜yahoo-064410471.html",
+      "title": "中大講師譚蕙芸被拒入境澳門 保安當局稱「強烈跡象從事危害公安活動」...",
+      "snippet": "Jun 15, 2024 · 澳門傳媒工作者協會（下稱傳協）原定今午（15日）舉行人物專訪工作坊，早前邀請香港中文大學新聞與傳播學院高級講師譚蕙芸赴澳門主講。傳協今午 1 時許在 Facebook 發出緊急通知，指譚蕙芸今早「無故被保安當局拒絕入境」，原定的工作坊要取消。",
+      "provider": "ddgs",
+      "query": "移动副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://hk.news.yahoo.com/滙豐客戶稱20多萬元存款不翼而飛-疑一晚分多次轉走-警列盜竊-律師教自保方法︱yahoo-230010044.html",
+      "title": "滙豐客戶稱20多萬元存款不翼而飛 疑一晚分多次轉走 警列盜竊 律師教自...",
+      "snippet": "Mar 10, 2026 · 【Yahoo新聞報道】社交平台Threads有網民早前稱其滙豐銀行戶口在一晚內，未經授權下遭人分多次轉走合共約 20 萬港元存款，並指事後向滙豐反映，但職員稱銀行系統沒有漏洞，不會就損失負責。《Yahoo新聞》曾聯絡該網民進一步了解事件，但未能成功，帖文其後已被刪除。警方回覆《Yahoo新聞》表示 ...",
+      "provider": "ddgs",
+      "query": "移动副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://hk.news.yahoo.com/燒賣被指藏15cm生鏽針-女子脷底遭刺穿爆血-生產商職員稱「買咗保險」-食環：已下架｜yahoo-042141115.html",
+      "title": "燒賣被指藏1.5cm生鏽針 女子脷底遭刺穿爆血 生產商職員稱「買咗保險」...",
+      "snippet": "Feb 6, 2026 · 【Yahoo新聞報道】一名屯門女街坊日前在區內AEON超市購買一包由榮鈦行生產的急凍「蟹籽燒賣皇」，豈料遇血光之災，燒賣內暗藏針頭，事主舌頭被刺穿流血，急症室求醫並注射破傷風針，涉事生產商事後僅向事主回應稱「買咗保險」。",
+      "provider": "ddgs",
+      "query": "移动副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://www.linkedin.com/in/todd-white-8492353a",
+      "title": "Todd White - PharmD, MBA-HM, BCSCP, Assistant Vice President ...",
+      "snippet": "Todd White PharmD, MBA-HM, BCSCP, Assistant Vice President of Pharmacy Operations Lexington, Kentucky, United States 863 followers 500+ connections See your mutual connections Lifepoint Health®",
+      "provider": "ddgs",
+      "query": "电信副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://id.linkedin.com/jobs/1-billion-members-followers-lifepoint-health-houston-texas-united-states-jobs",
+      "title": "Lowongan 1 Billion Members Followers Lifepoint Health Houston ...",
+      "snippet": "841 lowongan 1 Billion Members Followers Lifepoint Health Houston Texas United States terpopuler hari ini di Indonesia. Manfaatkan jaringan profesional Anda dan dapatkan pekerjaan. Lowongan 1 Billion Members Followers Lifepoint Health Houston Texas United States baru ditambahkan setiap hari.",
+      "provider": "ddgs",
+      "query": "电信副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://www.linkedin.com/in/daniel-vogel-jr",
+      "title": "Daniel Vogel, MHA - Lifepoint Health® | LinkedIn",
+      "snippet": "Daniel Vogel, MHA St Louis, Missouri, United States 4K followers 500+ connections See your mutual connections Lifepoint Health® University of Missouri-Columbia",
+      "provider": "ddgs",
+      "query": "电信副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://es.linkedin.com/jobs/1-billion-members-followers-lifeguard-clovis-new-mexico-united-states-empleos",
+      "title": "(114 vacantes) empleos de 1 Billion Members Followers ...",
+      "snippet": "Los 114 empleos más populares para el puesto de 1 Billion Members Followers Lifeguard Clovis New Mexico United States en España hoy. Saca el máximo partido a tu red profesional y consigue que te contraten. Se añaden nuevos empleos para el puesto de 1 Billion Members Followers Lifeguard Clovis New Mexico United States a diario.",
+      "provider": "ddgs",
+      "query": "电信副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://mc.linkedin.com/in/claire-marroncles",
+      "title": "Claire Marroncles - CMC Regulatory Affairs Coordinator | LinkedIn",
+      "snippet": "CMC Regulatory Affairs Coordinator · Experience: Besins Healthcare · Education: Polytech Nice Sophia · Location: Monaco · 500+ connections on LinkedIn. View Claire Marroncles’ profile on LinkedIn, a professional community of 1 billion members.",
+      "provider": "ddgs",
+      "query": "电信副卡办理",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://www.microsoft.com/",
+      "title": "Microsoft – AI, Cloud, Productivity, Computing, Gaming & Apps",
+      "snippet": "Explore Microsoft products and services and support for your home or business. Shop Microsoft 365, Copilot, Teams, Xbox, Windows, Azure, Surface and more.",
+      "provider": "ddgs",
+      "query": "联通大流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://m365.cloud.microsoft/",
+      "title": "Microsoft 365 - Sign into Copilot",
+      "snippet": "Microsoft 365 includes Word, Excel, PowerPoint, Outlook, Teams, and OneDrive, with Microsoft Copilot built in to help you create, communicate, and summarize information. Formerly Office 365.",
+      "provider": "ddgs",
+      "query": "联通大流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://support.microsoft.com/en-us/accounts-billing/subscriptions/sign-in-to-microsoft-365",
+      "title": "Sign in to Microsoft 365",
+      "snippet": "For Microsoft 365 or Office apps installed on a Windows PC: If you're not already in a Microsoft 365 or Office file or document, open an app such as Word or Excel, and open an existing file, or create a new one. Select File > Account (or Office Account if you're using Outlook). If you're not already signed in, click Sign In. In the Sign in window, type the email address and password you use ...",
+      "provider": "ddgs",
+      "query": "联通大流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://account.microsoft.com/account-checkup",
+      "title": "Sign in - account.microsoft.com",
+      "snippet": "Sign in to check and manage your Microsoft account settings with the Account Checkup Wizard.",
+      "provider": "ddgs",
+      "query": "联通大流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    },
+    {
+      "url": "https://account.microsoft.com/account",
+      "title": "Microsoft account | Sign In or Create Your Account Today – ...",
+      "snippet": "Get access to free online versions of Outlook, Word, Excel, and PowerPoint.",
+      "provider": "ddgs",
+      "query": "电信大流量卡",
+      "discoveredBy": "search",
+      "defaultGrade": "L3",
+      "foundAt": "2026-11-28"
+    }
+  ],
+  "discoveredAt": "2026-11-28T03:32:22.760Z"
 }
