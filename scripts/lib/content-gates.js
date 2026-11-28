@@ -58,6 +58,21 @@ export function checkContentQuality({ body = '', brief = {}, facts = [], cfg = D
     failures.push({ gate: 'fuzzy', detail: `模糊词命中：${fuzzy.join('、')}` });
   }
 
+  // 元话术：描述资料本身而非回答读者问题（「资料整理约为…不足以证明…」）。
+  const metaHits = (cfg.bannedMetaPhrases || []).filter((w) => text.includes(w));
+  if (metaHits.length) {
+    failures.push({ gate: 'meta-talk', detail: `描述资料本身的空话：${metaHits.join('、')}` });
+  }
+
+  // 实质内容：正文至少引用 N 条 Fact Sheet 的具体值，防止形式过关但零信息。
+  const minFacts = Number(cfg.minFactValuesInBody || 0);
+  if (minFacts > 0) {
+    const used = (facts || []).filter((f) => String(f.value || '').length >= 2 && text.includes(String(f.value)));
+    if (used.length < minFacts) {
+      failures.push({ gate: 'fact-density', detail: `正文仅引用 ${used.length} 条事实值，低于 ${minFacts}` });
+    }
+  }
+
   const dens = densityFailures(text, cfg);
   if (dens.length) {
     failures.push({ gate: 'density', detail: `${dens.length} 个 ${cfg.density?.windowChars || 300} 字窗口缺少具体信息`, sample: dens[0] });

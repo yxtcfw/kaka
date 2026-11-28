@@ -78,7 +78,7 @@ test('buildFactSheet: L3 字段带 not_for，素材包含三张对比卡与具�
   assert.ok(pack.surprisingNumber && pack.surprisingNumber.value.includes('5元/G'));
   assert.deepEqual(pack.userQuotes, [], '无真实评论时不伪造用户原话');
   const digest = factSheetDigest(sheet, pack, cfg, 4000);
-  assert.ok(digest.includes('据平台整理约为') && digest.includes('src-d'), 'L3 标记须进入模型输入');
+  assert.ok(digest.includes('仅供背景核对，禁止写入正文') && digest.includes('src-d'), 'L3 禁止写入正文的标记须进入模型输入');
 });
 
 test('pickTitle: 冲突疑问句胜出，模板句与站内重复被扣分，候选全部保留', () => {
@@ -100,7 +100,7 @@ test('内容质量门禁：并列清单、模糊词、注水、L3 冒充报价�
   // 测试基座不复制新规则（避免影响其他基于 mock 短稿的测试），本测试显式读真实配置。
   const cfg = JSON.parse(fs.readFileSync(path.join(REPO, 'rules/content-quality.json'), 'utf8'));
   assert.equal(cfg.enabled, true);
-  const facts = [{ field: 'monthly_fee', value: '29元/月', grade: 'L1', not_for: [] }];
+  const facts = [{ field: 'monthly_fee', value: '29元', grade: 'L1', not_for: [] }];
   const brief = { must_cover: ['禁发地区', '首充要求'] };
   const bad = '第一要看首充。通常按月租29元计算，广东禁发，未满18周岁不能办理。第二要留凭证。';
   const res = checkContentQuality({ body: bad, brief, facts, cfg }, { paragraphCount: 1, expectedParagraphs: 4 });

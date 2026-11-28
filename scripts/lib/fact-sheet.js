@@ -83,11 +83,14 @@ export function rankSourcesForNode(node, sourcesDoc, navDoc, cfg = {}) {
   const cards = navDoc?.items || [];
   const cardBySource = new Map();
   for (const c of cards) for (const sid of c.sourceIds || []) if (!cardBySource.has(sid)) cardBySource.set(sid, c);
+  const weightsGrade = cfg.gradeWeights || { L1: 12, L2: 4, L3: -10 };
+  const excludePrimary = cfg.excludeGradesFromPrimary || ['L3'];
   return (sourcesDoc?.sources || [])
-    .filter((s) => s.status === 'approved' && (s.bodyExcerpt || '').length >= 50)
+    .filter((s) => s.status === 'approved' && (s.bodyExcerpt || '').length >= 50 && !excludePrimary.includes(String(s.grade || 'L3')))
     .map((s) => {
       const card = cardBySource.get(s.sourceId) || {};
-      let score = 0;
+      // 官方详情优先：L3 平台文章常含网页导航垃圾，不得成为文章主信源。
+      let score = Number(weightsGrade[s.grade] ?? 0);
       for (const term of terms) {
         if (String(s.title || '').includes(term)) score += weights.title;
         if (String(card.category || '').includes(term)) score += weights.category;
@@ -141,7 +144,7 @@ function rootFallback() { return process.cwd(); }
 export function factSheetDigest(factSheet, materialPack, cfg = DEFAULT, maxChars = 4000) {
   const lines = [];
   for (const f of (factSheet.facts || []).slice(0, 60)) {
-    const limit = (f.grade === 'L3') ? ` [${cfg.l3Qualifier || DEFAULT.l3Qualifier};不可作确定报价]` : '';
+    const limit = (f.grade === 'L3') ? ` [${cfg.l3Qualifier || DEFAULT.l3Qualifier}]` : '';
     lines.push(`${f.field}(${f.grade}): ${f.value}${limit} [${f.sourceId}]`);
   }
   const pack = materialPack || {};

@@ -67,65 +67,6 @@
       "generatedAt": "2026-11-27",
       "origin": "manual",
       "manualSince": "2026-11-27"
-    },
-    {
-      "id": "article-auto-campus-apply",
-      "title": "同类校园流量卡，条件和首充为何不同",
-      "nodeId": "auto-campus-apply",
-      "body": "在校大学生处在校园场景，想办一张校园流量卡，首要卡住的是身份与认证能否过。资料整理约为2026年出现电信流量卡办理攻略，只围绕办理条件与首充问题给出发散提示，不把具体资费价格讲透。\n\n要回答办理条件与首充要求，可把核心问题拆成身份、实名、首充三层。身份不符会先卡流程；实名信息不清楚会影响核验；首充疑问会改变激活节奏。资料整理约为2026年相关内容，未把差异说满。\n\n同类卡里，线上渠道与线下渠道给出的办理提示，不保证全部校园卡都接受同类材料。资料整理约为2026年相关内容，只给出现场与线上两个方向，不足以证明哪条更快。\n\n谁适合：在校大学生若能准备学生身份与实名材料。谁别碰：未完成实名或身份材料不符者。为什么：首充是否生效会影响激活。资料整理约为2026年平台内容。\n\n参考信源：2026年电信流量卡办理攻略：19、29元套餐怎么选、去哪办、避坑全讲明...（cnblogs.com）；手机流量卡在线办理平台 | 19元/29元低月租流量卡推荐 - 号卡之家（sim189.cn）；豆青号卡 - 流量卡合集与办理平台（simhk.com）。具体数值以官方实时页面为准。",
-      "sourceId": "src-001",
-      "citationIds": [
-        "src-001",
-        "src-003",
-        "src-004"
-      ],
-      "citations": [
-        {
-          "sourceId": "src-001"
-        },
-        {
-          "sourceId": "src-003"
-        },
-        {
-          "sourceId": "src-004"
-        }
-      ],
-      "links": [
-        {
-          "href": "https://www.cnblogs.com/zhong-fan-ke/p/20898567",
-          "rel": "sponsored nofollow noopener",
-          "kind": "outbound"
-        }
-      ],
-      "titleCandidates": [
-        {
-          "title": "同类校园流量卡，条件和首充为何不同",
-          "score": 0
-        },
-        {
-          "title": "不问2026年平台整理，校园流量卡怎么过条件",
-          "score": 0
-        },
-        {
-          "title": "校园流量卡办理条件与首充要求，先拆身份再看激活",
-          "score": -1
-        },
-        {
-          "title": "2026年校园流量卡：身份、实名、首充，一个不问会卡死",
-          "score": -3
-        }
-      ],
-      "generation": {
-        "promptVersion": "article-v2-20261128",
-        "modelVersion": "recursive/flint-v1.0:free",
-        "snapshotIds": [
-          "src-001",
-          "src-003",
-          "src-004"
-        ],
-        "briefPromptVersion": ""
-      },
-      "generatedAt": "2026-11-28"
     }
   ]
 }
