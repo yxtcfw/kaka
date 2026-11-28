@@ -1676,6 +1676,33 @@
         "src-api-6037"
       ],
       "rel": "sponsored nofollow noopener"
+    },
+    {
+      "navId": "api-6061",
+      "productId": 6061,
+      "isp": "联通",
+      "title": "福建联通专属卡【46元200G+450分钟】仅发福州/厦门",
+      "url": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=3ac4a7f3129b2721",
+      "promoUrl": "https://lingqu.haokalingqu.cn/pdetails?tk=c8570adcb7030e9b&pro=3ac4a7f3129b2721",
+      "category": "联通套餐",
+      "description": "API 同步：联通产品目录客观参数（非营销话术）",
+      "cardDesc": "联通 46元200G+450分钟，通用200G·通话450分钟",
+      "specs": {
+        "taocan": "46元200G+450分钟",
+        "nowPrice": "46",
+        "tyLiuliang": "200",
+        "tonghua": "450",
+        "priceUnitStr": "月租费用",
+        "isSelectNum": "无需选号",
+        "isPhotos": "无需照片",
+        "age": "18-27",
+        "sales": "0"
+      },
+      "hasContent": true,
+      "sourceIds": [
+        "src-api-6061"
+      ],
+      "rel": "sponsored nofollow noopener"
     }
   ],
   "_comment": "预设 nav。hasContent=false 时列表页直跳外链；有正文且过六道门禁才生成详情页。promoUrl 由人工填写，脚本永不覆盖。"
